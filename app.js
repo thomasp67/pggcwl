@@ -2266,9 +2266,9 @@
 
         if (entry.isRollover) {
           if (isDrawn) {
-            chips.push(`<span class="par3-chip qualifier" title="Hole ${h} (Par 3): Qualifier for Week ${entry.weekNum}"><span class="th-full">H</span>${h}</span>`);
+            chips.push(`<span class="par3-chip qualifier" title="Hole ${h} (Par 3): Qualifier for Week ${entry.weekNum}">${h}</span>`);
           } else {
-            chips.push(`<span class="par3-chip non-qualifier" title="Hole ${h} (Par 3): Non-qualifier for Week ${entry.weekNum}"><span class="th-full">H</span>${h}</span>`);
+            chips.push(`<span class="par3-chip non-qualifier" title="Hole ${h} (Par 3): Non-qualifier for Week ${entry.weekNum}">${h}</span>`);
           }
           return;
         }
@@ -2278,15 +2278,15 @@
         const isMagic = isDrawn && scoredTwo;
 
         if (isMagic) {
-          chips.push(`<span class="par3-chip magic2" title="Hole ${h} (Par 3): MAGIC 2! Gross score: 2"><span class="th-full">H</span>${h}★</span>`);
+          chips.push(`<span class="par3-chip magic2" title="Hole ${h} (Par 3): MAGIC 2! Gross score: 2">${h}</span>`);
         } else if (isDrawn) {
-          chips.push(`<span class="par3-chip qualifier" title="Hole ${h} (Par 3): Qualifier (Drawn) • Score: ${g !== null ? g : '-'}"><span class="th-full">H</span>${h}</span>`);
+          chips.push(`<span class="par3-chip qualifier" title="Hole ${h} (Par 3): Qualifier (Drawn) • Score: ${g !== null ? g : '-'}">${h}</span>`);
         } else {
           // Non-qualifier
           if (scoredTwo) {
-            chips.push(`<span class="par3-chip non-qualifier scored-two" title="Hole ${h} (Par 3): Non-qualifier (Not drawn) • Scored 2"><span class="th-full">H</span>${h}<span class="two-sup">²</span></span>`);
+            chips.push(`<span class="par3-chip non-qualifier scored-two" title="Hole ${h} (Par 3): Non-qualifier (Not drawn) • Scored 2">${h}</span>`);
           } else {
-            chips.push(`<span class="par3-chip non-qualifier" title="Hole ${h} (Par 3): Non-qualifier (Not drawn) • Score: ${g !== null ? g : '-'}"><span class="th-full">H</span>${h}</span>`);
+            chips.push(`<span class="par3-chip non-qualifier" title="Hole ${h} (Par 3): Non-qualifier (Not drawn) • Score: ${g !== null ? g : '-'}">${h}</span>`);
           }
         }
       });
@@ -2295,7 +2295,7 @@
       if (!entry.isRollover && entry.qualifyingHoles) {
         entry.qualifyingHoles.forEach(q => {
           if (q.isBonus) {
-            chips.push(`<span class="par3-chip magic2 bonus" title="Hole ${q.hole} (Par ${q.par}): ⭐ Gross 2 on Par ${q.par} (Bonus Magic 2!)"><span class="th-full">H</span>${q.hole}⭐</span>`);
+            chips.push(`<span class="par3-chip magic2 bonus" title="Hole ${q.hole} (Par ${q.par}): Gross 2 on Par ${q.par} (Bonus Magic 2!)">${q.hole}</span>`);
           }
         });
       }
@@ -2450,7 +2450,7 @@
           <td class="text-center font-bold week-cell"><span class="badge-week" title="Week ${entry.weekNum}"><span class="th-full">Wk </span>${entry.weekNum}</span></td>
           <td class="sticky-col-name player-name-cell"><span class="magic2s-no-winner-badge">No Winner</span></td>
           <td class="text-center magic2s-count-cell"><span class="badge-twos-zero">0</span></td>
-          <td class="text-center magic2s-details-col">${buildPar3ChipsHtml(entry, entry.drawnHoles)}</td>
+          <td class="text-center magic2s-details-col"><span class="magic2s-rollover-details">£${entry.rolloverAmount.toFixed(2)} Rolled Over</span></td>
           <td class="text-center font-bold magic2s-prize-cell"><span class="magic2s-rollover-amt" title="£${entry.rolloverAmount.toFixed(2)} rolled over to Week ${entry.nextWeek}">£${entry.rolloverAmount.toFixed(2)} <span class="rollover-tag">roll</span></span></td>
         `;
       } else {
@@ -2465,16 +2465,25 @@
           ? `<span style="color: #166534; font-size: 0.88rem;">£${entry.prizeMoney.toFixed(2)}${sharesLabel}</span>`
           : `<span style="color: var(--text-light);">-</span>`;
 
+        const isNonMagicTwo = !entry.magic2Count || entry.magic2Count === 0;
+        if (isNonMagicTwo) {
+          tr.classList.add('row-non-magic-two');
+        }
+
+        const displayName = isNonMagicTwo
+          ? `<span class="player-name-strike" title="Scored 2 on non-qualifying hole (Not a Magic 2)">${escapeHtml(entry.name)}</span>`
+          : `<span class="player-name-magic">${escapeHtml(entry.name)}</span>`;
+
         tr.innerHTML = `
           <td class="text-center font-bold week-cell"><span class="badge-week" title="Week ${entry.weekNum}"><span class="th-full">Wk </span>${entry.weekNum}</span></td>
-          <td class="sticky-col-name player-name-cell">${escapeHtml(entry.name)} <span class="player-hci">(${entry.playingHandicap})</span></td>
+          <td class="sticky-col-name player-name-cell">${displayName} <span class="player-hci">(${entry.playingHandicap})</span></td>
           <td class="text-center magic2s-count-cell">${magicBadge}</td>
           <td class="text-center magic2s-details-col">${buildPar3ChipsHtml(entry, entry.drawnHoles)}</td>
           <td class="text-center font-bold magic2s-prize-cell">${prizeCellContent}</td>
         `;
 
         tr.addEventListener('click', () => {
-          toggleAccordion(tr, entry.roundResult);
+          toggleAccordion(tr, entry.roundResult, entry);
         });
       }
 
@@ -3164,7 +3173,7 @@
   /**
    * Scorecard Accordion Display (Inline below player row)
    */
-  function toggleAccordion(tr, round) {
+  function toggleAccordion(tr, round, extra = null) {
     const tbody = tr.parentElement;
     const isOpen = tr.classList.contains('accordion-open');
 
@@ -3187,7 +3196,7 @@
     detailTr.className = 'accordion-detail-row';
     const detailTd = document.createElement('td');
     detailTd.colSpan = tr.cells.length || 23;
-    detailTd.innerHTML = buildScorecardTableHtml(round);
+    detailTd.innerHTML = buildScorecardTableHtml(round, extra);
     detailTr.appendChild(detailTd);
     tr.after(detailTr);
     attachScorecardAccordionHandlers(detailTd, round);
@@ -3232,7 +3241,7 @@
    * @param {Object} round - Processed round object containing grossScores, holeStrokes, holePoints
    * @returns {string} Rendered scorecard HTML string
    */
-  function buildScorecardTableHtml(round) {
+  function buildScorecardTableHtml(round, extra = null) {
     if (!state.course) return '';
 
     const holes = state.course.holes;
@@ -3415,8 +3424,40 @@
       </tr>
     `;
 
+    let magic2sPrizeBanner = '';
+    if (extra && typeof extra.prizeMoney === 'number') {
+      if (extra.prizeMoney > 0) {
+        const sharesText = (extra.magic2Count > 1) ? ` <span class="shares-tag">(${extra.magic2Count} shares)</span>` : '';
+        magic2sPrizeBanner = `
+          <div class="accordion-magic2s-prize-banner">
+            <div class="m2s-prize-left">
+              <span class="m2s-prize-icon">🪄</span>
+              <span class="m2s-prize-label">Magic 2's Prize Won:</span>
+            </div>
+            <div class="m2s-prize-right">
+              <span class="m2s-prize-value">£${extra.prizeMoney.toFixed(2)}</span>${sharesText}
+            </div>
+          </div>
+        `;
+      } else {
+        magic2sPrizeBanner = `
+          <div class="accordion-magic2s-prize-banner no-prize">
+            <div class="m2s-prize-left">
+              <span class="m2s-prize-icon">ℹ️</span>
+              <span class="m2s-prize-label">Magic 2's Prize:</span>
+            </div>
+            <div class="m2s-prize-right">
+              <span class="m2s-prize-value">£0.00</span>
+              <span class="m2s-prize-note">(Non-qualifying 2)</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
     return `
       <div class="scorecard-accordion-box">
+        ${magic2sPrizeBanner}
         <!-- Desktop Horizontal Scorecard View (> 1024px) -->
         <div class="table-responsive scorecard-horizontal-view">
           <table class="scorecard-detail-table">

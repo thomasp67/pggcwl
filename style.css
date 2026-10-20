@@ -707,6 +707,9 @@ tr.magic2s-row-rollover:hover {
   border: 1px solid #fca5a5;
   letter-spacing: 0.02em;
 }
+.magic2s-mobile-rollover {
+  display: none;
+}
 .badge-twos-zero {
   display: inline-flex;
   align-items: center;
@@ -735,9 +738,11 @@ tr.magic2s-row-rollover:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 24px;
   min-width: 24px;
+  max-width: 24px;
   height: 22px;
-  padding: 0 4px;
+  padding: 0;
   border-radius: var(--radius-sm);
   font-size: 0.72rem;
   font-weight: 700;
@@ -745,7 +750,7 @@ tr.magic2s-row-rollover:hover {
   text-align: center;
   user-select: none;
   white-space: nowrap;
-  transition: transform 0.1s ease;
+  box-sizing: border-box;
 }
 
 /* Non-qualifiers in grey */
@@ -762,11 +767,6 @@ tr.magic2s-row-rollover:hover {
   border: 1.5px solid #475569;
   font-weight: 800;
 }
-.par3-chip.non-qualifier.scored-two .two-sup {
-  font-size: 0.58rem;
-  font-weight: 800;
-  color: #0f172a;
-}
 
 /* Qualifiers in green */
 .par3-chip.qualifier {
@@ -782,12 +782,99 @@ tr.magic2s-row-rollover:hover {
   border: 1.5px solid #ca8a04;
   box-shadow: 0 1px 3px rgba(202, 138, 4, 0.35);
   font-weight: 800;
-  transform: scale(1.05);
 }
 
 .par3-chip.magic2.bonus {
   background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
   border-color: #d97706;
+}
+
+/* Rollover Amount Details Banner in Magic 2s Table */
+.magic2s-rollover-details {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* Magic 2's Prize Banner at Top of Accordion */
+
+/* Non-Magic 2 Member Name Strikethrough */
+.player-name-strike {
+  text-decoration: line-through !important;
+  text-decoration-color: #ef4444 !important;
+  text-decoration-thickness: 2px !important;
+  color: #64748b !important;
+}
+
+tr.row-non-magic-two td.player-name-cell {
+  opacity: 0.9;
+}
+
+.accordion-magic2s-prize-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1.5px solid #86efac;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.65rem;
+  box-shadow: 0 1px 2px rgba(22, 101, 52, 0.08);
+}
+.accordion-magic2s-prize-banner.no-prize {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+.accordion-magic2s-prize-banner .m2s-prize-left {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.accordion-magic2s-prize-banner .m2s-prize-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+.accordion-magic2s-prize-banner .m2s-prize-label {
+  font-size: 0.80rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #166534;
+}
+.accordion-magic2s-prize-banner.no-prize .m2s-prize-label {
+  color: #475569;
+}
+.accordion-magic2s-prize-banner .m2s-prize-right {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+.accordion-magic2s-prize-banner .m2s-prize-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #14532d;
+  font-variant-numeric: tabular-nums;
+}
+.accordion-magic2s-prize-banner.no-prize .m2s-prize-value {
+  color: #475569;
+  font-size: 0.95rem;
+}
+.accordion-magic2s-prize-banner .shares-tag {
+  font-size: 0.75rem;
+  color: #15803d;
+  font-weight: 600;
+}
+.accordion-magic2s-prize-banner .m2s-prize-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }
 
 /* Magic 2's Stats Grid & Financial Breakdown */
@@ -3294,7 +3381,19 @@ td.hilo-col {
   #weekly-table td.strokes-col,
   #leaderboard-table .total-cut-col,
   #leaderboard-table th.total-cut-col,
-  #leaderboard-table td.total-cut-cell {
+  #leaderboard-table td.total-cut-cell,
+  #magic2s-weekly-table .magic2s-count-col,
+  #magic2s-weekly-table th.magic2s-count-col,
+  #magic2s-weekly-table td.magic2s-count-cell,
+  #magic2s-weekly-table .magic2s-prize-col,
+  #magic2s-weekly-table th.magic2s-prize-col,
+  #magic2s-weekly-table td.magic2s-prize-cell {
+    display: none !important;
+  }
+
+  /* In magic2s mobile, hide eligible holes section and the 5 info boxes */
+  #magic2s-draw-card,
+  #magic2s-metrics-card {
     display: none !important;
   }
 
@@ -3335,25 +3434,31 @@ td.hilo-col {
   #eclectic-table th.points-col, #eclectic-table td.points-cell { width: 17% !important; }
   #eclectic-table th.nett-col, #eclectic-table td.nett-cell { width: 17% !important; }
 
-  /* 4. Magic 2s: Week (11%), Name (32%), Magic 2s (11%), Details (31%), Prize (15%) */
-  #magic2s-weekly-table th:nth-child(1), #magic2s-weekly-table td:nth-child(1) { width: 11% !important; }
-  #magic2s-weekly-table th:nth-child(2), #magic2s-weekly-table td:nth-child(2) { width: 32% !important; }
-  #magic2s-weekly-table th:nth-child(3), #magic2s-weekly-table td:nth-child(3) { width: 11% !important; }
-  #magic2s-weekly-table th:nth-child(4), #magic2s-weekly-table td:nth-child(4) { width: 31% !important; }
-  #magic2s-weekly-table th:nth-child(5), #magic2s-weekly-table td:nth-child(5) { width: 15% !important; }
+  /* 4. Magic 2s on mobile: Week (14%), Name (46%), Details (40%) */
+  #magic2s-weekly-table th:nth-child(1), #magic2s-weekly-table td:nth-child(1) { width: 14% !important; }
+  #magic2s-weekly-table th:nth-child(2), #magic2s-weekly-table td:nth-child(2) { width: 46% !important; }
+  #magic2s-weekly-table th.magic2s-details-col, #magic2s-weekly-table td.magic2s-details-col { width: 40% !important; }
   #magic2s-weekly-table .badge-week { padding: 0.1rem 0.25rem !important; font-size: 0.72rem !important; }
   #magic2s-weekly-table .magic2s-no-winner-badge { padding: 0.1rem 0.3rem !important; font-size: 0.70rem !important; }
   #magic2s-weekly-table .magic2s-rollover-amt { font-size: 0.72rem !important; }
   #magic2s-weekly-table .magic2s-rollover-amt .rollover-tag { font-size: 0.55rem !important; padding: 0 0.15rem !important; }
-  #magic2s-weekly-table .par3-chips-wrapper { gap: 1.5px !important; }
+  #magic2s-weekly-table .par3-chips-wrapper { gap: 2px !important; justify-content: center !important; }
   #magic2s-weekly-table .par3-chip {
-    min-width: 15.5px !important;
-    height: 18px !important;
-    padding: 0 1px !important;
-    font-size: 0.64rem !important;
+    width: 19px !important;
+    min-width: 19px !important;
+    max-width: 19px !important;
+    height: 19px !important;
+    padding: 0 !important;
+    font-size: 0.66rem !important;
     border-radius: 2px !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
   }
-  #magic2s-weekly-table .par3-chip .two-sup { font-size: 0.50rem !important; }
+  #magic2s-weekly-table .magic2s-rollover-details {
+    font-size: 0.72rem !important;
+    padding: 0.15rem 0.4rem !important;
+    font-weight: 800 !important;
+  }
 
   /* 5. Last Man: Pos (14%), Name (52%), Status (34%) */
   #lastman-table th:nth-child(1), #lastman-table td:nth-child(1) { width: 14% !important; }
