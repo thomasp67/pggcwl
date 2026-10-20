@@ -35754,16 +35754,16 @@ var GOLF_DATA = {
             "hideDesktop": false,
             "hideMobile": false
         },
-        "tab-eclectic": {
-            "name": "Eclectic",
-            "icon": "🎯",
-            "order": 4,
-            "hideDesktop": false,
-            "hideMobile": true
-        },
         "tab-lastman": {
             "name": "Last Man Standing",
             "icon": "⚔️",
+            "order": 4,
+            "hideDesktop": false,
+            "hideMobile": false
+        },
+        "tab-eclectic": {
+            "name": "Eclectic",
+            "icon": "🎯",
             "order": 5,
             "hideDesktop": false,
             "hideMobile": true
