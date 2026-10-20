@@ -1,0 +1,1370 @@
+[
+    {
+        "memberId": "4002371444",
+        "name": "Aaron Marshall",
+        "origHCI": 21.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104062003",
+        "name": "Adam McGowan",
+        "origHCI": 20.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003087363",
+        "name": "Aiden Murray",
+        "origHCI": 27.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002958394",
+        "name": "Alan Burns",
+        "origHCI": 12.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002414378",
+        "name": "Alan Coyle",
+        "origHCI": 19.4,
+        "inLeague": true
+    },
+    {
+        "memberId": "4002796324",
+        "name": "Alan Leonard",
+        "origHCI": 17.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104045622",
+        "name": "Alan Wylie",
+        "origHCI": 34.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585300",
+        "name": "Alasdair Hamilton",
+        "origHCI": 17.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585196",
+        "name": "Alex Graham",
+        "origHCI": 23.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003087844",
+        "name": "Alex McArthur",
+        "origHCI": 27.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585566",
+        "name": "Alex Parker",
+        "origHCI": 14.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585610",
+        "name": "Alisdair Rodgers",
+        "origHCI": 14.3,
+        "inLeague": true
+    },
+    {
+        "memberId": "4002937502",
+        "name": "Allan Aitchison",
+        "origHCI": 11.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4000335550",
+        "name": "Allan Cunningham",
+        "origHCI": 13.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585647",
+        "name": "Andrea Maestri",
+        "origHCI": 16.9,
+        "inLeague": true
+    },
+    {
+        "memberId": "4003106963",
+        "name": "Andrew Harkness",
+        "origHCI": 12.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104111715",
+        "name": "Andrew McGuckian",
+        "origHCI": 16.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003097204",
+        "name": "Andy Newbury",
+        "origHCI": 7.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002849283",
+        "name": "Bernard Eardley",
+        "origHCI": 13.6,
+        "inLeague": true
+    },
+    {
+        "memberId": "4001586289",
+        "name": "Billy Kelly",
+        "origHCI": 19.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104075206",
+        "name": "Billy Tannahill",
+        "origHCI": 20.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001586956",
+        "name": "Billy Whiteside",
+        "origHCI": 17.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104084704",
+        "name": "Bradley Anderson",
+        "origHCI": 9.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002951946",
+        "name": "Brian Cannon",
+        "origHCI": 10.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584475",
+        "name": "Brian Connell",
+        "origHCI": 7.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003114799",
+        "name": "Brian Hooper",
+        "origHCI": 24.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003088015",
+        "name": "Brian Johnstone",
+        "origHCI": 26,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104030036",
+        "name": "Brian Lynch",
+        "origHCI": 29.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002397357",
+        "name": "Brian Smith",
+        "origHCI": 15.5,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104086387",
+        "name": "Caelan Quigley",
+        "origHCI": 39.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104075997",
+        "name": "Calum Graham",
+        "origHCI": 13.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003087841",
+        "name": "Calum Hill",
+        "origHCI": 20,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003086898",
+        "name": "Charles Green",
+        "origHCI": 19.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585606",
+        "name": "Charlie McGachy",
+        "origHCI": 15.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002980699",
+        "name": "Chris Gibson",
+        "origHCI": 12.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104107336",
+        "name": "Chris Kelly",
+        "origHCI": 21.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584273",
+        "name": "Chris McEwan",
+        "origHCI": 3.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104052636",
+        "name": "Ciaran Rodger",
+        "origHCI": 19.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002379211",
+        "name": "Colin Blaikie",
+        "origHCI": 11,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001586052",
+        "name": "Colin Campbell",
+        "origHCI": 17.7,
+        "inLeague": true
+    },
+    {
+        "memberId": "4003082059",
+        "name": "Craig Hill",
+        "origHCI": 5.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002859141",
+        "name": "Craig Tannahill",
+        "origHCI": 3.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002046336",
+        "name": "Daniel Fulton",
+        "origHCI": 18.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002949398",
+        "name": "Daniel Morris",
+        "origHCI": 10.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104066178",
+        "name": "Darren Boyland",
+        "origHCI": 11.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585337",
+        "name": "Darren Logan",
+        "origHCI": 6.2,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104087426",
+        "name": "Darren O'Hagan",
+        "origHCI": 27.7,
+        "inLeague": true
+    },
+    {
+        "memberId": "4001587041",
+        "name": "Darren Small",
+        "origHCI": 14,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104097213",
+        "name": "Daryn Sneddon",
+        "origHCI": 29.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002952970",
+        "name": "David Brady",
+        "origHCI": 21,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585668",
+        "name": "David Campbell",
+        "origHCI": 13.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001892422",
+        "name": "David Casement",
+        "origHCI": 5.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584512",
+        "name": "David Cupples",
+        "origHCI": 23.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584169",
+        "name": "David Cupples Jnr.",
+        "origHCI": 7.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002194741",
+        "name": "David Devenay",
+        "origHCI": 5.8,
+        "inLeague": true
+    },
+    {
+        "memberId": "4002821785",
+        "name": "David Devenay Snr",
+        "origHCI": 17.1,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104059914",
+        "name": "David Hempsey",
+        "origHCI": 12.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003061949",
+        "name": "David Innes",
+        "origHCI": 9.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104050967",
+        "name": "David McCabe",
+        "origHCI": 24,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104040297",
+        "name": "David McDade",
+        "origHCI": 19.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002484407",
+        "name": "David Tolan",
+        "origHCI": 26.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002045989",
+        "name": "Derek Church",
+        "origHCI": 10.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104025671",
+        "name": "Derek Dick",
+        "origHCI": 31,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002702317",
+        "name": "Don Galli",
+        "origHCI": 9.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002867054",
+        "name": "Duncan Macfarlane",
+        "origHCI": 20.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002946957",
+        "name": "Dylan Leonard",
+        "origHCI": 32.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002943487",
+        "name": "Dylan Potter",
+        "origHCI": 19.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104108958",
+        "name": "Edward Gillen",
+        "origHCI": 27,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104042890",
+        "name": "Edwin Kerr",
+        "origHCI": 32.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104060942",
+        "name": "Eric Mckendrick",
+        "origHCI": 20.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585699",
+        "name": "Ernie Hopkins",
+        "origHCI": 20.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584481",
+        "name": "Evan Conway",
+        "origHCI": 4.2,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104048578",
+        "name": "Filippo Mazzoni",
+        "origHCI": 45,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585046",
+        "name": "Frank Boyland",
+        "origHCI": 3.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584928",
+        "name": "Frank Mulgrew",
+        "origHCI": 22.8,
+        "inLeague": true
+    },
+    {
+        "memberId": "4002664641",
+        "name": "Frazer Maclennan",
+        "origHCI": 10.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002719020",
+        "name": "Fred Brown",
+        "origHCI": 18.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584343",
+        "name": "G Martin Pye",
+        "origHCI": 14,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104048846",
+        "name": "Gary McKechnie",
+        "origHCI": 30.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104112513",
+        "name": "Gary Millar",
+        "origHCI": 34.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104022755",
+        "name": "Gary Watt",
+        "origHCI": 14.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001145114",
+        "name": "George Fleming",
+        "origHCI": 11.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584362",
+        "name": "George Tanner",
+        "origHCI": 18.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104096914",
+        "name": "Gerard Devenney",
+        "origHCI": 19.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002882042",
+        "name": "Gerard Smith",
+        "origHCI": 16,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003095500",
+        "name": "Gordon Convery",
+        "origHCI": 20.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003083512",
+        "name": "Gordon Convery Jnr",
+        "origHCI": 17.8,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104098596",
+        "name": "Gordon Rae",
+        "origHCI": 22.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585033",
+        "name": "Gordon Wilkinson",
+        "origHCI": 29.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002371437",
+        "name": "Graeme Steel",
+        "origHCI": 5.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003104245",
+        "name": "Graeme Stevenson",
+        "origHCI": 20.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003103022",
+        "name": "Greg Dunn",
+        "origHCI": 24.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104025806",
+        "name": "Greg Stringfellow",
+        "origHCI": 17.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003088501",
+        "name": "Hamish McInnes",
+        "origHCI": 24.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002592026",
+        "name": "Howie Griffiths",
+        "origHCI": 13,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002211827",
+        "name": "Hugh Barilli",
+        "origHCI": 5.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001586047",
+        "name": "Hugh McGivern",
+        "origHCI": 13.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001586215",
+        "name": "Iain McPherson",
+        "origHCI": 10.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584667",
+        "name": "Ian Hendry",
+        "origHCI": 8.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002655374",
+        "name": "Ian McGregor",
+        "origHCI": 12.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001892446",
+        "name": "Ian Moore",
+        "origHCI": 12.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4103541274",
+        "name": "Jack Hardie",
+        "origHCI": 22.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104022366",
+        "name": "Jacob McInnes",
+        "origHCI": 33.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002770247",
+        "name": "James Cassidy",
+        "origHCI": 15,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584520",
+        "name": "James Devine",
+        "origHCI": 12.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104076376",
+        "name": "James Green",
+        "origHCI": 37.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002946961",
+        "name": "James McCleary",
+        "origHCI": 21.3,
+        "inLeague": true
+    },
+    {
+        "memberId": "4002676878",
+        "name": "James McGeoghegan",
+        "origHCI": 10.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002807726",
+        "name": "James Millar",
+        "origHCI": 28.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104097233",
+        "name": "Jamie Boyd",
+        "origHCI": 20.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104059674",
+        "name": "Jamie Clark",
+        "origHCI": 14.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003082470",
+        "name": "Jamie Millar",
+        "origHCI": 24.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002545733",
+        "name": "Jason Gillespie",
+        "origHCI": 14.5,
+        "inLeague": true
+    },
+    {
+        "memberId": "4001584153",
+        "name": "Jason McNeill",
+        "origHCI": 13.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585328",
+        "name": "Jeff Dunn",
+        "origHCI": 16.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002741240",
+        "name": "Jim Rennie",
+        "origHCI": 10.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002214798",
+        "name": "John Anderson",
+        "origHCI": 26.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104089523",
+        "name": "John Anderson_2",
+        "origHCI": 23.7,
+        "inLeague": true
+    },
+    {
+        "memberId": "4002045860",
+        "name": "John Burden",
+        "origHCI": 17.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585120",
+        "name": "John Canning",
+        "origHCI": 36,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104085081",
+        "name": "John Docherty",
+        "origHCI": 20,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584596",
+        "name": "John Gault",
+        "origHCI": 3.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002530793",
+        "name": "John Gault Snr",
+        "origHCI": 22.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584605",
+        "name": "John Graham",
+        "origHCI": 14.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584701",
+        "name": "John Kelly",
+        "origHCI": 26.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002541052",
+        "name": "John Mathieson",
+        "origHCI": 9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104040660",
+        "name": "John Matthews",
+        "origHCI": 37.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584819",
+        "name": "John McFeeley",
+        "origHCI": 13.3,
+        "inLeague": true
+    },
+    {
+        "memberId": "4001584857",
+        "name": "John McIntyre",
+        "origHCI": 26.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4103541333",
+        "name": "John Mitchell",
+        "origHCI": 20,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003087570",
+        "name": "John Murray",
+        "origHCI": 24.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584959",
+        "name": "John ONeill",
+        "origHCI": 23.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585407",
+        "name": "John Stobbie",
+        "origHCI": 13.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585051",
+        "name": "John Williams",
+        "origHCI": 24.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003081016",
+        "name": "Jon Milloy",
+        "origHCI": 7.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002772599",
+        "name": "Jonross Reilly",
+        "origHCI": 13.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585359",
+        "name": "Joseph Gillies",
+        "origHCI": 10.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001872188",
+        "name": "Joseph Macleod",
+        "origHCI": 18.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003079071",
+        "name": "Kai Gillespie",
+        "origHCI": 10.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584294",
+        "name": "Kenneth McNeill",
+        "origHCI": 19.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002986748",
+        "name": "Kenny McGhee",
+        "origHCI": 6.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104043073",
+        "name": "Kevin Gallacher",
+        "origHCI": 24.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002530826",
+        "name": "Kevin McAulay",
+        "origHCI": 9,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104086450",
+        "name": "Kevin McKay",
+        "origHCI": 14.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003080483",
+        "name": "Kieren ONeill",
+        "origHCI": 16.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585545",
+        "name": "Lawrie Mailey",
+        "origHCI": 13.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002847707",
+        "name": "Lee Gibson",
+        "origHCI": 6.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002046050",
+        "name": "Lee Sinnamon",
+        "origHCI": 3.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104104550",
+        "name": "Leigh Weston",
+        "origHCI": 8.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104086330",
+        "name": "Lewis Wilson",
+        "origHCI": 24.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003077441",
+        "name": "Liam Doherty",
+        "origHCI": 29.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003083519",
+        "name": "Mark Crawford",
+        "origHCI": 12.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585316",
+        "name": "Mark Deegan",
+        "origHCI": 22.4,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104061392",
+        "name": "Mark Gault",
+        "origHCI": 27.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104044200",
+        "name": "Mark Gorman",
+        "origHCI": 25.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585509",
+        "name": "Martin Gill",
+        "origHCI": 15.3,
+        "inLeague": true
+    },
+    {
+        "memberId": "4001585226",
+        "name": "Martin McAteer",
+        "origHCI": 11.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002653126",
+        "name": "Martin McFadyen",
+        "origHCI": 22.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003101662",
+        "name": "Matthew Hagan",
+        "origHCI": 19.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104070699",
+        "name": "Matthew Rodgers",
+        "origHCI": 27.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584583",
+        "name": "Michael Gallagher",
+        "origHCI": 36,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104020207",
+        "name": "Nathan Fabiani",
+        "origHCI": 9.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584358",
+        "name": "Nicky Rodger",
+        "origHCI": 14.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003099072",
+        "name": "Norman Caitens",
+        "origHCI": 34.5,
+        "inLeague": true
+    },
+    {
+        "memberId": "4001584447",
+        "name": "Pat Breslin",
+        "origHCI": 23,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002379230",
+        "name": "Paul Devenay",
+        "origHCI": 9.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002717288",
+        "name": "Paul Hagan",
+        "origHCI": 7.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585080",
+        "name": "Paul Logan",
+        "origHCI": 10.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003076693",
+        "name": "Paul Logan Snr",
+        "origHCI": 32.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104053207",
+        "name": "Paul McGachy",
+        "origHCI": 21.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585476",
+        "name": "Paul Van Der Made",
+        "origHCI": 2.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002225289",
+        "name": "Peter McFadyen",
+        "origHCI": 17.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002194760",
+        "name": "Richard Docherty",
+        "origHCI": 9.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585014",
+        "name": "Richard Thompson Snr",
+        "origHCI": 29.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003081971",
+        "name": "Robert Allan",
+        "origHCI": 24.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001586774",
+        "name": "Robert Ingram",
+        "origHCI": 14.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002398570",
+        "name": "Robert Shields",
+        "origHCI": 26.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002593181",
+        "name": "Ronnie McMillan",
+        "origHCI": 9.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002658836",
+        "name": "Rory Gallagher",
+        "origHCI": 11.8,
+        "inLeague": true
+    },
+    {
+        "memberId": "4003078559",
+        "name": "Ross Boyland",
+        "origHCI": 10.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104052472",
+        "name": "Ross Jackson",
+        "origHCI": 34.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003079290",
+        "name": "Ross McKinnon",
+        "origHCI": 12.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584327",
+        "name": "Ross Nugent",
+        "origHCI": 37.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002062438",
+        "name": "Ross Pearson",
+        "origHCI": 9.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002948272",
+        "name": "Ross Wolfe",
+        "origHCI": 6.9,
+        "inLeague": true
+    },
+    {
+        "memberId": "4003101720",
+        "name": "Ruari Cassidy",
+        "origHCI": 17.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104103346",
+        "name": "Rudy Test",
+        "origHCI": 2.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585235",
+        "name": "Ryan Gallagher",
+        "origHCI": 4.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003081173",
+        "name": "Ryan Lynch",
+        "origHCI": 25.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003079294",
+        "name": "Ryan McNeil",
+        "origHCI": 20.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584370",
+        "name": "Sam Taylor",
+        "origHCI": 24.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585274",
+        "name": "Sammy McPherson",
+        "origHCI": 10.5,
+        "inLeague": true
+    },
+    {
+        "memberId": "4001584679",
+        "name": "Scott Hillhouse",
+        "origHCI": 10,
+        "inLeague": true
+    },
+    {
+        "memberId": "4002532093",
+        "name": "Scott Logan",
+        "origHCI": 10.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104052783",
+        "name": "Scott Marshall",
+        "origHCI": 26.5,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002097064",
+        "name": "Stefan Rodger",
+        "origHCI": 3.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003101717",
+        "name": "Stephen Burns",
+        "origHCI": 25.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001587060",
+        "name": "Stephen Duddy",
+        "origHCI": 10.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584336",
+        "name": "Stephen OKane",
+        "origHCI": 2.7,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104047385",
+        "name": "Stephen Stewart",
+        "origHCI": 21.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001586006",
+        "name": "Steven Gallagher",
+        "origHCI": 9.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104068401",
+        "name": "Steven Gillies",
+        "origHCI": 20.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001586109",
+        "name": "Steven McLeod",
+        "origHCI": 6.6,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104072574",
+        "name": "Steven McNelis",
+        "origHCI": 26.1,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002928283",
+        "name": "Steven Millar",
+        "origHCI": 3.2,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002942738",
+        "name": "Steven Thompson",
+        "origHCI": 15.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002786355",
+        "name": "Stuart Barclay",
+        "origHCI": 9.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003100780",
+        "name": "Thomas Kirkwood",
+        "origHCI": 19.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002472697",
+        "name": "Thomas McKechnie",
+        "origHCI": 13.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585067",
+        "name": "Thomas McShane",
+        "origHCI": 21.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002742659",
+        "name": "Thomas Patton",
+        "origHCI": 8.1,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104034615",
+        "name": "Thomas Patton_2",
+        "origHCI": 26.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104103609",
+        "name": "Thomas Robb",
+        "origHCI": 42.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584985",
+        "name": "Thomas Rodger",
+        "origHCI": 18.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584729",
+        "name": "Tom Logan",
+        "origHCI": 43.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002588316",
+        "name": "Tommy Mailey",
+        "origHCI": 28.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002924730",
+        "name": "Tommy Reed",
+        "origHCI": 31.8,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585652",
+        "name": "Trevor Sims",
+        "origHCI": 14.2,
+        "inLeague": true
+    },
+    {
+        "memberId": "4104044573",
+        "name": "Tyrone Sharp",
+        "origHCI": 28,
+        "inLeague": false
+    },
+    {
+        "memberId": "4104080352",
+        "name": "Warren McNells",
+        "origHCI": 21,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001585597",
+        "name": "William Barr",
+        "origHCI": 26.9,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584738",
+        "name": "William Logan",
+        "origHCI": 14.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003101739",
+        "name": "William McDiarmid",
+        "origHCI": 17.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002927099",
+        "name": "William Peacock",
+        "origHCI": 12.7,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002948255",
+        "name": "William Richardson",
+        "origHCI": 23.6,
+        "inLeague": false
+    },
+    {
+        "memberId": "4003087556",
+        "name": "William Roxburgh Jnr",
+        "origHCI": 23.3,
+        "inLeague": false
+    },
+    {
+        "memberId": "4001584992",
+        "name": "William Roxburgh Snr",
+        "origHCI": 32.4,
+        "inLeague": false
+    },
+    {
+        "memberId": "4002434570",
+        "name": "William Weston",
+        "origHCI": 8.8,
+        "inLeague": false
+    }
+]

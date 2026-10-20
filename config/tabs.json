@@ -1,0 +1,51 @@
+{
+    "tab-weekly": {
+        "name": "Weekend Stableford",
+        "icon": "📅",
+        "order": 1,
+        "hideDesktop": false,
+        "hideMobile": false
+    },
+    "tab-leaderboard": {
+        "name": "Winter League",
+        "icon": "🏆",
+        "order": 2,
+        "hideDesktop": false,
+        "hideMobile": false
+    },
+    "tab-eclectic": {
+        "name": "Eclectic",
+        "icon": "🎯",
+        "order": 3,
+        "hideDesktop": false,
+        "hideMobile": false
+    },
+    "tab-magic2s": {
+        "name": "Magic 2's",
+        "icon": "🪄",
+        "order": 4,
+        "hideDesktop": false,
+        "hideMobile": false
+    },
+    "tab-lastman": {
+        "name": "Last Man Standing",
+        "icon": "⚔️",
+        "order": 5,
+        "hideDesktop": false,
+        "hideMobile": true
+    },
+    "tab-parbingo": {
+        "name": "Bingo",
+        "icon": "🎱",
+        "order": 6,
+        "hideDesktop": false,
+        "hideMobile": true
+    },
+    "tab-player": {
+        "name": "Player Profile",
+        "icon": "👤",
+        "order": 7,
+        "hideDesktop": false,
+        "hideMobile": true
+    }
+}

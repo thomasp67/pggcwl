@@ -1,0 +1,2 @@
+# Exclude admin and data-prep folder from upload / hosting
+admin/

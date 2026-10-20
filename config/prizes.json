@@ -1,0 +1,23 @@
+{
+  "sweep": {
+    "entryFee": 2.00,
+    "description": "Weekend Stableford Sweep prize fund (£2 per entrant) and payout percentages based on field size",
+    "tiers": [
+      {
+        "minEntrants": 16,
+        "shares": [0.50, 0.30, 0.20],
+        "description": "16+ players: 1st gets 50%, 2nd gets 30%, 3rd gets 20%"
+      },
+      {
+        "minEntrants": 10,
+        "shares": [0.65, 0.35],
+        "description": "10-15 players: 1st gets 65%, 2nd gets 35%"
+      }
+    ]
+  },
+  "magic2s": {
+    "entryFee": 1.00,
+    "eligibility": "league_only",
+    "description": "Magic 2's competition: £1 entry fee per round entrant. Total fund is total entrants x £1. League prize pot is league entrants x £1. Only league members are eligible to win."
+  }
+}

@@ -1,0 +1,63 @@
+{
+    "triggerPoints": 36,
+    "bufferCapPoints": 43,
+    "increasePoints": 30,
+    "increaseAdjustment": 0,
+    "defaultCutPerPoint": 0.1,
+    "tiers": [
+        {
+            "tier": 1,
+            "name": "Tier 1",
+            "minHci": 0,
+            "maxHci": 5,
+            "baseCut": 0.1,
+            "cutPerPoint": 0.1,
+            "capCut": 1
+        },
+        {
+            "tier": 2,
+            "name": "Tier 2",
+            "minHci": 5.1,
+            "maxHci": 10,
+            "baseCut": 0.2,
+            "cutPerPoint": 0.1,
+            "capCut": 1.2
+        },
+        {
+            "tier": 3,
+            "name": "Tier 3",
+            "minHci": 10.1,
+            "maxHci": 15,
+            "baseCut": 0.3,
+            "cutPerPoint": 0.1,
+            "capCut": 1.4
+        },
+        {
+            "tier": 4,
+            "name": "Tier 4",
+            "minHci": 15.1,
+            "maxHci": 20,
+            "baseCut": 0.4,
+            "cutPerPoint": 0.1,
+            "capCut": 1.6
+        },
+        {
+            "tier": 5,
+            "name": "Tier 5",
+            "minHci": 20.1,
+            "maxHci": 25,
+            "baseCut": 0.5,
+            "cutPerPoint": 0.1,
+            "capCut": 1.8
+        },
+        {
+            "tier": 6,
+            "name": "Tier 6",
+            "minHci": 25.1,
+            "maxHci": 99.9,
+            "baseCut": 0.6,
+            "cutPerPoint": 0.1,
+            "capCut": 2
+        }
+    ]
+}

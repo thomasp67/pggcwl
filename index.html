@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Port Glasgow Golf Club - Winter Season Results</title>
+  <link rel="stylesheet" href="style.css?v=20261018_tab_visibility_config">
+  <link rel="icon" type="image/png" href="image/pggc_logo.png">
+</head>
+<body>
+
+  <!-- Local File Notice Banner (Shown when opened via file:// protocol without a server) -->
+  <aside id="local-protocol-banner" class="local-notice" style="display: none;" aria-live="polite">
+    <div>
+      <strong>ℹ️ Local File Preview Mode:</strong> Running directly from disk via <code>file://</code> protocol. Modern web browsers restrict reading external files via <code>fetch()</code> on local drives. Embedded sample data has been loaded so you can test immediately. Once pushed to <strong>GitHub Pages</strong>, it runs 100% statically without any server. To test live disk JSON files locally, run <code>python -m http.server 8080</code> or run <code>start_server.bat</code>.
+    </div>
+    <button class="local-notice-close" id="local-notice-close" aria-label="Dismiss notice">&times;</button>
+  </aside>
+
+  <!-- Site Header -->
+  <header class="site-header">
+    <div class="header-container">
+      <div class="brand-wrapper">
+        <img src="image/pggc_logo.png" alt="Port Glasgow Golf Club Crest" class="brand-logo-img">
+        <div class="brand-titles">
+          <h1>Port Glasgow Golf Club</h1>
+          <p>Winter season results</p>
+        </div>
+      </div>
+      <div class="meta-badges" id="league-meta-badges">
+        <span class="meta-pill">Par: <strong id="meta-par">67</strong></span>
+        <span class="meta-pill">Stroke Limit: <strong id="meta-stroke-limit">36</strong></span>
+        <span class="meta-pill">Active: <strong id="meta-latest-week">Loading...</strong></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-container">
+    <!-- Mobile Competition View Selector (Rendered on screens <= 1024px) -->
+    <div class="mobile-nav-wrapper">
+      <label for="mobile-tab-select" class="sr-only">Select Competition View</label>
+      <select id="mobile-tab-select" class="mobile-nav-select" aria-label="Select Competition View">
+        <option value="tab-leaderboard" selected>🏆 Winter League</option>
+        <option value="tab-weekly">📅 Weekend Stableford</option>
+        <option value="tab-eclectic">🎯 Eclectic</option>
+        <option value="tab-magic2s">🪄 Magic 2's</option>
+        <option value="tab-lastman">⚔️ Last Man</option>
+        <option value="tab-parbingo">🎱 Bingo</option>
+        <option value="tab-player">👤 Player Profile</option>
+      </select>
+    </div>
+
+    <!-- Desktop Tab Navigation (Rendered on screens > 1024px) -->
+    <nav class="tab-nav" aria-label="Navigation Tabs">
+      <button class="tab-btn active" data-tab="tab-leaderboard" id="btn-tab-leaderboard">
+        🏆 Winter League
+      </button>
+      <button class="tab-btn" data-tab="tab-weekly" id="btn-tab-weekly">
+        📅 Weekend Stableford
+      </button>
+      <button class="tab-btn" data-tab="tab-eclectic" id="btn-tab-eclectic">
+        🎯 Eclectic
+      </button>
+      <button class="tab-btn" data-tab="tab-magic2s" id="btn-tab-magic2s">
+        🪄 Magic 2's
+      </button>
+      <button class="tab-btn" data-tab="tab-lastman" id="btn-tab-lastman">
+        ⚔️ Last Man
+      </button>
+      <button class="tab-btn" data-tab="tab-parbingo" id="btn-tab-parbingo">
+        🎱 Bingo
+      </button>
+      <button class="tab-btn" data-tab="tab-player" id="btn-tab-player">
+        👤 Player Profile
+      </button>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main-wrapper">
+
+    <!-- Loading State -->
+    <div id="loading-state" class="loading-box">
+      <div class="spinner"></div>
+      <p>Loading course setup, club roster, and weekly scorecards...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="empty-state" style="display: none;">
+      <h3 style="color: #b91c1c; margin-bottom: 0.5rem;">Unable to load data</h3>
+      <p id="error-message">Please check that the JSON files exist in the data/ directory.</p>
+    </div>
+
+    <!-- Tab 1: Weekly Competition -->
+    <section id="tab-weekly" class="view-panel">
+      <!-- Info / Control Bar -->
+      <div class="panel-header-bar">
+        <div class="panel-info-group">
+          <p id="weekly-subtitle" class="panel-info-text">Individual Stableford • Click row for scorecard</p>
+        </div>
+        <div class="panel-options-group">
+          <label class="checkbox-control" for="weekly-hide-non-league" title="Hide non-league players / show league members only">
+            <input type="checkbox" id="weekly-hide-non-league">
+            <span>Hide Non-League</span>
+          </label>
+        </div>
+        <div class="panel-nav-group">
+          <div class="week-nav-group">
+            <button type="button" id="btn-weekly-prev" class="week-nav-btn" title="View previous week scorecards">◀ Prev</button>
+            <select id="week-select" class="select-control week-nav-select" title="Jump to specific week">
+              <!-- Weeks populated dynamically -->
+            </select>
+            <button type="button" id="btn-weekly-next" class="week-nav-btn" title="View next week scorecards">Next ▶</button>
+          </div>
+        </div>
+        <div class="panel-search-group">
+          <input type="text" id="weekly-search" class="search-input" placeholder="Search player name...">
+        </div>
+      </div>
+
+      <!-- Weekly Competition Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="weekly-table">
+            <thead>
+              <tr>
+                <th class="text-center pos-col" style="width: 4%;">Pos</th>
+                <th class="sticky-col-name player-name-col" style="width: 19%;"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
+                <th class="text-center hole-col" title="Hole 1 points">1</th>
+                <th class="text-center hole-col" title="Hole 2 points">2</th>
+                <th class="text-center hole-col" title="Hole 3 points">3</th>
+                <th class="text-center hole-col" title="Hole 4 points">4</th>
+                <th class="text-center hole-col" title="Hole 5 points">5</th>
+                <th class="text-center hole-col" title="Hole 6 points">6</th>
+                <th class="text-center hole-col" title="Hole 7 points">7</th>
+                <th class="text-center hole-col" title="Hole 8 points">8</th>
+                <th class="text-center hole-col" title="Hole 9 points">9</th>
+                <th class="text-center hole-col" title="Hole 10 points">10</th>
+                <th class="text-center hole-col" title="Hole 11 points">11</th>
+                <th class="text-center hole-col" title="Hole 12 points">12</th>
+                <th class="text-center hole-col" title="Hole 13 points">13</th>
+                <th class="text-center hole-col" title="Hole 14 points">14</th>
+                <th class="text-center hole-col" title="Hole 15 points">15</th>
+                <th class="text-center hole-col" title="Hole 16 points">16</th>
+                <th class="text-center hole-col" title="Hole 17 points">17</th>
+                <th class="text-center hole-col" title="Hole 18 points">18</th>
+                <th class="text-center total-score-col" style="width: 5%;" title="Total Stableford points">Total</th>
+                <th class="text-center countback-col" style="width: 7%;" title="Countback: Back 9 / Back 6 / Back 3">Countback</th>
+                <th class="text-center cut-col" style="width: 4.5%;" title="Handicap adjustment / cut earned this round">Cut</th>
+              </tr>
+            </thead>
+            <tbody id="weekly-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Season Leaderboard -->
+    <section id="tab-leaderboard" class="view-panel active">
+      <!-- Info / Control Bar -->
+      <div class="panel-header-bar">
+        <div class="panel-info-group">
+          <p id="leaderboard-subtitle" class="panel-info-text">Best 10 stableford scores</p>
+        </div>
+        <div class="panel-nav-group">
+          <div class="week-nav-group">
+            <button type="button" id="btn-leaderboard-prev" class="week-nav-btn" title="View previous week league table">◀ Prev</button>
+            <select id="leaderboard-week-select" class="select-control week-nav-select" title="Jump to specific week">
+              <!-- Dynamically populated -->
+            </select>
+            <button type="button" id="btn-leaderboard-next" class="week-nav-btn" title="View next week league table">Next ▶</button>
+          </div>
+        </div>
+        <div class="panel-search-group">
+          <input type="text" id="leaderboard-search" class="search-input" placeholder="Search player name...">
+        </div>
+      </div>
+
+      <!-- Leaderboard Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="leaderboard-table">
+            <thead>
+              <tr>
+                <th class="text-center pos-col sortable-th" data-sort="pos" style="width: 4%;" title="Click to sort by Position (Smallest to Largest / Largest to Smallest)"><span class="th-full">Pos</span><span class="th-short">Pos</span><span class="sort-icon"></span></th>
+                <th class="sticky-col-name player-name-col" style="width: 18%;"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
+                <th class="text-center total-cut-col sortable-th" data-sort="cut" style="width: 7%;" title="Click to sort by Total Cut (Smallest to Largest / Largest to Smallest)"><span class="th-full">Total Cut</span><span class="th-short">Cut</span><span class="sort-icon"></span></th>
+                <th class="text-center rounds-col sortable-th" data-sort="round" style="width: 6%;" title="Click to sort by Rounds Played"><span class="th-full">Rounds</span><span class="th-short">Rounds</span><span class="sort-icon"></span></th>
+                <th class="text-center avg-col col-desktop-only sortable-th" data-sort="avg" style="width: 6%;" title="Click to sort by Average points (Sum of all rounds played / Rounds played)"><span class="th-full">Average</span><span class="th-short">Avg</span><span class="sort-icon"></span></th>
+                <th class="text-center money-col col-desktop-only sortable-th" data-sort="money" style="width: 8%;" title="Click to sort by Prize Money Won"><span class="th-full">Money Won</span><span class="th-short">Won</span><span class="sort-icon"></span></th>
+                <th class="text-center score-col" style="width: 4.4%;" title="1st best score">1</th>
+                <th class="text-center score-col" style="width: 4.4%;" title="2nd best score">2</th>
+                <th class="text-center score-col" style="width: 4.4%;" title="3rd best score">3</th>
+                <th class="text-center score-col" style="width: 4.4%;" title="4th best score">4</th>
+                <th class="text-center score-col" style="width: 4.4%;" title="5th best score">5</th>
+                <th class="text-center score-col" style="width: 4.4%;" title="6th best score">6</th>
+                <th class="text-center score-col" style="width: 4.4%;" title="7th best score">7</th>
+                <th class="text-center score-col" style="width: 4.4%;" title="8th best score">8</th>
+                <th class="text-center score-col" style="width: 4.4%;" title="9th best score">9</th>
+                <th class="text-center score-col" style="width: 4.4%;" title="10th best score">10</th>
+                <th class="text-center total-score-col sortable-th" data-sort="total" style="width: 7%;" title="Click to sort by Total Score"><span class="th-full">Total</span><span class="th-short">Total</span><span class="sort-icon"></span></th>
+                <th class="text-center hilo-col col-mobile-only" title="Best score / 10th best score (Drop score)">Hi/Lo</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab: Eclectic Competition -->
+    <section id="tab-eclectic" class="view-panel">
+      <!-- Info / Control Bar -->
+      <div class="panel-header-bar">
+        <div class="panel-info-group">
+          <p id="eclectic-subtitle" class="panel-info-text">Best Stableford score on each hole accumulated across all rounds • Ranked by Eclectic total</p>
+        </div>
+        <div class="panel-options-group">
+          <div class="filter-group">
+            <label for="eclectic-scoring-mode">Winner:</label>
+            <select id="eclectic-scoring-mode" class="select-control" title="Rank by Nett or Points">
+              <option value="nett" selected>Nett</option>
+              <option value="points">Points</option>
+            </select>
+          </div>
+          <label class="checkbox-control" for="eclectic-hide-non-league" title="Hide non-league players / show league members only">
+            <input type="checkbox" id="eclectic-hide-non-league">
+            <span>Hide Non-League</span>
+          </label>
+        </div>
+        <div class="panel-nav-group">
+          <div class="week-nav-group">
+            <button type="button" id="btn-eclectic-prev" class="week-nav-btn" title="View previous week eclectic table">◀ Prev</button>
+            <select id="eclectic-week-select" class="select-control week-nav-select" title="Jump to specific week">
+              <!-- Dynamically populated -->
+            </select>
+            <button type="button" id="btn-eclectic-next" class="week-nav-btn" title="View next week eclectic table">Next ▶</button>
+          </div>
+        </div>
+        <div class="panel-search-group">
+          <input type="text" id="eclectic-search" class="search-input" placeholder="Search player name...">
+        </div>
+      </div>
+
+      <!-- Eclectic Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="eclectic-table">
+            <thead>
+              <tr id="eclectic-thead-tr">
+                <th class="text-center pos-col" style="width: 4%;">Pos</th>
+                <th class="sticky-col-name player-name-col" style="width: 18%;"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
+                <th class="text-center rounds-col" style="width: 5%;" title="Rounds played up to this week"><span class="th-full">Rounds</span><span class="th-short">Rounds</span></th>
+                <th class="text-center total-score-col points-col" style="width: 5.5%;" title="Eclectic Total Stableford points"><span class="th-full">Points</span><span class="th-short">Pts</span></th>
+                <th class="text-center total-score-col nett-col" style="width: 5.5%;" title="Nett Score (Points - playing handicap strokes as of this round)">Nett</th>
+                <th class="text-center hole-col" title="Hole 1 best score">1</th>
+                <th class="text-center hole-col" title="Hole 2 best score">2</th>
+                <th class="text-center hole-col" title="Hole 3 best score">3</th>
+                <th class="text-center hole-col" title="Hole 4 best score">4</th>
+                <th class="text-center hole-col" title="Hole 5 best score">5</th>
+                <th class="text-center hole-col" title="Hole 6 best score">6</th>
+                <th class="text-center hole-col" title="Hole 7 best score">7</th>
+                <th class="text-center hole-col" title="Hole 8 best score">8</th>
+                <th class="text-center hole-col" title="Hole 9 best score">9</th>
+                <th class="text-center hole-col" title="Hole 10 best score">10</th>
+                <th class="text-center hole-col" title="Hole 11 best score">11</th>
+                <th class="text-center hole-col" title="Hole 12 best score">12</th>
+                <th class="text-center hole-col" title="Hole 13 best score">13</th>
+                <th class="text-center hole-col" title="Hole 14 best score">14</th>
+                <th class="text-center hole-col" title="Hole 15 best score">15</th>
+                <th class="text-center hole-col" title="Hole 16 best score">16</th>
+                <th class="text-center hole-col" title="Hole 17 best score">17</th>
+                <th class="text-center hole-col" title="Hole 18 best score">18</th>
+              </tr>
+            </thead>
+            <tbody id="eclectic-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab: Magic 2's Competition -->
+    <section id="tab-magic2s" class="view-panel">
+      <!-- Info / Control Bar -->
+      <div class="panel-header-bar">
+        <div class="panel-info-group">
+          <p id="magic2s-subtitle" class="panel-info-text">£1.00 per entrant • League members only • Gross 2 on 3 drawn Par 3s (or any Par 4 / Par 5) • Unwon prize pots roll over</p>
+        </div>
+        <div class="panel-nav-group">
+          <div class="week-nav-group">
+            <button type="button" id="btn-magic2s-prev" class="week-nav-btn" title="View previous week Magic 2's">◀ Prev</button>
+            <select id="magic2s-week-select" class="select-control week-nav-select" title="Jump to specific week">
+              <!-- Dynamically populated -->
+            </select>
+            <button type="button" id="btn-magic2s-next" class="week-nav-btn" title="View next week Magic 2's">Next ▶</button>
+          </div>
+        </div>
+        <div class="panel-search-group">
+          <input type="text" id="magic2s-search" class="search-input" placeholder="Search player name...">
+        </div>
+      </div>
+
+      <!-- Drawn Holes & Prize Pot Callout Banner -->
+      <div id="magic2s-draw-card" class="magic2s-banner">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Magic 2's Financial & Entrant Breakdown Metric Cards -->
+      <div id="magic2s-metrics-card" class="magic2s-stats-grid">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Weekly Magic 2's Table -->
+      <div class="table-card" id="magic2s-weekly-table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="magic2s-weekly-table">
+            <thead>
+              <tr>
+                <th class="text-center week-col" style="width: 55px;" title="Competition Week"><span class="th-full">Week</span><span class="th-short">Wk</span></th>
+                <th class="sticky-col-name player-name-col" style="width: 260px;"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
+                <th class="text-center magic2s-count-col" style="width: 90px;" title="Number of Magic 2s scored this round"><span class="th-full">Magic 2s</span><span class="th-short">Magic</span></th>
+                <th class="text-center magic2s-details-col" style="width: 260px;" title="All 6 Par 3s: Grey = Non-qualifier, Green = Qualifier, Gold = Magic 2"><span class="th-full">Details</span><span class="th-short">Details</span></th>
+                <th class="text-center magic2s-prize-col" style="width: 100px;" title="Magic 2's Prize Won"><span class="th-full">Prize</span><span class="th-short">Prize</span></th>
+              </tr>
+            </thead>
+            <tbody id="magic2s-weekly-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 5: Last Man Standing -->
+    <section id="tab-lastman" class="view-panel">
+      <!-- Info / Control Bar -->
+      <div class="panel-header-bar">
+        <div class="panel-info-group">
+          <p id="lastman-subtitle" class="panel-info-text">Survival countdown competition • Need ≥ 2 pts on active hole to proceed • Lives save missed weeks • Last man standing wins</p>
+        </div>
+        <div class="panel-options-group">
+          <div class="filter-group">
+            <label for="lastman-filter-status">Status:</label>
+            <select id="lastman-filter-status" class="select-control">
+              <option value="all">All Entrants</option>
+              <option value="alive">Alive Only</option>
+              <option value="eliminated">Eliminated Only</option>
+            </select>
+          </div>
+        </div>
+        <div class="panel-nav-group">
+          <div class="week-nav-group">
+            <button type="button" id="btn-lastman-prev" class="week-nav-btn" title="View previous week">◀ Prev</button>
+            <select id="lastman-week-select" class="select-control week-nav-select" title="Jump to specific week">
+              <!-- Dynamically populated -->
+            </select>
+            <button type="button" id="btn-lastman-next" class="week-nav-btn" title="View next week">Next ▶</button>
+          </div>
+        </div>
+        <div class="panel-search-group">
+          <input type="text" id="lastman-search" class="search-input" placeholder="Search player name...">
+        </div>
+      </div>
+
+      <!-- Last Man Settings Bar -->
+      <div class="lastman-settings-bar" id="lastman-settings-bar">
+        <div class="lastman-settings-header">
+          <span class="settings-title">⚙️ Competition Settings</span>
+          <span class="settings-subtitle">Defaults loaded from <code>config/lastman.json</code></span>
+        </div>
+        <div class="lastman-settings-controls">
+          <div class="setting-item">
+            <label for="lastman-cfg-points">Qualify Points:</label>
+            <select id="lastman-cfg-points" class="select-control">
+              <option value="2">≥ 2 Points (Standard)</option>
+              <option value="1">≥ 1 Point (Lenient)</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label for="lastman-cfg-order">Hole Order:</label>
+            <select id="lastman-cfg-order" class="select-control">
+              <option value="si_desc">SI 18 - SI 1</option>
+              <option value="si_asc">SI 1 - SI 18</option>
+              <option value="hole_asc">Hole 1 - Hole 18</option>
+              <option value="hole_desc">Hole 18 - Hole 1</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label for="lastman-cfg-eligibility">Eligibility:</label>
+            <select id="lastman-cfg-eligibility" class="select-control">
+              <option value="league">Winter League Only</option>
+              <option value="all">All Club Members</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label for="lastman-cfg-lives">Starting Lives:</label>
+            <select id="lastman-cfg-lives" class="select-control">
+              <option value="0">0 Lives</option>
+              <option value="1">1 Life</option>
+              <option value="2">2 Lives</option>
+              <option value="3">3 Lives</option>
+              <option value="4">4 Lives</option>
+              <option value="5">5 Lives</option>
+            </select>
+          </div>
+          <div class="setting-item">
+            <label class="checkbox-control" for="lastman-cfg-hide-unplayed" title="Hide players who were eliminated due to running out of lives without having played any round">
+              <input type="checkbox" id="lastman-cfg-hide-unplayed">
+              <span>Hide 0-round eliminations</span>
+            </label>
+          </div>
+          <button type="button" id="btn-reset-lastman-cfg" class="quick-pick-btn" title="Reset settings to config/lastman.json values">
+            ↺ Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Last Man Summary Banner -->
+      <div class="lastman-banner-card" id="lastman-banner">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Last Man Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="lastman-table">
+            <thead>
+              <tr id="lastman-thead-tr">
+                <!-- Rendered dynamically -->
+              </tr>
+            </thead>
+            <tbody id="lastman-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab: Bingo (Gross Pars & Net Birdies) -->
+    <section id="tab-parbingo" class="view-panel">
+      <!-- Info / Control Bar -->
+      <div class="panel-header-bar">
+        <div class="panel-info-group">
+          <p id="parbingo-subtitle" class="panel-info-text">First player to record a qualifying score on every hole wins</p>
+        </div>
+        <div class="panel-options-group">
+          <div class="bingo-mode-toggle" role="group" aria-label="Bingo Mode Selection">
+            <button type="button" id="btn-bingo-mode-gross" class="bingo-mode-btn active" title="Show Gross Pars Bingo (Gross par or better on every hole)">Gross Pars</button>
+            <button type="button" id="btn-bingo-mode-nett" class="bingo-mode-btn" title="Show Net Birdies Bingo (Nett birdie or better on every hole)">Net Birdies</button>
+          </div>
+          <div class="filter-group">
+            <label for="parbingo-filter-eligibility">Eligibility:</label>
+            <select id="parbingo-filter-eligibility" class="select-control" title="Filter by competition eligibility">
+              <option value="league" selected>League Members Only</option>
+              <option value="all">All Players (Open)</option>
+            </select>
+          </div>
+        </div>
+        <div class="panel-nav-group">
+          <div class="week-nav-group">
+            <button type="button" id="btn-parbingo-prev" class="week-nav-btn" title="View previous week Bingo">◀ Prev</button>
+            <select id="parbingo-week-select" class="select-control week-nav-select" title="Jump to specific week">
+              <!-- Dynamically populated -->
+            </select>
+            <button type="button" id="btn-parbingo-next" class="week-nav-btn" title="View next week Bingo">Next ▶</button>
+          </div>
+        </div>
+        <div class="panel-search-group">
+          <input type="text" id="parbingo-search" class="search-input" placeholder="Search player name...">
+        </div>
+      </div>
+
+      <!-- Winner / Progress Callout Banner -->
+      <div id="parbingo-banner" class="parbingo-banner-card">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Par Bingo Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="parbingo-table">
+            <thead>
+              <tr id="parbingo-thead-tr">
+                <!-- Dynamically populated -->
+              </tr>
+            </thead>
+            <tbody id="parbingo-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab: Player Profile & Handicap Roster -->
+    <section id="tab-player" class="view-panel">
+      <!-- Sub-view Mode Switcher Bar -->
+      <div class="panel-header-bar players-mode-bar">
+        <div class="players-mode-toggle" role="group" aria-label="Player Profile View Selection">
+          <button type="button" id="btn-players-mode-profile" class="players-mode-btn active" title="View Individual Player Profile & Scorecards">👤 Player Details</button>
+          <button type="button" id="btn-players-mode-roster" class="players-mode-btn" title="View League Handicap Matrix & Cuts Roster">📋 Handicap Roster</button>
+        </div>
+      </div>
+
+      <!-- Sub-view 1: Individual Player Profile & Season Record -->
+      <div id="players-profile-view" class="players-subview">
+        <!-- Info / Control Bar -->
+        <div class="panel-header-bar">
+          <div class="panel-info-group">
+            <p class="panel-info-text">Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member</p>
+          </div>
+          <div class="panel-options-group">
+            <button type="button" id="btn-goto-roster" class="quick-pick-btn" title="View full league handicap matrix">📋 View Handicap Roster</button>
+          </div>
+          <div class="panel-search-group">
+            <div class="player-search-wrapper">
+              <input type="text" id="player-search-input" class="search-input" placeholder="Search player name..." autocomplete="off">
+              <div id="player-suggestions" class="player-suggestions-box" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Player Content Area -->
+        <div id="player-content-area">
+          <!-- Initial prompt when no player selected -->
+          <div id="player-empty-prompt" class="empty-state">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏌️‍♂️</div>
+            <h3 style="font-size: 1.15rem; color: var(--text-main); margin-bottom: 0.35rem;">Select a Member to Track</h3>
+            <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.25rem auto;">
+              Search for a club member above or pick from the active players below to inspect their full season record of Stableford scores.
+            </p>
+            <div id="player-quick-picks" class="quick-picks-container">
+              <!-- Dynamic quick pick buttons -->
+            </div>
+          </div>
+
+          <!-- Selected Player Details Card -->
+          <div id="player-details-card" style="display: none;">
+            <!-- Profile Header Banner -->
+            <div class="player-profile-banner">
+              <div class="player-profile-main">
+                <div class="player-avatar-badge">👤</div>
+                <div>
+                  <div class="player-profile-name-row">
+                    <h3 id="player-card-name" class="player-profile-name">-</h3>
+                    <span id="player-card-badge" class="badge-league">League</span>
+                  </div>
+                  <div class="player-profile-meta" id="player-card-meta">
+                    <!-- Chips populated dynamically -->
+                  </div>
+                </div>
+              </div>
+              <div class="player-profile-stats" id="player-card-stats">
+                <!-- Stat pills populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Rounds Table Card Container (Rendered dynamically via shared buildPlayerRoundsTableCardHtml) -->
+            <div id="player-rounds-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-view 2: Handicap Roster Matrix -->
+      <div id="players-roster-view" class="players-subview" style="display: none;">
+        <!-- Info / Control Bar -->
+        <div class="panel-header-bar">
+          <div class="panel-info-group">
+            <p class="panel-info-text">Chronological matrix of weekly handicap adjustments and active indexes • Tap any player to inspect</p>
+          </div>
+          <div class="panel-options-group">
+            <button type="button" id="btn-back-to-profile" class="quick-pick-btn" title="Return to Player Details view">👤 Player Details</button>
+            <div class="filter-group">
+              <label for="handicap-filter-league">Filter:</label>
+              <select id="handicap-filter-league" class="select-control">
+                <option value="all">All Members</option>
+                <option value="league" selected>League Members Only</option>
+                <option value="cut">Players with Cuts / Adjustments</option>
+              </select>
+            </div>
+            <button type="button" id="btn-toggle-cuts-rules" class="quick-pick-btn" title="View or hide active handicap cut rules & tier breakdown">⚙️ Cuts Rules</button>
+          </div>
+          <div class="panel-search-group">
+            <input type="text" id="handicap-search" class="search-input" placeholder="Search player name...">
+          </div>
+        </div>
+
+        <!-- Collapsible Cuts Rules Card -->
+        <div id="cuts-rules-card" class="table-card" style="display: none; margin-bottom: 1.25rem;">
+          <div style="padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+            <div>
+              <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">⚙️ Active Handicap Cut System (from <code>config/cuts.json</code>)</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Fully configurable in <code>config/cuts.json</code>. Run <code>node process_raw.js</code> after editing to update the offline preview.</p>
+            </div>
+            <button type="button" id="btn-close-cuts-rules" class="quick-pick-btn" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
+          </div>
+          <div id="cuts-rules-content" style="padding: 1rem 1.25rem;">
+            <!-- Dynamically populated from state.cutsConfig -->
+          </div>
+        </div>
+
+        <!-- Handicap Matrix Table -->
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="data-table" id="handicap-table">
+              <thead>
+                <tr id="handicap-thead-tr">
+                  <th class="sticky-col-name player-name-col"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
+                  <th class="text-center hci-col" title="Starting Handicap Index"><span class="th-full">Start<br>HCI</span><span class="th-short">Start</span></th>
+                  <!-- Dynamic Week Columns (W1, W2...) -->
+                  <th class="text-center current-hci-col" title="Current Active Handicap Index"><span class="th-full">Current<br>HCI</span><span class="th-short">Now</span></th>
+                  <th class="text-center total-cut-col" title="Total Cuts and Adjustments"><span class="th-full">Total<br>Cuts</span><span class="th-short">Cuts</span></th>
+                </tr>
+              </thead>
+              <tbody id="handicap-tbody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="data/data.js?v=20261018_lastman_hide_cfg"></script>
+  <script src="app.js?v=20261018_lastman_hide_cfg"></script>
+</body>
+</html>
