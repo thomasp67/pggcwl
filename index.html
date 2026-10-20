@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Port Glasgow Golf Club - Winter Season Results</title>
-  <link rel="stylesheet" href="style.css?v=20261018_tab_visibility_config">
+  <link rel="stylesheet" href="style.css?v=20261020_tab_order">
   <link rel="icon" type="image/png" href="image/pggc_logo.png">
 </head>
 <body>
@@ -44,8 +44,8 @@
     <div class="mobile-nav-wrapper">
       <label for="mobile-tab-select" class="sr-only">Select Competition View</label>
       <select id="mobile-tab-select" class="mobile-nav-select" aria-label="Select Competition View">
-        <option value="tab-leaderboard" selected>🏆 Winter League</option>
-        <option value="tab-weekly">📅 Weekend Stableford</option>
+        <option value="tab-weekly" selected>📅 Weekend Stableford</option>
+        <option value="tab-leaderboard">🏆 Winter League</option>
         <option value="tab-eclectic">🎯 Eclectic</option>
         <option value="tab-magic2s">🪄 Magic 2's</option>
         <option value="tab-lastman">⚔️ Last Man</option>
@@ -56,11 +56,11 @@
 
     <!-- Desktop Tab Navigation (Rendered on screens > 1024px) -->
     <nav class="tab-nav" aria-label="Navigation Tabs">
-      <button class="tab-btn active" data-tab="tab-leaderboard" id="btn-tab-leaderboard">
-        🏆 Winter League
-      </button>
-      <button class="tab-btn" data-tab="tab-weekly" id="btn-tab-weekly">
+      <button class="tab-btn active" data-tab="tab-weekly" id="btn-tab-weekly">
         📅 Weekend Stableford
+      </button>
+      <button class="tab-btn" data-tab="tab-leaderboard" id="btn-tab-leaderboard">
+        🏆 Winter League
       </button>
       <button class="tab-btn" data-tab="tab-eclectic" id="btn-tab-eclectic">
         🎯 Eclectic
@@ -96,7 +96,7 @@
     </div>
 
     <!-- Tab 1: Weekly Competition -->
-    <section id="tab-weekly" class="view-panel">
+    <section id="tab-weekly" class="view-panel active">
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
@@ -162,7 +162,7 @@
     </section>
 
     <!-- Tab 2: Season Leaderboard -->
-    <section id="tab-leaderboard" class="view-panel active">
+    <section id="tab-leaderboard" class="view-panel">
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
@@ -634,7 +634,7 @@
 
   </main>
 
-  <script src="data/data.js?v=20261018_lastman_hide_cfg"></script>
-  <script src="app.js?v=20261018_lastman_hide_cfg"></script>
+  <script src="data/data.js?v=20261020_tab_order"></script>
+  <script src="app.js?v=20261020_tab_order"></script>
 </body>
 </html>

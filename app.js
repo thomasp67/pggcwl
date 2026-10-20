@@ -5494,7 +5494,7 @@
     const list = ALL_TABS.map(base => {
       const cfg = rawMap[base.id] || {};
       const name = cfg.name || base.name;
-      const icon = cfg.icon || base.icon;
+      const icon = (cfg.icon && cfg.icon !== '??' && cfg.icon !== '?') ? cfg.icon : base.icon;
       let order = base.defaultOrder;
       if (typeof cfg.order === 'number') {
         order = cfg.order;

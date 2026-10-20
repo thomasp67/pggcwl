@@ -13,19 +13,19 @@
         "hideDesktop": false,
         "hideMobile": false
     },
-    "tab-eclectic": {
-        "name": "Eclectic",
-        "icon": "🎯",
+    "tab-magic2s": {
+        "name": "Magic 2's",
+        "icon": "🪄",
         "order": 3,
         "hideDesktop": false,
         "hideMobile": false
     },
-    "tab-magic2s": {
-        "name": "Magic 2's",
-        "icon": "🪄",
+    "tab-eclectic": {
+        "name": "Eclectic",
+        "icon": "🎯",
         "order": 4,
         "hideDesktop": false,
-        "hideMobile": false
+        "hideMobile": true
     },
     "tab-lastman": {
         "name": "Last Man Standing",
