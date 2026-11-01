@@ -5,5 +5,5 @@
     "holeOrder": "hole_asc",
     "hideUnplayedEliminations": false,
     "hideCompetitionSettings": true,
-    "hideInfoSection": false
+    "hideInfoSection": true
 }

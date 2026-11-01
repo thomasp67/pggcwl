@@ -56,7 +56,8 @@
     leaderboardSortDir: 'desc',   // Direction of leaderboard sorting: 'asc' or 'desc'
     selectedWeek: 0,              // Active week number for Weekend Stableford sweep
     eclecticWeek: 0,              // Historical week ceiling for Eclectic standings (0 = latest)
-    eclecticScoringMode: 'nett',  // Eclectic scoring format: 'nett' (Strokes) or 'points' (Stableford)
+    eclecticScoringMode: 'total', // Eclectic scoring format: 'total' (Gross) or 'nett' (Strokes)
+    eclecticConfig: null,         // Eclectic rules & default winner (eclectic.json)
     eclecticSortCol: null,        // Column to sort Eclectic standings by
     eclecticSortDir: 'desc',      // Direction for Eclectic sorting
     magic2sWeek: 0,               // Active week number for Magic 2's sweep inspection
@@ -67,7 +68,8 @@
     lastmanWeek: 0,               // Active evaluation week for Last Man Standing
     parbingoWeek: 0,              // Historical round ceiling for Bingo standings
     parbingoEligibility: 'league',// Bingo eligibility filter: 'league' or 'all'
-    bingoMode: 'gross',           // Bingo game mode: 'gross' (Gross Pars) or 'nett' (Net Birdies)
+    bingoMode: 'nett',            // Bingo game mode: 'nett' (Net Birdies) or 'gross' (Gross Pars)
+    bingoConfig: null,            // Bingo competition configuration (config/bingo.json)
     selectedPlayerId: null,       // Currently inspected player in Player Details subview
     playersViewMode: 'profile',   // Unified tab subview mode: 'profile' or 'roster' (Handicap List)
     cupSubView: 'table',          // Cup subview mode: 'table' | 'fixtures' | 'pots' | 'bracket'
@@ -182,6 +184,7 @@
     btnResetLastmanCfg: document.getElementById('btn-reset-lastman-cfg'),
 
     // Bingo (Gross Pars & Net Birdies)
+    bingoModeToggleGroup: document.getElementById('bingo-mode-toggle-group'),
     btnBingoModeGross: document.getElementById('btn-bingo-mode-gross'),
     btnBingoModeNett: document.getElementById('btn-bingo-mode-nett'),
     parbingoWeekSelect: document.getElementById('parbingo-week-select'),
@@ -218,6 +221,9 @@
     cupFixturesContainer: document.getElementById('cup-fixtures-container'),
     cupPotsContainer: document.getElementById('cup-pots-container'),
     cupBracketContainer: document.getElementById('cup-bracket-container'),
+    cupBracketRoundSelect: document.getElementById('cup-bracket-round-select'),
+    btnCupBracketPrev: document.getElementById('btn-cup-bracket-prev'),
+    btnCupBracketNext: document.getElementById('btn-cup-bracket-next'),
 
     // Local file protocol notice
     localProtocolBanner: document.getElementById('local-protocol-banner'),
@@ -534,25 +540,37 @@
       "hideLastManInfo": false,
       "hideLastManStatusDropdown": false
     },
-    "tab-weekly": { "name": "Weekend Stableford", "icon": "📅", "order": 1, "hideDesktop": false, "hideMobile": false, "infoText": "Weekly Sweep • Individual Stableford Format\n{Number of Entrants} • Sweep Pot: {£x} • {1st Prize} • {2nd Prize} • {3rd Prize}" },
-    "tab-leaderboard": { "name": "Winter League", "icon": "🏆", "order": 2, "hideDesktop": false, "hideMobile": false, "infoText": "Season Long League • Best 10 Stableford Scores Count\n{Number of players in the active week} played this week" },
+    "tab-weekly": { "name": "Weekend Stableford", "icon": "📅", "order": 1, "hideDesktop": false, "hideMobile": false, "infoText": "Weekly Sweep • Individual Stableford Format\n{Number of Entrants} • Sweep Pot: {£x} • 1st: {1st Prize} • 2nd: {2nd Prize} • 3rd: {3rd Prize}" },
+    "tab-leaderboard": { "name": "Winter League", "icon": "🏆", "order": 2, "hideDesktop": false, "hideMobile": false, "infoText": "Season Long League • Best 10 Stableford Scores Count • {Number of players in the active week} played this week\nHandicaps shown are new hadicaps for next week." },
     "tab-magic2s": { "name": "Magic 2's", "icon": "🪄", "order": 3, "hideDesktop": false, "hideMobile": false, "infoText": "Score a gross 2 on qualifying par 3s (or any par 4 / 5) • Prize roll over • Open to league members only • {Prize Pot}" },
-    "tab-lastman": { "name": "Last Man Standing", "icon": "⚔️", "order": 4, "hideDesktop": false, "hideMobile": false, "infoText": "Score 1 point on hole {weeks active hole} to proceed to next week • {16 of 49} Players Still Standing" },
+    "tab-lastman": { "name": "Last Man Standing", "icon": "⚔️", "order": 4, "hideDesktop": false, "hideMobile": false, "infoText": "Score 1 point on hole {weeks active hole} to proceed to next week • {16 of 49} Players Still Standing after week {active week}" },
     "tab-eclectic": { "name": "Eclectic", "icon": "🎯", "order": 5, "hideDesktop": false, "hideMobile": true, "infoText": "Best Stableford score on each hole accumulated across all rounds" },
     "tab-parbingo": { "name": "Bingo", "icon": "🎱", "order": 6, "hideDesktop": false, "hideMobile": true, "infoText": "First player to record a qualifying score on every hole wins" },
     "tab-player": { "name": "Player Profile", "icon": "👤", "order": 7, "hideDesktop": false, "hideMobile": true, "infoText": "Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member" },
-    "tab-cup": { "name": "Winter League Cup", "icon": "🏆", "order": 8, "hideDesktop": true, "hideMobile": true, "infoText": "Weekly Matchplay • 4 Pots of 12 • 11 Rounds • Top 16 Advance to Knockout" }
+    "tab-cup": { "name": "Winter Cup", "icon": "🏆", "order": 8, "hideDesktop": false, "hideMobile": true, "infoText": "Weekly Matchplay • 4 Handicap Pots • 11 Rounds • Top 16 Advance to Knockout" }
   };
 
   // Default Cup Configuration
   const DEFAULT_CUP_CONFIG = {
-    competitionName: "Winter League Cup",
+    competitionName: "Winter Cup",
     potsCount: 4,
-    potSize: 12,
-    totalPlayers: 48,
     groupWeeks: 11,
     scoring: { winPoints: 3, drawPoints: 1, lossPoints: 0 },
     knockout: { qualifiers: 16, roundOf16Week: 12, quarterFinalsWeek: 13, semiFinalsWeek: 14, finalWeek: 15 }
+  };
+
+  // Default Eclectic Configuration
+  const DEFAULT_ECLECTIC_CONFIG = {
+    winner: "total",
+    hideWinnerDropdown: true,
+    hideNonMembers: true
+  };
+
+  // Default Bingo Configuration
+  const DEFAULT_BINGO_CONFIG = {
+    winner: "nett",
+    hideModeOptions: true,
+    hideProgressBanner: true
   };
 
   // Embedded sample dataset for offline / local file protocol preview (file://)
@@ -665,7 +683,9 @@
       }
     ],
     magic2sConfig: DEFAULT_MAGIC2S_CONFIG,
-    prizesConfig: DEFAULT_PRIZES_CONFIG
+    prizesConfig: DEFAULT_PRIZES_CONFIG,
+    eclecticConfig: DEFAULT_ECLECTIC_CONFIG,
+    bingoConfig: DEFAULT_BINGO_CONFIG
   };
 
   /**
@@ -708,7 +728,7 @@
         return fetch(`config/${cfgFile}?v=${ts}`, fetchOpts);
       };
 
-      const [courseRes, cutsRes, membersRes, lastmanRes, magic2sRes, prizesRes, tabsRes, cupRes] = await Promise.all([
+      const [courseRes, cutsRes, membersRes, lastmanRes, magic2sRes, prizesRes, tabsRes, cupRes, eclecticRes, bingoRes] = await Promise.all([
         fetchConfigWithFallback('course.json', 'course.json'),
         fetchConfigWithFallback('cuts.json', 'cuts.json'),
         fetch(`data/members.json?v=${ts}`, fetchOpts),
@@ -716,7 +736,9 @@
         fetchConfigWithFallback('magic2s.json', 'magic2s_config.json').catch(() => null),
         fetchConfigWithFallback('prizes.json', 'prizes_config.json').catch(() => null),
         fetchConfigWithFallback('tabs.json', 'tabs.json').catch(() => null),
-        fetchConfigWithFallback('cup.json', null).catch(() => null)
+        fetchConfigWithFallback('cup.json', null).catch(() => null),
+        fetchConfigWithFallback('eclectic.json', null).catch(() => null),
+        fetchConfigWithFallback('bingo.json', 'bingo_config.json').catch(() => null)
       ]);
 
       if (!courseRes.ok) throw new Error(`Could not load config/course.json (Status: ${courseRes.status})`);
@@ -780,6 +802,28 @@
         state.cupConfig = DEFAULT_CUP_CONFIG;
       }
 
+      if (eclecticRes && eclecticRes.ok) {
+        try {
+          state.eclecticConfig = await eclecticRes.json();
+        } catch (e) {
+          console.warn('Could not parse config/eclectic.json', e);
+        }
+      }
+      if (!state.eclecticConfig) {
+        state.eclecticConfig = DEFAULT_ECLECTIC_CONFIG;
+      }
+
+      if (bingoRes && bingoRes.ok) {
+        try {
+          state.bingoConfig = await bingoRes.json();
+        } catch (e) {
+          console.warn('Could not parse config/bingo.json', e);
+        }
+      }
+      if (!state.bingoConfig) {
+        state.bingoConfig = DEFAULT_BINGO_CONFIG;
+      }
+
       // Sequential discovery from 01.json to 20.json
       const loadedWeeks = [];
       for (let w = 1; w <= 20; w++) {
@@ -813,24 +857,22 @@
       processCompetitionEngine();
       updateHeaderMetadata();
       syncLastManSettingsControls();
+      syncEclecticSettingsControls();
+      syncBingoSettingsControls();
 
       elements.loadingState.style.display = 'none';
       renderAllViews();
       applyTabVisibility();
 
-      if (isCupRoute()) {
-        activateTab('tab-cup');
+      const requestedTab = resolveRequestedTabFromUrl();
+      if (requestedTab) {
+        activateTab(requestedTab);
       } else {
-        const hash = window.location.hash ? window.location.hash.substring(1) : '';
-        if (hash && document.getElementById(hash)) {
-          activateTab(hash);
-        } else {
-          const ordered = getOrderedTabs();
-          const isMobile = window.innerWidth <= 1024;
-          const firstVis = ordered.find(t => isMobile ? !isTabHiddenOnMobile(t.id) : !isTabHiddenOnDesktop(t.id));
-          if (firstVis) {
-            activateTab(firstVis.id);
-          }
+        const ordered = getOrderedTabs();
+        const isMobile = window.innerWidth <= 1024;
+        const firstVis = ordered.find(t => isMobile ? !isTabHiddenOnMobile(t.id) : !isTabHiddenOnDesktop(t.id));
+        if (firstVis) {
+          activateTab(firstVis.id);
         }
       }
 
@@ -859,6 +901,8 @@
     state.prizesConfig = dataset.prizesConfig || DEFAULT_PRIZES_CONFIG;
     state.tabsConfig = dataset.tabsConfig || DEFAULT_TABS_CONFIG;
     state.cupConfig = dataset.cupConfig || state.cupConfig || DEFAULT_CUP_CONFIG;
+    state.eclecticConfig = dataset.eclecticConfig || state.eclecticConfig || DEFAULT_ECLECTIC_CONFIG;
+    state.bingoConfig = dataset.bingoConfig || state.bingoConfig || DEFAULT_BINGO_CONFIG;
     state.latestWeek = state.weeksData.length;
     state.selectedWeek = state.latestWeek;
     state.leaderboardWeek = state.latestWeek;
@@ -870,26 +914,24 @@
     processCompetitionEngine();
     updateHeaderMetadata();
     syncLastManSettingsControls();
+    syncEclecticSettingsControls();
+    syncBingoSettingsControls();
 
     elements.loadingState.style.display = 'none';
     elements.errorState.style.display = 'none';
     renderAllViews();
     applyTabVisibility();
 
-    // Activate tab based on Cup route, URL hash or first visible tab in configured order
-    if (isCupRoute()) {
-      activateTab('tab-cup');
+    // Activate tab based on URL request or first visible tab in configured order
+    const requestedTab = resolveRequestedTabFromUrl();
+    if (requestedTab) {
+      activateTab(requestedTab);
     } else {
-      const hash = window.location.hash ? window.location.hash.substring(1) : '';
-      if (hash && document.getElementById(hash)) {
-        activateTab(hash);
-      } else {
-        const ordered = getOrderedTabs();
-        const isMobile = window.innerWidth <= 1024;
-        const firstVis = ordered.find(t => isMobile ? !isTabHiddenOnMobile(t.id) : !isTabHiddenOnDesktop(t.id));
-        if (firstVis) {
-          activateTab(firstVis.id);
-        }
+      const ordered = getOrderedTabs();
+      const isMobile = window.innerWidth <= 1024;
+      const firstVis = ordered.find(t => isMobile ? !isTabHiddenOnMobile(t.id) : !isTabHiddenOnDesktop(t.id));
+      if (firstVis) {
+        activateTab(firstVis.id);
       }
     }
   }
@@ -1871,8 +1913,7 @@
       <th class="text-center pos-col sortable-th" data-sort="pos" style="width: 4%;" title="Click to sort by Position (Low to High / High to Low)"><span class="th-full">Pos</span><span class="th-short">Pos</span><span class="sort-icon"></span></th>
       <th class="sticky-col-name player-name-col" style="width: 18%;"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
       <th class="text-center rounds-col sortable-th" data-sort="rounds" style="width: 5%;" title="Click to sort by Rounds Played (High to Low / Low to High)"><span class="th-full">Rounds</span><span class="th-short">Rounds</span><span class="sort-icon"></span></th>
-      <th class="text-center total-score-col points-col sortable-th" data-sort="points" style="width: 5.5%;" title="Click to sort by Eclectic Points (High to Low / Low to High)"><span class="th-full">Points</span><span class="th-short">Pts</span><span class="sort-icon"></span></th>
-      <th class="text-center total-score-col nett-col sortable-th" data-sort="nett" style="width: 5.5%;" title="Click to sort by Nett Points (High to Low / Low to High)"><span class="th-full">Nett</span><span class="th-short">Nett</span><span class="sort-icon"></span></th>
+      <th class="text-center total-score-col points-col sortable-th" data-sort="points" style="width: 5.5%;" title="Click to sort by Eclectic Total (High to Low / Low to High)"><span class="th-full">Total</span><span class="th-short">Tot</span><span class="sort-icon"></span></th>
     `;
 
     // 18 Holes
@@ -1882,6 +1923,10 @@
       const si = hole ? hole.si : '-';
       html += `<th class="text-center hole-col" title="Hole ${h + 1} (Par ${par}, SI ${si})">${h + 1}</th>`;
     }
+
+    html += `
+      <th class="text-center total-score-col nett-col sortable-th" data-sort="nett" style="width: 5.5%;" title="Click to sort by Nett Points (High to Low / Low to High)"><span class="th-full">Nett</span><span class="th-short">Nett</span><span class="sort-icon"></span></th>
+    `;
 
     elements.eclecticTheadTr.innerHTML = html;
   }
@@ -2229,8 +2274,8 @@
         <td class="sticky-col-name player-name-cell">${escapeHtml(p.name)} <span class="player-hci">${formatPlayerHci(p.currentHCI, p.playingStrokes)}</span></td>
         <td class="text-center rounds-col font-bold">${p.rounds}</td>
         <td class="text-center total-score-cell points-cell">${totalHtml}</td>
-        <td class="text-center total-score-cell nett-cell">${nettHtml}</td>
         ${holesHtml}
+        <td class="text-center total-score-cell nett-cell">${nettHtml}</td>
       `;
 
       tr.addEventListener('click', () => {
@@ -4675,6 +4720,56 @@
   }
 
   /**
+   * Sync Eclectic settings controls with active config
+   */
+  function syncEclecticSettingsControls() {
+    const cfg = state.eclecticConfig || DEFAULT_ECLECTIC_CONFIG;
+    state.eclecticScoringMode = cfg.winner || 'total';
+    if (elements.eclecticScoringMode) {
+      elements.eclecticScoringMode.value = state.eclecticScoringMode;
+    }
+    const winnerFilterGroup = document.getElementById('eclectic-winner-filter-group');
+    if (winnerFilterGroup) {
+      winnerFilterGroup.style.display = cfg.hideWinnerDropdown ? 'none' : 'flex';
+    }
+    if (elements.eclecticHideNonLeague) {
+      elements.eclecticHideNonLeague.checked = (typeof cfg.hideNonMembers === 'boolean') ? cfg.hideNonMembers : true;
+    }
+  }
+
+  /**
+   * Sync Bingo settings controls with active config
+   */
+  function syncBingoSettingsControls() {
+    const cfg = state.bingoConfig || DEFAULT_BINGO_CONFIG;
+    const winnerMode = normalizeBingoWinner(cfg.winner || cfg.mode || 'nett');
+    state.bingoMode = winnerMode;
+
+    const hideMode = Boolean(cfg.hideModeOptions || cfg.hideModeToggle || cfg.hideWinnerOptions);
+    if (elements.bingoModeToggleGroup) {
+      elements.bingoModeToggleGroup.style.display = hideMode ? 'none' : 'inline-flex';
+      elements.bingoModeToggleGroup.classList.toggle('is-hidden', hideMode);
+    }
+
+    if (elements.btnBingoModeGross && elements.btnBingoModeNett) {
+      if (winnerMode === 'nett') {
+        elements.btnBingoModeNett.classList.add('active');
+        elements.btnBingoModeGross.classList.remove('active');
+      } else {
+        elements.btnBingoModeGross.classList.add('active');
+        elements.btnBingoModeNett.classList.remove('active');
+      }
+    }
+  }
+
+  function normalizeBingoWinner(val) {
+    if (!val) return 'nett';
+    const s = String(val).toLowerCase().trim();
+    if (s.includes('gross') || s === 'par') return 'gross';
+    return 'nett';
+  }
+
+  /**
    * Last Man Standing Competition Engine
    * 
    * How Last Man Standing Works:
@@ -4891,7 +4986,15 @@
       p.neverPlayedBeforeElim = (p.status === 'eliminated' && p.eliminationType === 'lives' && playedCount === 0);
     });
 
-    // Sort players for display
+    // Sort players for display:
+    // 1. Alive / Winners first
+    // 2. Alive players sorted alphabetically by name
+    // 3. Eliminated players:
+    //    a) Survived longer first (eliminatedWeek DESC)
+    //    b) Within the same eliminated week:
+    //       Players who played but did not score FIRST (eliminationType === 'score'),
+    //       followed by players who were eliminated because they didn't play (eliminationType === 'lives')
+    //    c) Alphabetically by name
     players.sort((a, b) => {
       const isWinA = a.status === 'winner' || a.status === 'joint-winner';
       const isWinB = b.status === 'winner' || b.status === 'joint-winner';
@@ -4903,18 +5006,26 @@
       if (isAliveA && !isAliveB) return -1;
       if (!isAliveA && isAliveB) return 1;
 
-      // Alive: sort by lives descending, then surname
+      // Alive: sort by name A-Z
       if (isAliveA && isAliveB) {
-        if (b.lives !== a.lives) return b.lives - a.lives;
-        return a.surname.localeCompare(b.surname) || a.name.localeCompare(b.name);
+        return a.name.localeCompare(b.name);
       }
 
-      // Eliminated: sort by eliminatedWeek descending (survived longer is higher)
+      // Eliminated:
+      // Sort by eliminatedWeek descending (survived longer is higher)
       if (b.eliminatedWeek !== a.eliminatedWeek) {
         return (b.eliminatedWeek || 0) - (a.eliminatedWeek || 0);
       }
 
-      return a.surname.localeCompare(b.surname) || a.name.localeCompare(b.name);
+      // For the same eliminated week:
+      // Show players who played but did not score FIRST ('score'),
+      // then players who were eliminated because they didn't play ('lives')
+      const isPlayedA = a.eliminationType === 'score';
+      const isPlayedB = b.eliminationType === 'score';
+      if (isPlayedA && !isPlayedB) return -1;
+      if (!isPlayedA && isPlayedB) return 1;
+
+      return a.name.localeCompare(b.name);
     });
 
     const aliveCount = players.filter(p => p.status === 'alive' || p.status === 'winner' || p.status === 'joint-winner').length;
@@ -5076,19 +5187,22 @@
     }
 
     // 2. Render Table Header
+    // Note: Position column removed per requirement. Showing all 18 scheduled holes by default.
     let theadHtml = `
-      <th class="text-center pos-col" style="width: 44px;">Pos</th>
-      <th class="sticky-col-name player-name-col" style="width: 180px;"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
-      <th class="text-center lastman-status-col" style="width: 85px;">Status</th>
+      <th class="sticky-col-name player-name-col" style="width: 200px;"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
+      <th class="text-center lastman-status-col" style="width: 95px;">Status</th>
     `;
 
-    for (let w = 1; w <= totalWeeks; w++) {
+    // Render all 18 holes across the schedule
+    const displayHolesCount = 18;
+    for (let w = 1; w <= displayHolesCount; w++) {
       const targetHole = getTargetHoleForWeek(w, cfg.holeOrder);
       const targetSI = targetHole ? targetHole.si : '-';
       const holeNum = targetHole ? targetHole.hole : '-';
       const holePar = targetHole ? targetHole.par : '-';
+      const isPastOrCurrent = w <= totalWeeks;
       theadHtml += `
-        <th class="text-center lastman-week-col" title="Week ${w}: Hole ${holeNum} (Par ${holePar}, Stroke Index ${targetSI})">
+        <th class="text-center lastman-week-col ${!isPastOrCurrent ? 'lastman-future-col' : ''}" title="Round ${w}: Hole ${holeNum} (Par ${holePar}, Stroke Index ${targetSI})">
           <div class="lastman-col-hole-head">H${holeNum}</div>
         </th>
       `;
@@ -5122,7 +5236,7 @@
     if (filtered.length === 0) {
       elements.lastmanTbody.innerHTML = `
         <tr>
-          <td colspan="${3 + totalWeeks}" class="text-center" style="padding: 2rem; color: var(--text-muted);">
+          <td colspan="${2 + displayHolesCount}" class="text-center" style="padding: 2rem; color: var(--text-muted);">
             No players found matching current filters.
           </td>
         </tr>
@@ -5131,13 +5245,7 @@
     }
 
     elements.lastmanTbody.innerHTML = '';
-    filtered.forEach((player, idx) => {
-      const posDisplay = player.status === 'winner'
-        ? '👑 1'
-        : (player.status === 'joint-winner'
-            ? '🤝 T1'
-            : (idx + 1));
-
+    filtered.forEach((player) => {
       const statusBadge = player.status === 'winner'
         ? '<span class="lm-status-chip lm-winner">Winner 👑</span>'
         : (player.status === 'joint-winner'
@@ -5147,11 +5255,17 @@
                 : `<span class="lm-status-chip lm-elim" title="${escapeHtml(player.eliminationReason || '')}">Wk ${player.eliminatedWeek || '-'} 💀</span>`));
 
       let weekCellsHtml = '';
-      for (let w = 1; w <= totalWeeks; w++) {
+      for (let w = 1; w <= displayHolesCount; w++) {
         const targetHole = getTargetHoleForWeek(w, cfg.holeOrder);
         const targetSI = targetHole ? targetHole.si : '-';
         const holeNum = targetHole ? targetHole.hole : '-';
         const holePar = targetHole ? targetHole.par : '-';
+
+        if (w > totalWeeks) {
+          // Future unplayed round
+          weekCellsHtml += `<td class="text-center lastman-week-col lastman-cell-future" title="Round ${w}: Hole ${holeNum} (Scheduled)">·</td>`;
+          continue;
+        }
 
         const res = player.weeklyResults.get(w);
         if (!res || res.isPastElimination || res.isPostComp) {
@@ -5186,7 +5300,6 @@
       tr.className = 'clickable-row' + (player.status === 'eliminated' ? ' lastman-row-eliminated' : '');
       tr.title = (player.eliminationReason ? player.eliminationReason + ' • ' : '') + 'Click to view survival log';
       tr.innerHTML = `
-        <td class="text-center font-bold pos-col" style="color: var(--text-muted);">${posDisplay}</td>
         <td class="sticky-col-name player-name-cell">${escapeHtml(player.name)} <span class="player-hci">${formatPlayerHci(player.currentHCI, player.playingStrokes)}</span></td>
         <td class="text-center lastman-status-col">${statusBadge}</td>
         ${weekCellsHtml}
@@ -5466,8 +5579,15 @@
     const asOfWeek = state.parbingoWeek || state.latestWeek;
     const eligibility = (elements.parbingoFilterEligibility ? elements.parbingoFilterEligibility.value : '') || state.parbingoEligibility || 'league';
     state.parbingoEligibility = eligibility;
-    const currentMode = state.bingoMode || 'gross';
+    const currentMode = state.bingoMode || 'nett';
     const isNetBirdie = currentMode === 'nett';
+
+    const cfg = state.bingoConfig || DEFAULT_BINGO_CONFIG;
+    const hideMode = Boolean(cfg.hideModeOptions || cfg.hideModeToggle || cfg.hideWinnerOptions);
+    if (elements.bingoModeToggleGroup) {
+      elements.bingoModeToggleGroup.style.display = hideMode ? 'none' : 'inline-flex';
+      elements.bingoModeToggleGroup.classList.toggle('is-hidden', hideMode);
+    }
 
     // Synchronize mode buttons
     if (elements.btnBingoModeGross && elements.btnBingoModeNett) {
@@ -5499,48 +5619,60 @@
 
     // Render Winner / Progress Banner
     if (elements.parbingoBanner) {
-      const modeTitle = isNetBirdie ? 'Net Birdies Bingo' : 'Gross Pars Bingo';
-      const modeTargetDesc = isNetBirdie ? 'net birdie or better' : 'gross par or better';
-      if (bingoData.winner) {
-        const w = bingoData.winner;
-        elements.parbingoBanner.innerHTML = `
-          <div class="parbingo-banner-winner">
-            <div class="parbingo-banner-title">
-              🏆 ${modeTitle} Champion Crowned in Week ${w.bingoWeek}!
-            </div>
-            <div class="parbingo-banner-subtitle">
-              <strong>${escapeHtml(w.name)}</strong> is the first player to register a ${modeTargetDesc} on all 18 holes of the course!
-            </div>
-            <div class="parbingo-banner-stats">
-              <span class="parbingo-stat-pill">Winner: <strong>${escapeHtml(w.name)}</strong></span>
-              <span class="parbingo-stat-pill">Winning Round: <strong>Week ${w.bingoWeek}</strong></span>
-              <span class="parbingo-stat-pill">Rounds Taken: <strong>${w.roundsAtBingo}</strong></span>
-              <span class="parbingo-stat-pill">Holes: <strong>18 / 18 Completed 🎯</strong></span>
-            </div>
-          </div>
-        `;
-      } else {
-        const topContender = bingoData.players.find(p => p.roundsPlayed > 0);
-        const topCount = topContender ? topContender.completedHoles.size : 0;
-        const leaderName = topContender ? topContender.name : 'None';
-        const remHoles = 18 - topCount;
-        const activeCount = bingoData.players.filter(p => p.roundsPlayed > 0).length;
+      const isWinner = Boolean(bingoData.winner);
+      const isProgress = !isWinner;
+      const hideBanner = Boolean(cfg.hideBanner);
+      const hideProgressBanner = (cfg.hideProgressBanner !== false && cfg.hideInfoSection !== false);
+      const shouldHide = hideBanner || (isProgress && hideProgressBanner);
 
-        elements.parbingoBanner.innerHTML = `
-          <div class="parbingo-banner-progress">
-            <div class="parbingo-banner-title">
-              🎱 ${modeTitle} in Progress (Through Round ${asOfWeek} of ${state.latestWeek})
+      if (shouldHide) {
+        elements.parbingoBanner.style.display = 'none';
+        elements.parbingoBanner.innerHTML = '';
+      } else {
+        elements.parbingoBanner.style.display = '';
+        const modeTitle = isNetBirdie ? 'Net Birdies Bingo' : 'Gross Pars Bingo';
+        const modeTargetDesc = isNetBirdie ? 'net birdie or better' : 'gross par or better';
+        if (bingoData.winner) {
+          const w = bingoData.winner;
+          elements.parbingoBanner.innerHTML = `
+            <div class="parbingo-banner-winner">
+              <div class="parbingo-banner-title">
+                🏆 ${modeTitle} Champion Crowned in Week ${w.bingoWeek}!
+              </div>
+              <div class="parbingo-banner-subtitle">
+                <strong>${escapeHtml(w.name)}</strong> is the first player to register a ${modeTargetDesc} on all 18 holes of the course!
+              </div>
+              <div class="parbingo-banner-stats">
+                <span class="parbingo-stat-pill">Winner: <strong>${escapeHtml(w.name)}</strong></span>
+                <span class="parbingo-stat-pill">Winning Round: <strong>Week ${w.bingoWeek}</strong></span>
+                <span class="parbingo-stat-pill">Rounds Taken: <strong>${w.roundsAtBingo}</strong></span>
+                <span class="parbingo-stat-pill">Holes: <strong>18 / 18 Completed 🎯</strong></span>
+              </div>
             </div>
-            <div class="parbingo-banner-subtitle">
-              No player has completed all 18 holes yet. Current leader: <strong>${escapeHtml(leaderName)}</strong> with <strong>${topCount} / 18 holes</strong>!
+          `;
+        } else {
+          const topContender = bingoData.players.find(p => p.roundsPlayed > 0);
+          const topCount = topContender ? topContender.completedHoles.size : 0;
+          const leaderName = topContender ? topContender.name : 'None';
+          const remHoles = 18 - topCount;
+          const activeCount = bingoData.players.filter(p => p.roundsPlayed > 0).length;
+
+          elements.parbingoBanner.innerHTML = `
+            <div class="parbingo-banner-progress">
+              <div class="parbingo-banner-title">
+                🎱 ${modeTitle} in Progress (Through Round ${asOfWeek} of ${state.latestWeek})
+              </div>
+              <div class="parbingo-banner-subtitle">
+                No player has completed all 18 holes yet. Current leader: <strong>${escapeHtml(leaderName)}</strong> with <strong>${topCount} / 18 holes</strong>!
+              </div>
+              <div class="parbingo-banner-stats">
+                <span class="parbingo-stat-pill">Leader: <strong>${escapeHtml(leaderName)}</strong> (${topCount}/18)</span>
+                <span class="parbingo-stat-pill">Needed to Win: <strong>${remHoles} hole${remHoles === 1 ? '' : 's'}</strong></span>
+                <span class="parbingo-stat-pill">Active Players: <strong>${activeCount}</strong></span>
+              </div>
             </div>
-            <div class="parbingo-banner-stats">
-              <span class="parbingo-stat-pill">Leader: <strong>${escapeHtml(leaderName)}</strong> (${topCount}/18)</span>
-              <span class="parbingo-stat-pill">Needed to Win: <strong>${remHoles} hole${remHoles === 1 ? '' : 's'}</strong></span>
-              <span class="parbingo-stat-pill">Active Players: <strong>${activeCount}</strong></span>
-            </div>
-          </div>
-        `;
+          `;
+        }
       }
     }
 
@@ -5681,34 +5813,48 @@
    * ========================================================================== */
 
   /**
-   * Helper: Checks whether current browser URL or hash targets the hidden Cup route (/cup)
+   * Helper: Checks whether current browser URL or hash targets the Cup route (/cup or #cup)
    */
   function isCupRoute() {
-    const path = (window.location.pathname || '').replace(/\/+$/, '');
-    const hash = (window.location.hash || '').toLowerCase();
-    const search = new URLSearchParams(window.location.search).get('tab');
-    return path.endsWith('/cup') || hash === '#cup' || hash === '#tab-cup' || search === 'cup';
+    return resolveRequestedTabFromUrl() === 'tab-cup';
   }
 
   /**
-   * Helper: Berger Circle Round-Robin Generator for 12 players across 11 rounds.
-   * Round 0 (Week 1) matches: 1v12, 2v11, 3v10, 4v9, 5v8, 6v7.
+   * Helper: Berger Circle Round-Robin Generator for any number of players across 11 rounds.
+   * If a pot has an odd number of players (e.g. 13), a ghost opponent 'Course (Par 36)'
+   * is added so every member has a scheduled match each week without sitting out.
    */
-  function generateBergerSchedule(players) {
-    const n = players.length; // 12
+  const CUP_COURSE_MEMBER_ID = '__PAR_36__';
+
+  function generateBergerSchedule(players, maxWeeks = 11) {
+    let list = players.slice();
+    const hasGhost = list.length % 2 !== 0;
+    if (hasGhost) {
+      list.push({
+        memberId: CUP_COURSE_MEMBER_ID,
+        name: 'Course (Par 36)',
+        isGhost: true,
+        origHCI: 0,
+        seed: 'Par'
+      });
+    }
+    const n = list.length;
     const fixturesByWeek = [];
-    const rotating = players.slice(1); // 11 players
+    const rotating = list.slice(1);
 
     for (let r = 0; r < n - 1; r++) {
       const weekMatches = [];
-      const topRow = [players[0]].concat(rotating.slice(0, (n / 2) - 1));
+      const topRow = [list[0]].concat(rotating.slice(0, (n / 2) - 1));
       const bottomRow = rotating.slice((n / 2) - 1).reverse();
 
       for (let i = 0; i < n / 2; i++) {
-        weekMatches.push({
-          home: topRow[i],
-          away: bottomRow[i]
-        });
+        const h = topRow[i];
+        const a = bottomRow[i];
+        if (h.isGhost && !a.isGhost) {
+          weekMatches.push({ home: a, away: h });
+        } else {
+          weekMatches.push({ home: h, away: a });
+        }
       }
       fixturesByWeek.push(weekMatches);
 
@@ -5716,30 +5862,31 @@
       const last = rotating.pop();
       rotating.unshift(last);
     }
-    return fixturesByWeek;
+    return fixturesByWeek.slice(0, maxWeeks);
   }
 
   /**
    * Main Cup Competition Engine:
-   * 1. Filters 49 league members, takes top 48 by starting HCI, designates #49 as Reserve.
-   * 2. Partitions 48 players into 4 Pots of 12 (Seeds 1–12 in each pot).
-   * 3. Generates 11 weeks of Berger round-robin fixtures within pots.
-   * 4. Ingests weekly Stableford points from state.weeklyResults to score matchplay (Win = 3, Draw = 1, Loss = 0).
-   * 5. Tracks score differential (diff = PF - PA) accumulated across weeks.
-   * 6. Ranks all 48 players in a single unified table (Points -> Diff -> PF -> PA -> origHCI).
+   * 1. Includes ALL Winter League members (sorted by origHCI ASC, name ASC) - no cuts or reserves.
+   * 2. Partitions players into 4 skill-balanced Pots (12-13+ players each).
+   * 3. Generates 11 weeks of round-robin fixtures within pots.
+   *    In pots with an odd number of players (e.g. 13), the player paired with the ghost
+   *    plays against 'Course (Par 36)': >36 is a Win (3 pts), 36 is a Draw (1 pt), <36 is a Loss (0 pts).
+   * 4. Ingests weekly Stableford points from state.weeklyResults to score matchplay.
+   * 5. Tracks score differential to par (diff = points - 36) accumulated across weeks.
+   * 6. Ranks ALL players in a single unified table (Points -> Diff -> PF -> Fewest Lost -> origHCI).
    * 7. Projects Top 16 knockout bracket (1v16, 8v9, 4v13, 5v12, 2v15, 7v10, 3v14, 6v11).
    */
   function calculateCupCompetition() {
     if (!state.members || state.members.length === 0) return;
 
-    // 1. Filter Winter League members and sort by origHCI ASC, name ASC
+    // 1. Filter ALL Winter League members and sort by origHCI ASC, name ASC
     const leagueMembers = state.members
       .filter(m => m.inLeague)
       .slice()
       .sort((a, b) => a.origHCI - b.origHCI || a.name.localeCompare(b.name));
 
-    const top48 = leagueMembers.slice(0, 48);
-    const reserve = leagueMembers.length > 48 ? leagueMembers[48] : null;
+    const totalLeaguePlayers = leagueMembers.length;
 
     const POT_NAMES = [
       'Pot 1 (Championship Tier)',
@@ -5748,18 +5895,31 @@
       'Pot 4 (Third Division)'
     ];
 
-    // 2. Divide into 4 Pots of 12
+    // 2. Partition all players into 4 balanced pots
+    // Base size and remainder distribution (remainder assigned from Pot 4 down)
+    const baseSize = Math.floor(totalLeaguePlayers / 4);
+    const remainder = totalLeaguePlayers % 4;
+    const rawPots = [[], [], [], []];
+    let cursor = 0;
+    for (let p = 0; p < 4; p++) {
+      const extra = (p >= (4 - remainder)) ? 1 : 0;
+      const size = baseSize + extra;
+      rawPots[p] = leagueMembers.slice(cursor, cursor + size);
+      cursor += size;
+    }
+
     const pots = [];
     const playerStatsMap = new Map();
+    let overallSeedCursor = 1;
 
     for (let p = 0; p < 4; p++) {
-      const potPlayers = top48.slice(p * 12, (p + 1) * 12).map((player, idx) => {
+      const potPlayers = rawPots[p].map((player, idx) => {
         const enriched = {
           ...player,
           pot: p + 1,
           potName: POT_NAMES[p],
           seed: idx + 1,
-          overallSeed: p * 12 + idx + 1,
+          overallSeed: overallSeedCursor++,
           played: 0,
           won: 0,
           drawn: 0,
@@ -5776,8 +5936,18 @@
       pots.push(potPlayers);
     }
 
+    // Register ghost Course (Par 36) in playerStatsMap for safe lookups
+    playerStatsMap.set(CUP_COURSE_MEMBER_ID, {
+      memberId: CUP_COURSE_MEMBER_ID,
+      name: 'Course (Par 36)',
+      isGhost: true,
+      seed: 'Par',
+      origHCI: 0,
+      pot: 0
+    });
+
     // 3. Generate round-robin fixtures for each pot (11 rounds)
-    const potFixtures = pots.map(pot => generateBergerSchedule(pot));
+    const potFixtures = pots.map(pot => generateBergerSchedule(pot, 11));
 
     // 4. Map weekly Stableford points for each player across played weeks
     const weeklyPointsMap = new Map();
@@ -5801,94 +5971,173 @@
       const hasScoresThisWeek = w <= availableWeeks;
 
       for (let p = 0; p < 4; p++) {
-        const roundMatches = potFixtures[p][w - 1]; // 6 matches in Pot p for week w
+        const roundMatches = potFixtures[p][w - 1] || [];
         roundMatches.forEach(rm => {
           const p1 = playerStatsMap.get(String(rm.home.memberId));
           const p2 = playerStatsMap.get(String(rm.away.memberId));
 
           const key1 = `${w}_${p1.memberId}`;
-          const key2 = `${w}_${p2.memberId}`;
+          const isCourseMatch = p2.isGhost;
+          const key2 = isCourseMatch ? null : `${w}_${p2.memberId}`;
 
           const p1Played = weeklyPointsMap.has(key1);
-          const p2Played = weeklyPointsMap.has(key2);
+          const p2Played = isCourseMatch ? false : weeklyPointsMap.has(key2);
 
           const p1Pts = (p1Played && typeof weeklyPointsMap.get(key1) === 'number') ? weeklyPointsMap.get(key1) : 0;
-          const p2Pts = (p2Played && typeof weeklyPointsMap.get(key2) === 'number') ? weeklyPointsMap.get(key2) : 0;
+          const p2Pts = isCourseMatch ? 36 : ((p2Played && typeof weeklyPointsMap.get(key2) === 'number') ? weeklyPointsMap.get(key2) : 0);
 
           let status = 'scheduled';
           let outcome = 'Scheduled';
           let winnerId = null;
-          let diff1 = 0;
-          let diff2 = 0;
           let p1CupPts = 0;
           let p2CupPts = 0;
 
-          if (hasScoresThisWeek && (p1Played || p2Played)) {
-            status = 'completed';
-            p1.played += 1;
-            p2.played += 1;
-            p1.pointsFor += p1Pts;
-            p1.pointsAgainst += p2Pts;
-            p2.pointsFor += p2Pts;
-            p2.pointsAgainst += p1Pts;
+          if (isCourseMatch) {
+            // Player vs Course (Par 36)
+            if (hasScoresThisWeek) {
+              status = 'completed';
+              p1.played += 1;
+              p1.pointsFor += p1Pts;
+              p1.pointsAgainst += 36;
 
-            // Diff to par (36 points):
-            // e.g. Gordon Convery Jnr (39 pts) = +3, Ryan Gallagher (32 pts) = -4
-            // If a player does not play, diff does not change for them
-            const p1DiffToPar = p1Played ? (p1Pts - 36) : 0;
-            const p2DiffToPar = p2Played ? (p2Pts - 36) : 0;
+              // Diff bonus: Only changes if a player gets 36 points or more (diff = pts - 35).
+              // 36 points gives +1, 37 gives +2, 38 gives +3, etc.
+              // If player does not get over 35 points (pts <= 35) or DNP, diff does not change (0).
+              const p1DiffToPar = (p1Played && p1Pts >= 36) ? (p1Pts - 35) : 0;
+              if (p1Played && p1Pts >= 36) {
+                p1.diff += p1DiffToPar;
+              }
 
-            if (p1Played) {
-              p1.diff += p1DiffToPar;
+              if (p1Played) {
+                if (p1Pts > 36) {
+                  outcome = `${p1.name} Win (Beat Par)`;
+                  winnerId = p1.memberId;
+                  p1CupPts = 3;
+                  p1.won += 1;
+                } else if (p1Pts === 36) {
+                  outcome = 'Draw vs Par';
+                  winnerId = null;
+                  p1CupPts = 1;
+                  p1.drawn += 1;
+                } else {
+                  outcome = 'Course Win (Under Par)';
+                  winnerId = CUP_COURSE_MEMBER_ID;
+                  p1CupPts = 0;
+                  p1.lost += 1;
+                }
+              } else {
+                outcome = 'Course Win (DNP)';
+                winnerId = CUP_COURSE_MEMBER_ID;
+                p1CupPts = 0;
+                p1.lost += 1;
+              }
+
+              p1.cupPoints += p1CupPts;
+
+              p1.matchHistory.push({
+                week: w,
+                opponent: p2,
+                ownPts: p1Pts,
+                oppPts: 36,
+                hasPlayed: p1Played,
+                diff: p1DiffToPar,
+                outcome: p1CupPts === 3 ? 'Win' : (p1CupPts === 1 ? 'Draw' : 'Loss'),
+                cupPts: p1CupPts
+              });
             }
-            if (p2Played) {
-              p2.diff += p2DiffToPar;
+          } else {
+            // Player vs Player
+            if (hasScoresThisWeek) {
+              status = 'completed';
+              p1.played += 1;
+              p2.played += 1;
+              p1.pointsFor += p1Pts;
+              p1.pointsAgainst += p2Pts;
+              p2.pointsFor += p2Pts;
+              p2.pointsAgainst += p1Pts;
+
+              // Diff bonus: Only changes if a player gets 36 points or more (diff = pts - 35).
+              // 36 points gives +1, 37 gives +2, 38 gives +3, etc.
+              // If player does not get over 35 points (pts <= 35) or DNP, diff does not change (0).
+              const p1DiffToPar = (p1Played && p1Pts >= 36) ? (p1Pts - 35) : 0;
+              const p2DiffToPar = (p2Played && p2Pts >= 36) ? (p2Pts - 35) : 0;
+
+              if (p1Played && p1Pts >= 36) {
+                p1.diff += p1DiffToPar;
+              }
+              if (p2Played && p2Pts >= 36) {
+                p2.diff += p2DiffToPar;
+              }
+
+              if (p1Played && p2Played) {
+                if (p1Pts > p2Pts) {
+                  outcome = `${p1.name} Win`;
+                  winnerId = p1.memberId;
+                  p1CupPts = 3;
+                  p1.won += 1;
+                  p2.lost += 1;
+                } else if (p2Pts > p1Pts) {
+                  outcome = `${p2.name} Win`;
+                  winnerId = p2.memberId;
+                  p2CupPts = 3;
+                  p2.won += 1;
+                  p1.lost += 1;
+                } else {
+                  outcome = 'Draw';
+                  p1CupPts = 1;
+                  p2CupPts = 1;
+                  p1.drawn += 1;
+                  p2.drawn += 1;
+                }
+              } else if (p1Played && !p2Played) {
+                // p1 played, p2 DNP -> p1 Win (3 pts), p2 Loss (0 pts)
+                outcome = `${p1.name} Win`;
+                winnerId = p1.memberId;
+                p1CupPts = 3;
+                p1.won += 1;
+                p2.lost += 1;
+              } else if (!p1Played && p2Played) {
+                // p2 played, p1 DNP -> p2 Win (3 pts), p1 Loss (0 pts)
+                outcome = `${p2.name} Win`;
+                winnerId = p2.memberId;
+                p2CupPts = 3;
+                p2.won += 1;
+                p1.lost += 1;
+              } else {
+                // Neither player played (0 - 0): neither gets points, both register a loss, fixture counts as played
+                outcome = 'Uncontested (Loss for both)';
+                winnerId = null;
+                p1CupPts = 0;
+                p2CupPts = 0;
+                p1.lost += 1;
+                p2.lost += 1;
+              }
+
+              p1.cupPoints += p1CupPts;
+              p2.cupPoints += p2CupPts;
+
+              p1.matchHistory.push({
+                week: w,
+                opponent: p2,
+                ownPts: p1Pts,
+                oppPts: p2Pts,
+                hasPlayed: p1Played,
+                diff: p1DiffToPar,
+                outcome: p1CupPts === 3 ? 'Win' : (p1CupPts === 1 ? 'Draw' : 'Loss'),
+                cupPts: p1CupPts
+              });
+
+              p2.matchHistory.push({
+                week: w,
+                opponent: p1,
+                ownPts: p2Pts,
+                oppPts: p1Pts,
+                hasPlayed: p2Played,
+                diff: p2DiffToPar,
+                outcome: p2CupPts === 3 ? 'Win' : (p2CupPts === 1 ? 'Draw' : 'Loss'),
+                cupPts: p2CupPts
+              });
             }
-
-            if (p1Pts > p2Pts) {
-              outcome = `${p1.name} Win`;
-              winnerId = p1.memberId;
-              p1CupPts = 3;
-              p1.won += 1;
-              p2.lost += 1;
-            } else if (p2Pts > p1Pts) {
-              outcome = `${p2.name} Win`;
-              winnerId = p2.memberId;
-              p2CupPts = 3;
-              p2.won += 1;
-              p1.lost += 1;
-            } else {
-              outcome = 'Draw';
-              p1CupPts = 1;
-              p2CupPts = 1;
-              p1.drawn += 1;
-              p2.drawn += 1;
-            }
-
-            p1.cupPoints += p1CupPts;
-            p2.cupPoints += p2CupPts;
-
-            p1.matchHistory.push({
-              week: w,
-              opponent: p2,
-              ownPts: p1Pts,
-              oppPts: p2Pts,
-              hasPlayed: p1Played,
-              diff: p1DiffToPar,
-              outcome: p1CupPts === 3 ? 'Win' : (p1CupPts === 1 ? 'Draw' : 'Loss'),
-              cupPts: p1CupPts
-            });
-
-            p2.matchHistory.push({
-              week: w,
-              opponent: p1,
-              ownPts: p2Pts,
-              oppPts: p1Pts,
-              hasPlayed: p2Played,
-              diff: p2DiffToPar,
-              outcome: p2CupPts === 3 ? 'Win' : (p2CupPts === 1 ? 'Draw' : 'Loss'),
-              cupPts: p2CupPts
-            });
           }
 
           weekMatches.push({
@@ -5898,25 +6147,26 @@
             player1: p1,
             score1: p1Pts,
             player2: p2,
-            score2: p2Pts,
+            score2: isCourseMatch ? 36 : p2Pts,
             status,
             outcome,
             winnerId,
-            diff1: p1Played ? (p1Pts - 36) : 0,
-            diff2: p2Played ? (p2Pts - 36) : 0
+            diff1: (p1Played && p1Pts >= 36) ? (p1Pts - 35) : 0,
+            diff2: isCourseMatch ? 0 : ((p2Played && p2Pts >= 36) ? (p2Pts - 35) : 0)
           });
         });
       }
       weeksFixtures.push(weekMatches);
     }
 
-    // 6. Rank unified 48-player standings:
+    // 6. Rank unified league standings (all league members):
     // 1. cupPoints DESC
     // 2. diff DESC (diff to par 36)
     // 3. pointsFor DESC
     // 4. Fewest matches lost ASC
     // 5. origHCI ASC
-    const unifiedStandings = Array.from(playerStatsMap.values()).sort((a, b) => {
+    const realPlayers = Array.from(playerStatsMap.values()).filter(p => !p.isGhost);
+    const unifiedStandings = realPlayers.sort((a, b) => {
       if (b.cupPoints !== a.cupPoints) return b.cupPoints - a.cupPoints;
       if (b.diff !== a.diff) return b.diff - a.diff;
       if (b.pointsFor !== a.pointsFor) return b.pointsFor - a.pointsFor;
@@ -5949,9 +6199,9 @@
     state.cupData = {
       pots,
       potNames: POT_NAMES,
-      reserve,
       weeksFixtures,
       unifiedStandings,
+      top16,
       r16Pairs
     };
   }
@@ -5999,10 +6249,8 @@
     if (elements.cupViewPots) elements.cupViewPots.style.display = state.cupSubView === 'pots' ? 'block' : 'none';
     if (elements.cupViewBracket) elements.cupViewBracket.style.display = state.cupSubView === 'bracket' ? 'block' : 'none';
 
-    // Show fixture nav controls only in fixtures mode
-    if (elements.cupNavGroup) {
-      elements.cupNavGroup.style.display = state.cupSubView === 'fixtures' ? 'flex' : 'none';
-    }
+    // Populate week selector if needed
+    populateCupWeekSelector();
 
     // Render active subview
     switch (state.cupSubView) {
@@ -6064,13 +6312,13 @@
           ${escapeHtml(p.name)}
           ${hciHtml}
         </td>
-        <td class="text-center"><span class="badge" style="background:var(--surface-alt); font-size:0.75rem; font-weight:700;">Pot ${p.pot} (S${p.seed})</span></td>
-        <td class="text-center font-bold" style="color:var(--text-muted);">${p.played}</td>
-        <td class="text-center font-bold" style="color:#15803d;">${p.won}</td>
-        <td class="text-center" style="color:var(--text-muted);">${p.drawn}</td>
-        <td class="text-center" style="color:#b91c1c;">${p.lost}</td>
-        <td class="text-center font-bold ${diffClass}">${diffFormatted}</td>
-        <td class="text-center font-bold" style="font-size:0.95rem; color:var(--primary);">${p.cupPoints}</td>
+        <td class="text-center cup-pot-col"><span class="badge" style="background:var(--surface-alt); font-size:0.75rem; font-weight:700;">Pot ${p.pot} (S${p.seed})</span></td>
+        <td class="text-center font-bold cup-pld-col" style="color:var(--text-muted);">${p.played}</td>
+        <td class="text-center font-bold cup-record-col" style="color:#15803d;">${p.won}</td>
+        <td class="text-center cup-record-col" style="color:var(--text-muted);">${p.drawn}</td>
+        <td class="text-center cup-record-col" style="color:#b91c1c;">${p.lost}</td>
+        <td class="text-center font-bold cup-diff-col ${diffClass}">${diffFormatted}</td>
+        <td class="text-center font-bold cup-pts-col" style="font-size:0.95rem; color:var(--primary);">${p.cupPoints}</td>
       `;
 
       tr.addEventListener('click', () => {
@@ -6212,7 +6460,16 @@
       potsGrouped.get(m.pot).push(m);
     });
 
-    potsGrouped.forEach((matches, potId) => {
+    // Render pot blocks in a 2-column grid: Championship next to Div 1, Div 2 next to Div 3
+    const gridWrapper = document.createElement('div');
+    gridWrapper.className = 'cup-fixtures-grid';
+
+    // Order pots: 1, 2, 3, 4
+    const potOrder = [1, 2, 3, 4];
+    potOrder.forEach(potId => {
+      const matches = potsGrouped.get(potId);
+      if (!matches || matches.length === 0) return;
+
       const potName = state.cupData.potNames[potId - 1] || `Pot ${potId}`;
       const block = document.createElement('div');
       block.className = 'cup-fixtures-pot-block';
@@ -6222,22 +6479,12 @@
         const isCompleted = m.status === 'completed';
         const p1Won = isCompleted && m.winnerId === m.player1.memberId;
         const p2Won = isCompleted && m.winnerId === m.player2.memberId;
+        const p1Lost = isCompleted && m.winnerId !== null && m.winnerId === m.player2.memberId;
+        const p2Lost = isCompleted && m.winnerId !== null && m.winnerId === m.player1.memberId;
         const isDraw = isCompleted && m.winnerId === null && (m.score1 > 0 || m.score2 > 0);
+        const bothDNP = isCompleted && m.score1 === 0 && m.score2 === 0;
 
         const scoreText = isCompleted ? `${m.score1} - ${m.score2}` : 'vs';
-        let resultTagText = 'Scheduled';
-        let resultTagColor = 'var(--text-muted)';
-
-        if (p1Won) {
-          resultTagText = `${m.player1.name} Win (+${m.diff1})`;
-          resultTagColor = '#15803d';
-        } else if (p2Won) {
-          resultTagText = `${m.player2.name} Win (+${m.diff2})`;
-          resultTagColor = '#15803d';
-        } else if (isDraw) {
-          resultTagText = 'Draw (1 pt each)';
-          resultTagColor = '#b45309';
-        }
 
         const p1EnteringHci = getPlayerEnteringHciAtWeek(m.player1.memberId, weekNum);
         const p2EnteringHci = getPlayerEnteringHciAtWeek(m.player2.memberId, weekNum);
@@ -6256,27 +6503,27 @@
           ? `<span style="color:#b91c1c; font-weight:700;" title="League cut applied: ${p2CutDiff.toFixed(1)} (${m.player2.origHCI.toFixed(1)} -> ${p2EnteringHci.toFixed(1)})">${formatPlayerHci(p2EnteringHci, p2Strokes)}</span>`
           : formatPlayerHci(p2EnteringHci, p2Strokes);
 
+        const p1NameHtml = `<span class="cup-player-title">${escapeHtml(m.player1.name)}</span>`;
+        const p2NameHtml = `<span class="cup-player-title">${escapeHtml(m.player2.name)}</span>`;
+
         matchesHtml += `
-          <div class="cup-match-card">
-            <div class="cup-match-team ${p1Won ? 'winner' : ''}">
-              <div class="cup-team-name">
-                <span class="cup-seed-badge">S${m.player1.seed}</span>
-                ${escapeHtml(m.player1.name)}
-              </div>
-              <div class="cup-team-sub">${p1HciHtml}</div>
+          <div class="cup-match-row ${isCompleted ? 'is-completed' : ''} ${bothDNP ? 'both-dnp' : ''}">
+            <div class="cup-team-col team-home ${p1Won ? 'winner' : ''} ${p1Lost ? 'loser' : ''}">
+              <span class="cup-team-info">
+                ${p1NameHtml}
+                <span class="cup-team-sub"><span class="cup-seed-badge">S${m.player1.seed}</span>${p1HciHtml}</span>
+              </span>
             </div>
 
-            <div class="cup-match-center">
-              <div class="cup-score-badge">${scoreText}</div>
-              <div class="cup-result-tag" style="color:${resultTagColor};">${resultTagText}</div>
+            <div class="cup-score-col">
+              <span class="cup-score-badge ${isCompleted ? 'score-final' : 'score-vs'}">${scoreText}</span>
             </div>
 
-            <div class="cup-match-team team-away ${p2Won ? 'winner' : ''}">
-              <div class="cup-team-name">
-                ${escapeHtml(m.player2.name)}
-                <span class="cup-seed-badge">S${m.player2.seed}</span>
-              </div>
-              <div class="cup-team-sub">${p2HciHtml}</div>
+            <div class="cup-team-col team-away ${p2Won ? 'winner' : ''} ${p2Lost ? 'loser' : ''}">
+              <span class="cup-team-info">
+                ${p2NameHtml}
+                <span class="cup-team-sub">${p2HciHtml}<span class="cup-seed-badge">S${m.player2.seed}</span></span>
+              </span>
             </div>
           </div>
         `;
@@ -6285,15 +6532,17 @@
       block.innerHTML = `
         <div class="cup-fixtures-pot-header">
           <span>${escapeHtml(potName)}</span>
-          <span style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Week ${weekNum} Fixtures</span>
+          <span style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">${matches.length} Matches</span>
         </div>
-        <div class="cup-matches-grid">
+        <div class="cup-matches-list">
           ${matchesHtml}
         </div>
       `;
 
-      elements.cupFixturesContainer.appendChild(block);
+      gridWrapper.appendChild(block);
     });
+
+    elements.cupFixturesContainer.appendChild(gridWrapper);
   }
 
   /**
@@ -6337,7 +6586,7 @@
       potCard.innerHTML = `
         <div class="cup-pot-header">
           <h3 class="cup-pot-title">${escapeHtml(potNames[pIdx])}</h3>
-          <p class="cup-pot-subtitle">HCI Range: ${minHci} – ${maxHci} | 12 Players</p>
+          <p class="cup-pot-subtitle">HCI Range: ${minHci} – ${maxHci} | ${pot.length} Players</p>
         </div>
         <ul class="cup-pot-list">
           ${itemsHtml}
@@ -6347,30 +6596,46 @@
       elements.cupPotsContainer.appendChild(potCard);
     });
 
-    // Add Reserve Card
-    if (state.cupData.reserve) {
-      const res = state.cupData.reserve;
-      const resCurrentHci = getPlayerCurrentHci(res.memberId);
-      const strokes = calculatePlayingHandicap(resCurrentHci, state.course);
-      const resCutDiff = round1(resCurrentHci - res.origHCI);
-      const resCutApplied = resCutDiff < 0;
-      const resHciHtml = resCutApplied
-        ? `<strong style="color:#b91c1c;">${resCurrentHci.toFixed(1)}</strong> <span class="player-hci" style="color:#b91c1c; font-weight:700;">(${strokes})</span>`
-        : `<strong>${resCurrentHci.toFixed(1)}</strong> <span class="player-hci">(${strokes})</span>`;
-
-      const resBox = document.createElement('div');
-      resBox.className = 'cup-reserve-box';
-      resBox.innerHTML = `
+    // Add Course / Par 36 Notice Card if any pot has an odd player count
+    const hasOddPot = pots.some(pot => pot.length % 2 !== 0);
+    if (hasOddPot) {
+      const parCard = document.createElement('div');
+      parCard.className = 'cup-reserve-box';
+      parCard.innerHTML = `
         <div>
-          <span class="badge" style="background:#e0e7ff; color:#3730a3; font-weight:800; margin-right:8px;">1st Reserve</span>
-          <strong>${escapeHtml(res.name)}</strong> (Player #49)
+          <span class="badge" style="background:#e0e7ff; color:#3730a3; font-weight:800; margin-right:8px;">Par Opponent</span>
+          <strong>Course (Par 36)</strong> — Odd-sized pots feature 1 match against Par per week
         </div>
-        <div>
-          Current HCI: ${resHciHtml}
+        <div style="font-size:0.75rem; color:var(--text-muted);">
+          Beat Par (&gt;36 pts): Win (3 pts) • Equal Par (36 pts): Draw (1 pt) • Under Par (&lt;36 pts / DNP): Loss (0 pts)
         </div>
       `;
-      elements.cupPotsContainer.appendChild(resBox);
+      elements.cupPotsContainer.appendChild(parCard);
     }
+  }
+
+  const CUP_BRACKET_ROUNDS = ['r16', 'qf', 'sf', 'final'];
+
+  function setCupBracketRound(roundVal) {
+    if (!CUP_BRACKET_ROUNDS.includes(roundVal)) roundVal = 'r16';
+    state.cupBracketRound = roundVal;
+    if (elements.cupBracketRoundSelect) {
+      elements.cupBracketRoundSelect.value = roundVal;
+    }
+    const board = elements.cupBracketContainer ? elements.cupBracketContainer.querySelector('.cup-bracket-board') : null;
+    if (board) {
+      board.setAttribute('data-active-round', roundVal);
+    }
+  }
+
+  function cycleCupBracketRound(direction) {
+    const current = state.cupBracketRound || 'r16';
+    let idx = CUP_BRACKET_ROUNDS.indexOf(current);
+    if (idx === -1) idx = 0;
+    let nextIdx = idx + direction;
+    if (nextIdx < 0) nextIdx = CUP_BRACKET_ROUNDS.length - 1;
+    if (nextIdx >= CUP_BRACKET_ROUNDS.length) nextIdx = 0;
+    setCupBracketRound(CUP_BRACKET_ROUNDS[nextIdx]);
   }
 
   /**
@@ -6379,6 +6644,11 @@
   function renderCupBracket() {
     if (!elements.cupBracketContainer || !state.cupData) return;
     elements.cupBracketContainer.innerHTML = '';
+
+    const activeRound = state.cupBracketRound || 'r16';
+    if (elements.cupBracketRoundSelect) {
+      elements.cupBracketRoundSelect.value = activeRound;
+    }
 
     const r16Pairs = state.cupData.r16Pairs || [];
 
@@ -6410,15 +6680,16 @@
 
     const board = document.createElement('div');
     board.className = 'cup-bracket-board';
+    board.setAttribute('data-active-round', activeRound);
     board.innerHTML = `
-      <div class="cup-bracket-round">
+      <div class="cup-bracket-round" data-round="r16">
         <div class="cup-bracket-round-title">Round of 16 (Week 12)</div>
         <div class="cup-bracket-matchups">
           ${r16TilesHtml}
         </div>
       </div>
 
-      <div class="cup-bracket-round">
+      <div class="cup-bracket-round" data-round="qf">
         <div class="cup-bracket-round-title">Quarter-Finals (Week 13)</div>
         <div class="cup-bracket-matchups">
           <div class="cup-bracket-tile">
@@ -6444,7 +6715,7 @@
         </div>
       </div>
 
-      <div class="cup-bracket-round">
+      <div class="cup-bracket-round" data-round="sf">
         <div class="cup-bracket-round-title">Semi-Finals (Week 14)</div>
         <div class="cup-bracket-matchups">
           <div class="cup-bracket-tile">
@@ -6460,7 +6731,7 @@
         </div>
       </div>
 
-      <div class="cup-bracket-round">
+      <div class="cup-bracket-round" data-round="final">
         <div class="cup-bracket-round-title">Grand Final (Week 15)</div>
         <div class="cup-bracket-matchups">
           <div class="cup-bracket-tile" style="border:2px solid #f59e0b;">
@@ -6509,11 +6780,13 @@
     if (elements.parbingoSearch) elements.parbingoSearch.value = '';
     if (elements.cupSearch) elements.cupSearch.value = '';
 
-    // Reset eclectic scoring mode to default 'nett' and clear sort
-    state.eclecticScoringMode = 'nett';
-    if (elements.eclecticScoringMode) elements.eclecticScoringMode.value = 'nett';
+    // Reset eclectic scoring mode to configured winner and clear sort
+    syncEclecticSettingsControls();
     state.eclecticSortCol = null;
     state.eclecticSortDir = 'desc';
+
+    // Reset bingo settings & winner mode to config
+    syncBingoSettingsControls();
 
     if (!preservePlayer) {
       state.selectedPlayerId = null;
@@ -6604,33 +6877,84 @@
     elements.tabButtons.forEach(b => {
       b.classList.toggle('active', b.getAttribute('data-tab') === targetTab);
     });
-    if (elements.btnTabCup) {
-      if (targetTab === 'tab-cup' || isCupRoute()) {
-        elements.btnTabCup.style.display = '';
-      } else {
-        elements.btnTabCup.style.display = 'none';
-      }
-    }
     elements.viewPanels.forEach(p => {
       p.classList.toggle('active', p.id === targetTab);
     });
     if (elements.mobileTabSelect) {
-      if (targetTab === 'tab-cup' || isCupRoute()) {
-        let optCup = elements.mobileTabSelect.querySelector('option[value="tab-cup"]');
-        if (!optCup) {
-          optCup = document.createElement('option');
-          optCup.value = 'tab-cup';
-          optCup.textContent = '🏆 Winter League Cup';
-          elements.mobileTabSelect.appendChild(optCup);
+      let opt = elements.mobileTabSelect.querySelector(`option[value="${targetTab}"]`);
+      if (!opt) {
+        const tDef = ALL_TABS.find(t => t.id === targetTab);
+        if (tDef) {
+          opt = document.createElement('option');
+          opt.value = tDef.id;
+          opt.textContent = `${tDef.icon} ${tDef.name}`.trim();
+          elements.mobileTabSelect.appendChild(opt);
         }
       }
-      if (elements.mobileTabSelect.value !== targetTab) {
-        const opt = elements.mobileTabSelect.querySelector(`option[value="${targetTab}"]`);
-        if (opt) {
-          elements.mobileTabSelect.value = targetTab;
-        }
+      if (opt && elements.mobileTabSelect.value !== targetTab) {
+        elements.mobileTabSelect.value = targetTab;
       }
     }
+  }
+
+  /**
+   * Universal URL Tab Aliases for direct testing & address bar routing
+   */
+  const TAB_URL_ALIASES = {
+    'weekly': 'tab-weekly',
+    'tab-weekly': 'tab-weekly',
+    'weekend': 'tab-weekly',
+    'sweep': 'tab-weekly',
+
+    'leaderboard': 'tab-leaderboard',
+    'tab-leaderboard': 'tab-leaderboard',
+    'league': 'tab-leaderboard',
+    'winterleague': 'tab-leaderboard',
+
+    'eclectic': 'tab-eclectic',
+    'tab-eclectic': 'tab-eclectic',
+
+    'magic2s': 'tab-magic2s',
+    'tab-magic2s': 'tab-magic2s',
+    'magic': 'tab-magic2s',
+
+    'lastman': 'tab-lastman',
+    'tab-lastman': 'tab-lastman',
+    'lms': 'tab-lastman',
+
+    'bingo': 'tab-parbingo',
+    'parbingo': 'tab-parbingo',
+    'tab-parbingo': 'tab-parbingo',
+
+    'player': 'tab-player',
+    'tab-player': 'tab-player',
+    'profile': 'tab-player',
+
+    'cup': 'tab-cup',
+    'tab-cup': 'tab-cup',
+    'wintercup': 'tab-cup'
+  };
+
+  /**
+   * Resolves target tab ID from browser URL path, search params or hash
+   */
+  function resolveRequestedTabFromUrl() {
+    const path = (window.location.pathname || '').replace(/\/+$/, '');
+    if (path.endsWith('/cup')) return 'tab-cup';
+
+    const searchParam = new URLSearchParams(window.location.search).get('tab');
+    if (searchParam && TAB_URL_ALIASES[searchParam.toLowerCase()]) {
+      return TAB_URL_ALIASES[searchParam.toLowerCase()];
+    }
+
+    const rawHash = (window.location.hash || '').replace(/^#+/, '').trim().toLowerCase();
+    if (rawHash && TAB_URL_ALIASES[rawHash]) {
+      return TAB_URL_ALIASES[rawHash];
+    }
+    if (rawHash && document.getElementById(rawHash)) {
+      return rawHash;
+    }
+    return null;
   }
 
   /**
@@ -6644,7 +6968,7 @@
     { id: 'tab-lastman', name: 'Last Man Standing', icon: '⚔️', defaultOrder: 5 },
     { id: 'tab-parbingo', name: 'Bingo', icon: '🎱', defaultOrder: 6 },
     { id: 'tab-player', name: 'Player Profile', icon: '👤', defaultOrder: 7 },
-    { id: 'tab-cup', name: 'Winter League Cup', icon: '🏆', defaultOrder: 8 }
+    { id: 'tab-cup', name: 'Winter Cup', icon: '🏆', defaultOrder: 8 }
   ];
 
   function getTabVisibilityConfig(tabId) {
@@ -6654,8 +6978,8 @@
   }
 
   function isTabHiddenOnDesktop(tabId) {
-    if (tabId === 'tab-cup') {
-      return !isCupRoute() && state.activeTab !== 'tab-cup';
+    if (tabId === resolveRequestedTabFromUrl()) {
+      return false; // allow testing / direct link access
     }
     const cfg = getTabVisibilityConfig(tabId);
     if (!cfg) return false;
@@ -6663,8 +6987,8 @@
   }
 
   function isTabHiddenOnMobile(tabId) {
-    if (tabId === 'tab-cup') {
-      return !isCupRoute() && state.activeTab !== 'tab-cup';
+    if (tabId === resolveRequestedTabFromUrl()) {
+      return false; // allow testing / direct link access
     }
     const cfg = getTabVisibilityConfig(tabId);
     if (!cfg) return false;
@@ -6865,6 +7189,7 @@
 
       template = template.replace(/\{weeks active hole\}/gi, `${activeHoleNum}`);
       template = template.replace(/\{active hole\}/gi, `${activeHoleNum}`);
+      template = template.replace(/\{active week\}/gi, `${totalWeeks}`);
       template = template.replace(/\{\d+\s+of\s+\d+(\s+players\s+still\s+standing)?\}/gi, (m) => {
         return m.toLowerCase().includes('players')
           ? `${aliveCount} of ${totalCount} Players Still Standing`
@@ -6930,7 +7255,7 @@
       const currentSelected = state.activeTab || elements.mobileTabSelect.value;
       elements.mobileTabSelect.innerHTML = '';
       orderedTabs.forEach(t => {
-        if (!isTabHiddenOnMobile(t.id)) {
+        if (!isTabHiddenOnMobile(t.id) || t.id === currentSelected) {
           const opt = document.createElement('option');
           opt.value = t.id;
           opt.textContent = t.label;
@@ -6942,10 +7267,11 @@
       });
     }
 
-    // 3. Ensure the active tab is visible in the current viewport; if hidden, switch to first visible
+    // 3. Ensure the active tab is visible in the current viewport; if hidden and not directly requested, switch to first visible
+    const requestedTab = resolveRequestedTabFromUrl();
     const currentTab = state.activeTab;
     const isCurrentHidden = isMobile ? isTabHiddenOnMobile(currentTab) : isTabHiddenOnDesktop(currentTab);
-    if (isCurrentHidden || !currentTab) {
+    if ((isCurrentHidden || !currentTab) && currentTab !== requestedTab) {
       const firstVisible = orderedTabs.find(t => isMobile ? !isTabHiddenOnMobile(t.id) : !isTabHiddenOnDesktop(t.id));
       if (firstVisible) {
         activateTab(firstVisible.id);
@@ -7526,6 +7852,24 @@
       });
     }
 
+    if (elements.cupBracketRoundSelect) {
+      elements.cupBracketRoundSelect.addEventListener('change', (e) => {
+        setCupBracketRound(e.target.value);
+      });
+    }
+
+    if (elements.btnCupBracketPrev) {
+      elements.btnCupBracketPrev.addEventListener('click', () => {
+        cycleCupBracketRound(-1);
+      });
+    }
+
+    if (elements.btnCupBracketNext) {
+      elements.btnCupBracketNext.addEventListener('click', () => {
+        cycleCupBracketRound(1);
+      });
+    }
+
     if (elements.cupSearch) {
       elements.cupSearch.addEventListener('input', () => {
         if (state.cupSubView === 'table') {
@@ -7536,21 +7880,21 @@
       });
     }
 
-    // Hash change routing (e.g. #cup or #tab-cup)
+    // Universal hash change routing (e.g. #cup, #eclectic, #bingo, #magic2s, #lastman, #player, #league, #weekly)
     window.addEventListener('hashchange', () => {
-      const hash = window.location.hash ? window.location.hash.substring(1) : '';
-      if (hash === 'cup' || hash === 'tab-cup') {
-        activateTab('tab-cup');
-      } else if (hash && document.getElementById(hash)) {
-        activateTab(hash);
+      const target = resolveRequestedTabFromUrl();
+      if (target) {
+        activateTab(target);
+        applyTabVisibility();
       }
     });
   }
 
   // Initial Boot
   document.addEventListener('DOMContentLoaded', () => {
-    // Show initial active tab & synchronize desktop buttons + mobile selector
-    activateTab(state.activeTab);
+    // Show initial active tab (honoring URL request if present)
+    const initialTarget = resolveRequestedTabFromUrl() || state.activeTab;
+    activateTab(initialTarget);
 
     setupEventListeners();
     loadData();

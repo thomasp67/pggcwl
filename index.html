@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Port Glasgow Golf Club - Winter Season Results</title>
-  <link rel="stylesheet" href="style.css?v=20261031_cup_diff_par">
+  <link rel="stylesheet" href="style.css?v=20261101_fixtures_mobile_nav">
   <link rel="icon" type="image/png" href="image/pggc_logo.png">
 </head>
 <body>
@@ -51,7 +51,7 @@
         <option value="tab-lastman">⚔️ Last Man</option>
         <option value="tab-parbingo">🎱 Bingo</option>
         <option value="tab-player">👤 Player Profile</option>
-        <option value="tab-cup" id="opt-tab-cup" style="display: none;">🏆 Winter League Cup</option>
+        <option value="tab-cup" id="opt-tab-cup" style="display: none;">🏆 Winter Cup</option>
       </select>
     </div>
 
@@ -78,8 +78,8 @@
       <button class="tab-btn" data-tab="tab-player" id="btn-tab-player">
         👤 Player Profile
       </button>
-      <button class="tab-btn" data-tab="tab-cup" id="btn-tab-cup" style="display: none;">
-        🏆 Winter League Cup
+      <button class="tab-btn" data-tab="tab-cup" id="btn-tab-cup">
+        🏆 Winter Cup
       </button>
     </nav>
   </div>
@@ -104,7 +104,7 @@
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
-          <p id="weekly-subtitle" class="panel-info-text">Weekly Sweep | Individual Stableford | {Number of Entrants} | Sweep Pot: {£x} | {1st Prize} | {2nd Prize} | {3rd Prize}</p>
+          <p id="weekly-subtitle" class="panel-info-text">Weekly Sweep • Individual Stableford Format<br>{Number of Entrants} • Sweep Pot: {£x} • 1st: {1st Prize} • 2nd: {2nd Prize} • 3rd: {3rd Prize}</p>
         </div>
         <div class="panel-options-group">
           <label class="checkbox-control" id="lbl-weekly-league-filter" for="weekly-hide-non-league" title="Click to filter: All Players ➔ League Only ➔ Non-League Only">
@@ -174,7 +174,7 @@
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
-          <p id="leaderboard-subtitle" class="panel-info-text">Season Long League | Best 10 Stableford Scores Count | {Number of players in the active week}</p>
+          <p id="leaderboard-subtitle" class="panel-info-text">Season Long League • Best 10 Stableford Scores Count • {Number of players in the active week} played this week<br>Handicaps shown are new hadicaps for next week.</p>
         </div>
         <div class="panel-nav-group">
           <div class="week-nav-group">
@@ -232,16 +232,16 @@
           <p id="eclectic-subtitle" class="panel-info-text">Best Stableford score on each hole accumulated across all rounds | Ranked by Eclectic total</p>
         </div>
         <div class="panel-options-group">
-          <div class="filter-group">
+          <div class="filter-group" id="eclectic-winner-filter-group" style="display: none;">
             <label for="eclectic-scoring-mode">Winner:</label>
-            <select id="eclectic-scoring-mode" class="select-control" title="Rank by Nett or Points">
-              <option value="nett" selected>Nett</option>
-              <option value="points">Points</option>
+            <select id="eclectic-scoring-mode" class="select-control" title="Rank by Total or Nett">
+              <option value="total" selected>Total</option>
+              <option value="nett">Nett</option>
             </select>
           </div>
-          <label class="checkbox-control" for="eclectic-hide-non-league" title="Hide non-league players / show league members only">
-            <input type="checkbox" id="eclectic-hide-non-league">
-            <span>Hide Non-League</span>
+          <label class="checkbox-control" for="eclectic-hide-non-league" title="Hide non-members / show league members only">
+            <input type="checkbox" id="eclectic-hide-non-league" checked>
+            <span>Hide Non-Members</span>
           </label>
         </div>
         <div class="panel-nav-group">
@@ -267,8 +267,7 @@
                 <th class="text-center pos-col" style="width: 4%;">Pos</th>
                 <th class="sticky-col-name player-name-col" style="width: 18%;"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
                 <th class="text-center rounds-col" style="width: 5%;" title="Rounds played up to this week"><span class="th-full">Rounds</span><span class="th-short">Rounds</span></th>
-                <th class="text-center total-score-col points-col" style="width: 5.5%;" title="Eclectic Total Stableford points"><span class="th-full">Points</span><span class="th-short">Pts</span></th>
-                <th class="text-center total-score-col nett-col" style="width: 5.5%;" title="Nett Score (Points - playing handicap strokes as of this round)">Nett</th>
+                <th class="text-center total-score-col points-col" style="width: 5.5%;" title="Eclectic Total Stableford points"><span class="th-full">Total</span><span class="th-short">Tot</span></th>
                 <th class="text-center hole-col" title="Hole 1 best score">1</th>
                 <th class="text-center hole-col" title="Hole 2 best score">2</th>
                 <th class="text-center hole-col" title="Hole 3 best score">3</th>
@@ -287,6 +286,7 @@
                 <th class="text-center hole-col" title="Hole 16 best score">16</th>
                 <th class="text-center hole-col" title="Hole 17 best score">17</th>
                 <th class="text-center hole-col" title="Hole 18 best score">18</th>
+                <th class="text-center total-score-col nett-col" style="width: 5.5%;" title="Nett Score (Points - playing handicap strokes as of this round)">Nett</th>
               </tr>
             </thead>
             <tbody id="eclectic-tbody">
@@ -354,17 +354,7 @@
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
-          <p id="lastman-subtitle" class="panel-info-text">Score what's required on the active hole to proceed</p>
-        </div>
-        <div class="panel-options-group">
-          <div class="filter-group">
-            <label for="lastman-filter-status">Status:</label>
-            <select id="lastman-filter-status" class="select-control">
-              <option value="all">All Entrants</option>
-              <option value="alive">Alive Only</option>
-              <option value="eliminated">Eliminated Only</option>
-            </select>
-          </div>
+          <p id="lastman-subtitle" class="panel-info-text">Score 1 point on hole {weeks active hole} to proceed to next week • {16 of 49} Players Still Standing after week {active week}</p>
         </div>
         <div class="panel-nav-group">
           <div class="week-nav-group">
@@ -463,9 +453,9 @@
           <p id="parbingo-subtitle" class="panel-info-text">First player to record a qualifying score on every hole wins</p>
         </div>
         <div class="panel-options-group">
-          <div class="bingo-mode-toggle" role="group" aria-label="Bingo Mode Selection">
-            <button type="button" id="btn-bingo-mode-gross" class="bingo-mode-btn active" title="Show Gross Pars Bingo (Gross par or better on every hole)">Gross Pars</button>
-            <button type="button" id="btn-bingo-mode-nett" class="bingo-mode-btn" title="Show Net Birdies Bingo (Nett birdie or better on every hole)">Net Birdies</button>
+          <div class="bingo-mode-toggle is-hidden" id="bingo-mode-toggle-group" style="display: none;" role="group" aria-label="Bingo Mode Selection">
+            <button type="button" id="btn-bingo-mode-gross" class="bingo-mode-btn" title="Show Gross Pars Bingo (Gross par or better on every hole)">Gross Pars</button>
+            <button type="button" id="btn-bingo-mode-nett" class="bingo-mode-btn active" title="Show Net Birdies Bingo (Nett birdie or better on every hole)">Net Birdies</button>
           </div>
           <div class="filter-group">
             <label for="parbingo-filter-eligibility">Eligibility:</label>
@@ -490,7 +480,7 @@
       </div>
 
       <!-- Winner / Progress Callout Banner -->
-      <div id="parbingo-banner" class="parbingo-banner-card">
+      <div id="parbingo-banner" class="parbingo-banner-card" style="display: none;">
         <!-- Rendered dynamically -->
       </div>
 
@@ -640,47 +630,19 @@
       </div>
     </section>
 
-    <!-- Tab: Winter League Cup (Concept Feature - Accessed via /cup) -->
+    <!-- Tab: Winter Cup -->
     <section id="tab-cup" class="view-panel">
-      <!-- Secret / Private Mode Notification Banner -->
-      <div class="cup-concept-banner">
-        <div class="cup-concept-info">
-          <span class="cup-concept-badge">Concept Preview</span>
-          <span><strong>Winter League Cup:</strong> Private view accessed via <code>/cup</code>. Hidden from main site navigation.</span>
-        </div>
-        <button type="button" id="btn-cup-exit" class="quick-pick-btn" title="Return to public main site">← Main Site</button>
-      </div>
-
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
-          <p id="cup-subtitle" class="panel-info-text">Weekly Matchplay • 4 Pots of 12 • 11 Rounds • Top 16 Advance to Knockout</p>
+          <p id="cup-subtitle" class="panel-info-text">Weekly Matchplay • 4 Handicap Pots • 11 Rounds • Top 16 Advance to Knockout</p>
         </div>
         <div class="panel-options-group">
           <div class="cup-mode-toggle" role="group" aria-label="Cup Subview Selection">
-            <button type="button" id="btn-cup-mode-table" class="cup-mode-btn active" title="View Unified 48-Player League Standings">🏆 Unified Table</button>
+            <button type="button" id="btn-cup-mode-table" class="cup-mode-btn active" title="View Standings Table">🏆 Table</button>
             <button type="button" id="btn-cup-mode-fixtures" class="cup-mode-btn" title="View Weekly Fixtures & Match Results">🗓️ Fixtures</button>
-            <button type="button" id="btn-cup-mode-pots" class="cup-mode-btn" title="View Pots and Seedings Breakdown">🎴 Pots & Seeds</button>
-            <button type="button" id="btn-cup-mode-bracket" class="cup-mode-btn" title="View Projected Top 16 Knockout Bracket">🌳 Knockout Tree</button>
-          </div>
-        </div>
-        <div class="panel-nav-group" id="cup-nav-group" style="display: none;">
-          <div class="week-nav-group">
-            <button type="button" id="btn-cup-prev" class="week-nav-btn" title="Previous Week Fixtures">◀ Prev</button>
-            <select id="cup-week-select" class="select-control week-nav-select" title="Jump to specific week">
-              <!-- Dynamically populated Weeks 1 to 11 -->
-            </select>
-            <button type="button" id="btn-cup-next" class="week-nav-btn" title="Next Week Fixtures">Next ▶</button>
-          </div>
-          <div class="filter-group">
-            <label for="cup-pot-select">Pot:</label>
-            <select id="cup-pot-select" class="select-control" title="Filter Fixtures by Pot">
-              <option value="all">All Pots (24 Matches)</option>
-              <option value="1">Pot 1 (Championship)</option>
-              <option value="2">Pot 2 (First Division)</option>
-              <option value="3">Pot 3 (Second Division)</option>
-              <option value="4">Pot 4 (Third Division)</option>
-            </select>
+            <button type="button" id="btn-cup-mode-pots" class="cup-mode-btn" title="View Pots Breakdown">🎴 Pots</button>
+            <button type="button" id="btn-cup-mode-bracket" class="cup-mode-btn" title="View Projected Top 16 Knockout Bracket">🌳 Knockout</button>
           </div>
         </div>
         <div class="panel-search-group" id="cup-search-group">
@@ -697,13 +659,13 @@
                 <tr id="cup-standings-thead-tr">
                   <th class="text-center pos-col">Pos</th>
                   <th class="sticky-col-name player-name-col"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
-                  <th class="text-center" title="Group Pot and Seed">Pot</th>
-                  <th class="text-center" title="Matches Played">Pld</th>
-                  <th class="text-center" title="Matches Won (3 pts)">W</th>
-                  <th class="text-center" title="Matches Drawn (1 pt)">D</th>
-                  <th class="text-center" title="Matches Lost (0 pts)">L</th>
-                  <th class="text-center" title="Differential to Par (36 points)">Diff</th>
-                  <th class="text-center" title="Cup Points (3 for win, 1 for draw, 0 for loss)">Pts</th>
+                  <th class="text-center cup-pot-col" title="Group Pot and Seed">Pot</th>
+                  <th class="text-center cup-pld-col" title="Matches Played">Pld</th>
+                  <th class="text-center cup-record-col" title="Matches Won (3 pts)">W</th>
+                  <th class="text-center cup-record-col" title="Matches Drawn (1 pt)">D</th>
+                  <th class="text-center cup-record-col" title="Matches Lost (0 pts)">L</th>
+                  <th class="text-center cup-diff-col" title="Differential bonus (Points above 35 points: 36 is 0, 37 is +1, 38 is +2, etc.)">Diff</th>
+                  <th class="text-center cup-pts-col" title="Cup Points (3 for win, 1 for draw, 0 for loss)">Pts</th>
                 </tr>
               </thead>
               <tbody id="cup-standings-tbody">
@@ -716,8 +678,28 @@
 
       <!-- Subview 2: Weekly Fixtures & Match Results -->
       <div id="cup-view-fixtures" class="cup-subview" style="display: none;">
+        <!-- Fixtures Control Toolbar (Integrated directly above fixture list) -->
+        <div class="cup-fixtures-toolbar">
+          <div class="filter-group cup-pot-filter-group">
+            <label for="cup-pot-select">Pot:</label>
+            <select id="cup-pot-select" class="select-control" title="Filter Fixtures by Pot">
+              <option value="all">All Pots</option>
+              <option value="1">Pot 1 (Championship)</option>
+              <option value="2">Pot 2 (First Division)</option>
+              <option value="3">Pot 3 (Second Division)</option>
+              <option value="4">Pot 4 (Third Division)</option>
+            </select>
+          </div>
+          <div class="cup-fixtures-nav-group">
+            <button type="button" id="btn-cup-prev" class="cup-nav-btn" title="Previous Week Fixtures">◀ Prev</button>
+            <select id="cup-week-select" class="select-control cup-week-select" title="Jump to specific week">
+              <!-- Dynamically populated Weeks 1 to 11 -->
+            </select>
+            <button type="button" id="btn-cup-next" class="cup-nav-btn" title="Next Week Fixtures">Next ▶</button>
+          </div>
+        </div>
         <div id="cup-fixtures-container">
-          <!-- Rendered dynamically: Pot groupings and 6 matches per pot -->
+          <!-- Rendered dynamically: Pot groupings and matches -->
         </div>
       </div>
 
@@ -730,6 +712,18 @@
 
       <!-- Subview 4: Top 16 Knockout Bracket -->
       <div id="cup-view-bracket" class="cup-subview" style="display: none;">
+        <div class="cup-bracket-toolbar">
+          <div class="cup-fixtures-nav-group" style="width: 100%;">
+            <button type="button" id="btn-cup-bracket-prev" class="cup-nav-btn" title="Previous Round">◀ Prev</button>
+            <select id="cup-bracket-round-select" class="select-control cup-week-select" title="Select Knockout Round">
+              <option value="r16">Round of 16 (Week 12)</option>
+              <option value="qf">Quarter-Finals (Week 13)</option>
+              <option value="sf">Semi-Finals (Week 14)</option>
+              <option value="final">Grand Final (Week 15)</option>
+            </select>
+            <button type="button" id="btn-cup-bracket-next" class="cup-nav-btn" title="Next Round">Next ▶</button>
+          </div>
+        </div>
         <div id="cup-bracket-container">
           <!-- Rendered dynamically: Bracket visualization -->
         </div>
@@ -738,7 +732,7 @@
 
   </main>
 
-  <script src="data/data.js?v=20261031_cup_diff_par"></script>
-  <script src="app.js?v=20261101_magic2s_par3_update"></script>
+  <script src="data/data.js?v=20261101_fixtures_mobile_nav"></script>
+  <script src="app.js?v=20261101_fixtures_mobile_nav"></script>
 </body>
 </html>

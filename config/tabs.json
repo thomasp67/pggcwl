@@ -13,7 +13,7 @@
         "order": 1,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "Weekly Sweep • Individual Stableford Format\n{Number of Entrants} • Sweep Pot: {£x} • {1st Prize} • {2nd Prize} • {3rd Prize}"
+        "infoText": "Weekly Sweep • Individual Stableford Format\n{Number of Entrants} • Sweep Pot: {£x} • 1st: {1st Prize} • 2nd: {2nd Prize} • 3rd: {3rd Prize}"
     },
     "tab-leaderboard": {
         "name": "Winter League",
@@ -21,7 +21,7 @@
         "order": 2,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "Season Long League • Best 10 Stableford Scores Count\n{Number of players in the active week} played this week"
+        "infoText": "Season Long League • Best 10 Stableford Scores Count • {Number of players in the active week} played this week\nHandicaps shown are new handicaps for next week."
     },
     "tab-magic2s": {
         "name": "Magic 2's",
@@ -37,7 +37,7 @@
         "order": 4,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "Score 1 point on hole {weeks active hole} to proceed to next week • {16 of 49} Players Still Standing"
+        "infoText": "Score 1 point on hole {weeks active hole} to proceed to next week • {16 of 49} Players Still Standing after week {active week}"
     },
     "tab-eclectic": {
         "name": "Eclectic",
@@ -55,20 +55,20 @@
         "hideMobile": true,
         "infoText": "First player to record a qualifying score on every hole wins"
     },
+    "tab-cup": {
+        "name": "Winter Cup",
+        "icon": "🏆",
+        "order": 7,
+        "hideDesktop": true,
+        "hideMobile": true,
+        "infoText": "Weekly Matchplay • 4 Handicap Pots • 11 Rounds • Top 16 Advance to Knockout"
+    },
     "tab-player": {
         "name": "Player Profile",
         "icon": "👤",
-        "order": 7,
+        "order": 8,
         "hideDesktop": false,
         "hideMobile": true,
         "infoText": "Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member"
-    },
-    "tab-cup": {
-        "name": "Winter League Cup",
-        "icon": "🏆",
-        "order": 8,
-        "hideDesktop": true,
-        "hideMobile": true,
-        "infoText": "Weekly Matchplay • 4 Pots of 12 • 11 Rounds • Top 16 Advance to Knockout"
     }
 }

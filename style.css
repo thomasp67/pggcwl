@@ -372,7 +372,8 @@ body {
   box-shadow: 0 0 0 2px var(--primary-light);
 }
 
-.week-nav-group {
+.week-nav-group,
+.cup-fixtures-nav-group {
   display: inline-flex;
   align-items: center;
   height: 36px;
@@ -384,7 +385,8 @@ body {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-.week-nav-btn {
+.week-nav-btn,
+.cup-nav-btn {
   height: 32px;
   background: transparent;
   border: none;
@@ -402,17 +404,20 @@ body {
   white-space: nowrap;
 }
 
-.week-nav-btn:hover:not(:disabled) {
+.week-nav-btn:hover:not(:disabled),
+.cup-nav-btn:hover:not(:disabled) {
   background: var(--primary-light);
   color: var(--primary);
 }
 
-.week-nav-btn:disabled {
+.week-nav-btn:disabled,
+.cup-nav-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
 
-.week-nav-select {
+.week-nav-select,
+.cup-week-select {
   height: 32px !important;
   border: none !important;
   background: transparent !important;
@@ -473,6 +478,17 @@ body {
   white-space: nowrap;
   box-sizing: border-box;
   transition: all 0.15s ease;
+}
+
+#lbl-weekly-league-filter {
+  min-width: 156px;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+#weekly-league-filter-text {
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .checkbox-control:hover {
@@ -2430,6 +2446,17 @@ td.hilo-col {
   background: #f8fafc;
 }
 
+.lastman-week-col.lastman-future-col {
+  background: #fcfcfc;
+  opacity: 0.7;
+}
+
+.lastman-cell-future {
+  color: var(--text-light);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
 .lastman-col-hole-head {
   font-size: 0.78rem;
   font-weight: 700;
@@ -2513,6 +2540,11 @@ td.hilo-col {
   padding: 2px;
   height: 36px;
   box-sizing: border-box;
+}
+
+.bingo-mode-toggle[style*="display: none"],
+.bingo-mode-toggle.is-hidden {
+  display: none !important;
 }
 
 .bingo-mode-btn {
@@ -3469,7 +3501,13 @@ td.hilo-col {
   #magic2s-weekly-table td.magic2s-count-cell,
   #magic2s-weekly-table .magic2s-prize-col,
   #magic2s-weekly-table th.magic2s-prize-col,
-  #magic2s-weekly-table td.magic2s-prize-cell {
+  #magic2s-weekly-table td.magic2s-prize-cell,
+  .cup-pot-col,
+  th.cup-pot-col,
+  td.cup-pot-col,
+  .cup-record-col,
+  th.cup-record-col,
+  td.cup-record-col {
     display: none !important;
   }
 
@@ -3542,10 +3580,9 @@ td.hilo-col {
     font-weight: 800 !important;
   }
 
-  /* 5. Last Man: Pos (14%), Name (52%), Status (34%) */
-  #lastman-table th:nth-child(1), #lastman-table td:nth-child(1) { width: 14% !important; }
-  #lastman-table th:nth-child(2), #lastman-table td:nth-child(2) { width: 52% !important; }
-  #lastman-table th.lastman-status-col, #lastman-table td.lastman-status-col { width: 34% !important; }
+  /* 5. Last Man: Name (62%), Status (38%) — Pos column removed */
+  #lastman-table th:nth-child(1), #lastman-table td:nth-child(1) { width: 62% !important; }
+  #lastman-table th.lastman-status-col, #lastman-table td.lastman-status-col { width: 38% !important; }
 
   /* 6. Bingo: Pos (14%), Name (54%), Status (32%) */
   #parbingo-table th:nth-child(1), #parbingo-table td:nth-child(1) { width: 14% !important; }
@@ -3578,6 +3615,13 @@ td.hilo-col {
     padding: 1px 4px !important;
     line-height: 1.2 !important;
   }
+
+  /* 9. Winter Cup: Pos (12%), Name (52%), Pld (12%), Diff (12%), Pts (12%) */
+  #cup-standings-table th.pos-col, #cup-standings-table td.pos-col { width: 12% !important; }
+  #cup-standings-table th.player-name-col, #cup-standings-table td.player-name-cell { width: 52% !important; }
+  #cup-standings-table th.cup-pld-col, #cup-standings-table td.cup-pld-col { width: 12% !important; }
+  #cup-standings-table th.cup-diff-col, #cup-standings-table td.cup-diff-col { width: 12% !important; }
+  #cup-standings-table th.cup-pts-col, #cup-standings-table td.cup-pts-col { width: 12% !important; }
 
   /* Controls row & filters layout on mobile: Full Container Width */
   .panel-header-bar {
@@ -3789,7 +3833,7 @@ td.hilo-col {
   .bingo-mode-toggle {
     width: 100% !important;
     height: 42px !important;
-    display: flex !important;
+    display: flex;
     box-sizing: border-box !important;
   }
 
@@ -4378,93 +4422,194 @@ td.hilo-col {
 }
 
 /* Fixtures Layout */
+.cup-fixtures-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.cup-fixtures-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
 .cup-fixtures-pot-block {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .cup-fixtures-pot-header {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 800;
   color: var(--text-main);
-  margin: 0 0 0.6rem 0;
-  padding-bottom: 0.35rem;
+  margin: 0 0 0.4rem 0;
+  padding-bottom: 0.25rem;
   border-bottom: 2px solid var(--primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.cup-matches-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
+.cup-matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.cup-match-card {
+.cup-match-row {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 0.75rem 0.9rem;
+  padding: 0.4rem 0.65rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.cup-match-team {
-  flex: 1;
+.cup-match-row:hover {
+  background: var(--surface-alt);
+}
+
+.cup-match-row.both-dnp {
+  opacity: 0.72;
+}
+
+.cup-team-col {
+  flex: 1 1 0;
+  width: 0;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
 }
 
-.cup-match-team.team-away {
+.cup-team-col.team-away {
+  justify-content: flex-end;
   text-align: right;
-  align-items: flex-end;
 }
 
-.cup-match-team.winner .cup-team-name {
+.cup-team-info {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  width: 100%;
+}
+
+.cup-team-col.team-away .cup-team-info {
+  flex-direction: row-reverse;
+}
+
+/* Winner Highlighting (Green) */
+.cup-team-col.winner {
+  color: #15803d;
+}
+
+.cup-team-col.winner .cup-player-title {
   font-weight: 800;
-  color: var(--primary);
+  color: #15803d;
 }
 
-.cup-team-name {
-  font-size: 0.84rem;
+.cup-team-col.winner .cup-seed-badge {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #15803d;
+}
+
+/* Loser Highlighting (Red) */
+.cup-team-col.loser {
+  color: #b91c1c;
+}
+
+.cup-team-col.loser .cup-player-title {
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.cup-team-col.loser .cup-seed-badge {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+.cup-player-title {
+  font-size: 0.82rem;
+  font-weight: 600;
   color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cup-team-sub {
   font-size: 0.72rem;
   color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
 }
 
-.cup-match-center {
+.cup-team-sub .cup-seed-badge {
+  margin: 0;
+}
+
+.cup-team-col.team-away .cup-team-sub {
+  justify-content: flex-end;
+}
+
+.cup-score-col {
+  flex: 0 0 74px;
+  width: 74px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 0 0.6rem;
-  min-width: 80px;
+  justify-content: center;
+  text-align: center;
 }
 
 .cup-score-badge {
-  font-size: 0.9rem;
+  display: inline-block;
+  min-width: 62px;
+  text-align: center;
+  font-size: 0.82rem;
   font-weight: 800;
   background: var(--surface-alt);
   padding: 3px 8px;
   border-radius: 4px;
   border: 1px solid var(--border);
   white-space: nowrap;
+  letter-spacing: 0.5px;
 }
 
-.cup-result-tag {
-  font-size: 0.65rem;
+.cup-score-badge.score-final {
+  background: #f1f5f9;
+  color: var(--text-main);
+}
+
+.cup-score-badge.score-vs {
+  font-size: 0.75rem;
+  color: var(--text-muted);
   font-weight: 700;
-  margin-top: 3px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
 }
 
 /* Bracket Tree Layout */
+.cup-bracket-toolbar {
+  display: none;
+}
+
 .cup-bracket-board {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -4529,8 +4674,9 @@ td.hilo-col {
   .cup-pots-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .cup-matches-grid {
+  .cup-fixtures-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
   .cup-bracket-board {
     min-width: 800px;
@@ -4538,8 +4684,99 @@ td.hilo-col {
 }
 
 @media (max-width: 768px) {
+  .cup-pot-col,
+  th.cup-pot-col,
+  td.cup-pot-col,
+  .cup-record-col,
+  th.cup-record-col,
+  td.cup-record-col {
+    display: none !important;
+  }
+  .cup-fixtures-toolbar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.55rem !important;
+  }
+  .cup-fixtures-toolbar .filter-group {
+    order: 1 !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  .cup-fixtures-toolbar .filter-group select {
+    flex: 1 !important;
+    margin-left: 0.5rem !important;
+  }
+  .cup-fixtures-toolbar .cup-fixtures-nav-group {
+    order: 2 !important;
+    width: 100% !important;
+    display: flex !important;
+  }
+  .cup-fixtures-toolbar .cup-nav-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .cup-fixtures-toolbar .cup-week-select {
+    flex: 1 !important;
+    width: auto !important;
+    text-align: center !important;
+  }
   .cup-pots-grid {
     grid-template-columns: 1fr;
+  }
+  .cup-match-row {
+    padding: 0.35rem 0.45rem;
+  }
+  .cup-team-col {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    gap: 0 !important;
+  }
+  .cup-team-info {
+    flex-direction: column !important;
+    gap: 2px !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .cup-team-col.team-away .cup-team-info {
+    align-items: flex-end !important;
+  }
+  .cup-player-title {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  .cup-team-col.team-away .cup-player-title {
+    text-align: right !important;
+  }
+  .cup-team-sub {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+  }
+  .cup-team-col.team-away .cup-team-sub {
+    justify-content: flex-end !important;
+  }
+  .cup-score-col {
+    flex: 0 0 62px !important;
+    width: 62px !important;
+    min-width: 62px !important;
+    max-width: 62px !important;
+  }
+  .cup-score-badge {
+    min-width: 54px;
+    padding: 2px 4px;
+    font-size: 0.76rem;
   }
   .cup-mode-toggle {
     width: 100% !important;
@@ -4553,6 +4790,43 @@ td.hilo-col {
     height: 34px !important;
     font-size: 0.78rem !important;
     margin: 1px !important;
+  }
+  .cup-bracket-toolbar {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 0.85rem !important;
+    width: 100% !important;
+  }
+  .cup-bracket-toolbar .cup-fixtures-nav-group {
+    width: 100% !important;
+    display: flex !important;
+  }
+  .cup-bracket-toolbar .cup-nav-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .cup-bracket-toolbar .cup-week-select {
+    flex: 1 !important;
+    text-align: center !important;
+  }
+  .cup-bracket-board {
+    display: block !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    overflow-x: visible !important;
+    padding-bottom: 0.5rem !important;
+  }
+  .cup-bracket-round {
+    display: none !important;
+    width: 100% !important;
+  }
+  .cup-bracket-board[data-active-round="r16"] .cup-bracket-round[data-round="r16"],
+  .cup-bracket-board[data-active-round="qf"] .cup-bracket-round[data-round="qf"],
+  .cup-bracket-board[data-active-round="sf"] .cup-bracket-round[data-round="sf"],
+  .cup-bracket-board[data-active-round="final"] .cup-bracket-round[data-round="final"] {
+    display: flex !important;
   }
 }
 
