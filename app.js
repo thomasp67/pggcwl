@@ -547,16 +547,18 @@
     "tab-eclectic": { "name": "Eclectic", "icon": "🎯", "order": 5, "hideDesktop": false, "hideMobile": true, "infoText": "Best Stableford score on each hole accumulated across all rounds" },
     "tab-parbingo": { "name": "Bingo", "icon": "🎱", "order": 6, "hideDesktop": false, "hideMobile": true, "infoText": "First player to record a qualifying score on every hole wins" },
     "tab-player": { "name": "Player Profile", "icon": "👤", "order": 7, "hideDesktop": false, "hideMobile": true, "infoText": "Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member" },
-    "tab-cup": { "name": "Winter Cup", "icon": "🏆", "order": 8, "hideDesktop": false, "hideMobile": true, "infoText": "Weekly Matchplay • 4 Handicap Pots • 11 Rounds • Top 16 Advance to Knockout" }
+    "tab-cup": { "name": "Winter Cup", "icon": "🏆", "order": 8, "hideDesktop": false, "hideMobile": true, "infoText": "Weekly Matchplay • 5 Handicap Pots • 10 Rounds • Top 16 Advance to Knockout" }
   };
 
   // Default Cup Configuration
   const DEFAULT_CUP_CONFIG = {
     competitionName: "Winter Cup",
-    potsCount: 4,
-    groupWeeks: 11,
+    potsCount: 5,
+    potSize: 10,
+    totalPlayers: 50,
+    groupWeeks: 10,
     scoring: { winPoints: 3, drawPoints: 1, lossPoints: 0 },
-    knockout: { qualifiers: 16, roundOf16Week: 12, quarterFinalsWeek: 13, semiFinalsWeek: 14, finalWeek: 15 }
+    knockout: { qualifiers: 16, roundOf16Week: 11, quarterFinalsWeek: 12, semiFinalsWeek: 13, finalWeek: 14 }
   };
 
   // Default Eclectic Configuration
@@ -5820,13 +5822,15 @@
   }
 
   /**
-   * Helper: Berger Circle Round-Robin Generator for any number of players across 11 rounds.
-   * If a pot has an odd number of players (e.g. 13), a ghost opponent 'Course (Par 36)'
+   * Helper: Berger Circle Round-Robin Generator for any number of players across rounds.
+   * If a pot has an odd number of players, a ghost opponent 'Course (Par 36)'
    * is added so every member has a scheduled match each week without sitting out.
+   * If maxWeeks > n - 1 (e.g. 10 weeks for 10 players), additional rounds repeat
+   * fixtures with reversed home/away pairings.
    */
   const CUP_COURSE_MEMBER_ID = '__PAR_36__';
 
-  function generateBergerSchedule(players, maxWeeks = 11) {
+  function generateBergerSchedule(players, maxWeeks = 10) {
     let list = players.slice();
     const hasGhost = list.length % 2 !== 0;
     if (hasGhost) {
@@ -5841,15 +5845,24 @@
     const n = list.length;
     const fixturesByWeek = [];
     const rotating = list.slice(1);
+    const totalRounds = Math.max(n - 1, maxWeeks);
 
-    for (let r = 0; r < n - 1; r++) {
+    for (let r = 0; r < totalRounds; r++) {
       const weekMatches = [];
       const topRow = [list[0]].concat(rotating.slice(0, (n / 2) - 1));
       const bottomRow = rotating.slice((n / 2) - 1).reverse();
+      const isReverseRound = r >= (n - 1);
 
       for (let i = 0; i < n / 2; i++) {
-        const h = topRow[i];
-        const a = bottomRow[i];
+        let h = topRow[i];
+        let a = bottomRow[i];
+
+        if (isReverseRound) {
+          const temp = h;
+          h = a;
+          a = temp;
+        }
+
         if (h.isGhost && !a.isGhost) {
           weekMatches.push({ home: a, away: h });
         } else {
@@ -5868,17 +5881,19 @@
   /**
    * Main Cup Competition Engine:
    * 1. Includes ALL Winter League members (sorted by origHCI ASC, name ASC) - no cuts or reserves.
-   * 2. Partitions players into 4 skill-balanced Pots (12-13+ players each).
-   * 3. Generates 11 weeks of round-robin fixtures within pots.
-   *    In pots with an odd number of players (e.g. 13), the player paired with the ghost
-   *    plays against 'Course (Par 36)': >36 is a Win (3 pts), 36 is a Draw (1 pt), <36 is a Loss (0 pts).
+   * 2. Partitions players into skill-balanced Pots (e.g. 5 pots of 10 players).
+   * 3. Generates round-robin fixtures within pots across group weeks (e.g. 10 weeks).
    * 4. Ingests weekly Stableford points from state.weeklyResults to score matchplay.
-   * 5. Tracks score differential to par (diff = points - 36) accumulated across weeks.
+   * 5. Tracks score differential to par (diff = points - 35 when >= 36) accumulated across weeks.
    * 6. Ranks ALL players in a single unified table (Points -> Diff -> PF -> Fewest Lost -> origHCI).
    * 7. Projects Top 16 knockout bracket (1v16, 8v9, 4v13, 5v12, 2v15, 7v10, 3v14, 6v11).
    */
   function calculateCupCompetition() {
     if (!state.members || state.members.length === 0) return;
+
+    const cfg = state.cupConfig || DEFAULT_CUP_CONFIG;
+    const potsCount = cfg.potsCount || 5;
+    const groupWeeks = cfg.groupWeeks || 10;
 
     // 1. Filter ALL Winter League members and sort by origHCI ASC, name ASC
     const leagueMembers = state.members
@@ -5892,17 +5907,19 @@
       'Pot 1 (Championship Tier)',
       'Pot 2 (First Division)',
       'Pot 3 (Second Division)',
-      'Pot 4 (Third Division)'
-    ];
+      'Pot 4 (Third Division)',
+      'Pot 5 (Fourth Division)',
+      'Pot 6 (Fifth Division)'
+    ].slice(0, potsCount);
 
-    // 2. Partition all players into 4 balanced pots
-    // Base size and remainder distribution (remainder assigned from Pot 4 down)
-    const baseSize = Math.floor(totalLeaguePlayers / 4);
-    const remainder = totalLeaguePlayers % 4;
-    const rawPots = [[], [], [], []];
+    // 2. Partition all players into balanced pots
+    // Base size and remainder distribution (remainder assigned from bottom pot up)
+    const baseSize = Math.floor(totalLeaguePlayers / potsCount);
+    const remainder = totalLeaguePlayers % potsCount;
+    const rawPots = Array.from({ length: potsCount }, () => []);
     let cursor = 0;
-    for (let p = 0; p < 4; p++) {
-      const extra = (p >= (4 - remainder)) ? 1 : 0;
+    for (let p = 0; p < potsCount; p++) {
+      const extra = (p >= (potsCount - remainder)) ? 1 : 0;
       const size = baseSize + extra;
       rawPots[p] = leagueMembers.slice(cursor, cursor + size);
       cursor += size;
@@ -5912,7 +5929,7 @@
     const playerStatsMap = new Map();
     let overallSeedCursor = 1;
 
-    for (let p = 0; p < 4; p++) {
+    for (let p = 0; p < potsCount; p++) {
       const potPlayers = rawPots[p].map((player, idx) => {
         const enriched = {
           ...player,
@@ -5946,8 +5963,8 @@
       pot: 0
     });
 
-    // 3. Generate round-robin fixtures for each pot (11 rounds)
-    const potFixtures = pots.map(pot => generateBergerSchedule(pot, 11));
+    // 3. Generate round-robin fixtures for each pot (groupWeeks rounds)
+    const potFixtures = pots.map(pot => generateBergerSchedule(pot, groupWeeks));
 
     // 4. Map weekly Stableford points for each player across played weeks
     const weeklyPointsMap = new Map();
@@ -5963,14 +5980,14 @@
       });
     }
 
-    // 5. Evaluate matches for weeks 1 to 11
+    // 5. Evaluate matches for weeks 1 to groupWeeks
     const weeksFixtures = [];
 
-    for (let w = 1; w <= 11; w++) {
+    for (let w = 1; w <= groupWeeks; w++) {
       const weekMatches = [];
       const hasScoresThisWeek = w <= availableWeeks;
 
-      for (let p = 0; p < 4; p++) {
+      for (let p = 0; p < potsCount; p++) {
         const roundMatches = potFixtures[p][w - 1] || [];
         roundMatches.forEach(rm => {
           const p1 = playerStatsMap.get(String(rm.home.memberId));
@@ -6207,12 +6224,13 @@
   }
 
   /**
-   * Populates the week selector for Cup fixtures (Weeks 1 to 11)
+   * Populates the week selector for Cup fixtures (Weeks 1 to groupWeeks)
    */
   function populateCupWeekSelector() {
     if (!elements.cupWeekSelect) return;
     elements.cupWeekSelect.innerHTML = '';
-    for (let w = 1; w <= 11; w++) {
+    const maxWeeks = (state.cupConfig && state.cupConfig.groupWeeks) || 10;
+    for (let w = 1; w <= maxWeeks; w++) {
       const opt = document.createElement('option');
       opt.value = w;
       opt.textContent = `Week ${w}`;
@@ -6329,11 +6347,12 @@
 
       // Add visual demarcation line right after 16th position when not searching
       if (p.pos === 16 && !query) {
+        const r16Week = (state.cupConfig && state.cupConfig.knockoutWeeks && state.cupConfig.knockoutWeeks.r16Week) || 11;
         const cutlineTr = document.createElement('tr');
         cutlineTr.className = 'cup-cutline-row';
         cutlineTr.innerHTML = `
           <td colspan="9">
-            🏆 TOP 16 QUALIFICATION CUTLINE — ADVANCE TO WEEK 12 KNOCKOUT
+            🏆 TOP 16 QUALIFICATION CUTLINE — ADVANCE TO WEEK ${r16Week} KNOCKOUT
           </td>
         `;
         elements.cupStandingsTbody.appendChild(cutlineTr);
@@ -6464,8 +6483,8 @@
     const gridWrapper = document.createElement('div');
     gridWrapper.className = 'cup-fixtures-grid';
 
-    // Order pots: 1, 2, 3, 4
-    const potOrder = [1, 2, 3, 4];
+    // Order pots dynamically
+    const potOrder = Array.from({ length: state.cupData.pots.length }, (_, i) => i + 1);
     potOrder.forEach(potId => {
       const matches = potsGrouped.get(potId);
       if (!matches || matches.length === 0) return;
@@ -6678,19 +6697,26 @@
       `;
     });
 
+    const koWeeks = (state.cupConfig && state.cupConfig.knockoutWeeks) || {
+      r16Week: 11,
+      qfWeek: 12,
+      sfWeek: 13,
+      finalWeek: 14
+    };
+
     const board = document.createElement('div');
     board.className = 'cup-bracket-board';
     board.setAttribute('data-active-round', activeRound);
     board.innerHTML = `
       <div class="cup-bracket-round" data-round="r16">
-        <div class="cup-bracket-round-title">Round of 16 (Week 12)</div>
+        <div class="cup-bracket-round-title">Round of 16 (Week ${koWeeks.r16Week})</div>
         <div class="cup-bracket-matchups">
           ${r16TilesHtml}
         </div>
       </div>
 
       <div class="cup-bracket-round" data-round="qf">
-        <div class="cup-bracket-round-title">Quarter-Finals (Week 13)</div>
+        <div class="cup-bracket-round-title">Quarter-Finals (Week ${koWeeks.qfWeek})</div>
         <div class="cup-bracket-matchups">
           <div class="cup-bracket-tile">
             <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">QF 1</div>
@@ -6716,7 +6742,7 @@
       </div>
 
       <div class="cup-bracket-round" data-round="sf">
-        <div class="cup-bracket-round-title">Semi-Finals (Week 14)</div>
+        <div class="cup-bracket-round-title">Semi-Finals (Week ${koWeeks.sfWeek})</div>
         <div class="cup-bracket-matchups">
           <div class="cup-bracket-tile">
             <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">SF 1</div>
@@ -6732,7 +6758,7 @@
       </div>
 
       <div class="cup-bracket-round" data-round="final">
-        <div class="cup-bracket-round-title">Grand Final (Week 15)</div>
+        <div class="cup-bracket-round-title">Grand Final (Week ${koWeeks.finalWeek})</div>
         <div class="cup-bracket-matchups">
           <div class="cup-bracket-tile" style="border:2px solid #f59e0b;">
             <div style="font-size:0.68rem; font-weight:800; color:#d97706; margin-bottom:4px;">🏆 Cup Championship Match</div>
@@ -7827,7 +7853,8 @@
 
     if (elements.btnCupNext) {
       elements.btnCupNext.addEventListener('click', () => {
-        if (state.cupWeek < 11) {
+        const maxWeeks = (state.cupConfig && state.cupConfig.groupWeeks) || 10;
+        if (state.cupWeek < maxWeeks) {
           state.cupWeek += 1;
           if (elements.cupWeekSelect) elements.cupWeekSelect.value = state.cupWeek;
           renderCupFixtures();
@@ -7837,8 +7864,9 @@
 
     if (elements.cupWeekSelect) {
       elements.cupWeekSelect.addEventListener('change', (e) => {
+        const maxWeeks = (state.cupConfig && state.cupConfig.groupWeeks) || 10;
         const selected = parseInt(e.target.value, 10);
-        if (selected >= 1 && selected <= 11) {
+        if (selected >= 1 && selected <= maxWeeks) {
           state.cupWeek = selected;
           renderCupFixtures();
         }

@@ -635,7 +635,7 @@
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
-          <p id="cup-subtitle" class="panel-info-text">Weekly Matchplay • 4 Handicap Pots • 11 Rounds • Top 16 Advance to Knockout</p>
+          <p id="cup-subtitle" class="panel-info-text">Weekly Matchplay • 5 Handicap Pots • 10 Rounds • Top 16 Advance to Knockout</p>
         </div>
         <div class="panel-options-group">
           <div class="cup-mode-toggle" role="group" aria-label="Cup Subview Selection">
@@ -650,7 +650,7 @@
         </div>
       </div>
 
-      <!-- Subview 1: Unified 48-Player League Standings -->
+      <!-- Subview 1: Unified 50-Player League Standings -->
       <div id="cup-view-table" class="cup-subview">
         <div class="table-card">
           <div class="table-responsive">
@@ -688,12 +688,13 @@
               <option value="2">Pot 2 (First Division)</option>
               <option value="3">Pot 3 (Second Division)</option>
               <option value="4">Pot 4 (Third Division)</option>
+              <option value="5">Pot 5 (Fourth Division)</option>
             </select>
           </div>
           <div class="cup-fixtures-nav-group">
             <button type="button" id="btn-cup-prev" class="cup-nav-btn" title="Previous Week Fixtures">◀ Prev</button>
             <select id="cup-week-select" class="select-control cup-week-select" title="Jump to specific week">
-              <!-- Dynamically populated Weeks 1 to 11 -->
+              <!-- Dynamically populated Weeks 1 to 10 -->
             </select>
             <button type="button" id="btn-cup-next" class="cup-nav-btn" title="Next Week Fixtures">Next ▶</button>
           </div>
@@ -706,7 +707,7 @@
       <!-- Subview 3: Pots & Seedings Breakdown -->
       <div id="cup-view-pots" class="cup-subview" style="display: none;">
         <div id="cup-pots-container" class="cup-pots-grid">
-          <!-- Rendered dynamically: Pots 1 to 4 and Reserve card -->
+          <!-- Rendered dynamically: Pots 1 to 5 -->
         </div>
       </div>
 
@@ -716,10 +717,10 @@
           <div class="cup-fixtures-nav-group" style="width: 100%;">
             <button type="button" id="btn-cup-bracket-prev" class="cup-nav-btn" title="Previous Round">◀ Prev</button>
             <select id="cup-bracket-round-select" class="select-control cup-week-select" title="Select Knockout Round">
-              <option value="r16">Round of 16 (Week 12)</option>
-              <option value="qf">Quarter-Finals (Week 13)</option>
-              <option value="sf">Semi-Finals (Week 14)</option>
-              <option value="final">Grand Final (Week 15)</option>
+              <option value="r16">Round of 16 (Week 11)</option>
+              <option value="qf">Quarter-Finals (Week 12)</option>
+              <option value="sf">Semi-Finals (Week 13)</option>
+              <option value="final">Grand Final (Week 14)</option>
             </select>
             <button type="button" id="btn-cup-bracket-next" class="cup-nav-btn" title="Next Round">Next ▶</button>
           </div>
