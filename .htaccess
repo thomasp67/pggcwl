@@ -1,3 +1,9 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /pggcwl/
+    RewriteRule ^cup/?$ index.html#cup [R=302,NE,L]
+</IfModule>
+
 <IfModule mod_headers.c>
     # Disable caching for all static files during testing
     <FilesMatch "\.(html|htm|js|json|css)$">

@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Port Glasgow Golf Club - Winter Season Results</title>
-  <link rel="stylesheet" href="style.css?v=20261020_magic2s_v3">
+  <link rel="stylesheet" href="style.css?v=20261031_cup_diff_par">
   <link rel="icon" type="image/png" href="image/pggc_logo.png">
 </head>
 <body>
@@ -51,6 +51,7 @@
         <option value="tab-lastman">⚔️ Last Man</option>
         <option value="tab-parbingo">🎱 Bingo</option>
         <option value="tab-player">👤 Player Profile</option>
+        <option value="tab-cup" id="opt-tab-cup" style="display: none;">🏆 Winter League Cup</option>
       </select>
     </div>
 
@@ -77,6 +78,9 @@
       <button class="tab-btn" data-tab="tab-player" id="btn-tab-player">
         👤 Player Profile
       </button>
+      <button class="tab-btn" data-tab="tab-cup" id="btn-tab-cup" style="display: none;">
+        🏆 Winter League Cup
+      </button>
     </nav>
   </div>
 
@@ -86,7 +90,7 @@
     <!-- Loading State -->
     <div id="loading-state" class="loading-box">
       <div class="spinner"></div>
-      <p>Loading course setup, club roster, and weekly scorecards...</p>
+      <p>Loading course setup, club handicap list, and weekly scorecards...</p>
     </div>
 
     <!-- Error State -->
@@ -100,12 +104,16 @@
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
-          <p id="weekly-subtitle" class="panel-info-text">Individual Stableford • Click row for scorecard</p>
+          <p id="weekly-subtitle" class="panel-info-text">Weekly Sweep | Individual Stableford | {Number of Entrants} | Sweep Pot: {£x} | {1st Prize} | {2nd Prize} | {3rd Prize}</p>
         </div>
         <div class="panel-options-group">
-          <label class="checkbox-control" for="weekly-hide-non-league" title="Hide non-league players / show league members only">
+          <label class="checkbox-control" id="lbl-weekly-league-filter" for="weekly-hide-non-league" title="Click to filter: All Players ➔ League Only ➔ Non-League Only">
             <input type="checkbox" id="weekly-hide-non-league">
-            <span>Hide Non-League</span>
+            <span id="weekly-league-filter-text">All Players</span>
+          </label>
+          <label class="checkbox-control col-desktop-only" for="weekly-show-gross" title="Show gross scores instead of Stableford points on hole columns">
+            <input type="checkbox" id="weekly-show-gross">
+            <span>Show Gross Scores</span>
           </label>
         </div>
         <div class="panel-nav-group">
@@ -166,7 +174,7 @@
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
-          <p id="leaderboard-subtitle" class="panel-info-text">Best 10 stableford scores</p>
+          <p id="leaderboard-subtitle" class="panel-info-text">Season Long League | Best 10 Stableford Scores Count | {Number of players in the active week}</p>
         </div>
         <div class="panel-nav-group">
           <div class="week-nav-group">
@@ -221,7 +229,7 @@
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
-          <p id="eclectic-subtitle" class="panel-info-text">Best Stableford score on each hole accumulated across all rounds • Ranked by Eclectic total</p>
+          <p id="eclectic-subtitle" class="panel-info-text">Best Stableford score on each hole accumulated across all rounds | Ranked by Eclectic total</p>
         </div>
         <div class="panel-options-group">
           <div class="filter-group">
@@ -294,7 +302,7 @@
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
-          <p id="magic2s-subtitle" class="panel-info-text">£1.00 per entrant • League members only • Gross 2 on 3 drawn Par 3s (or any Par 4 / Par 5) • Unwon prize pots roll over</p>
+          <p id="magic2s-subtitle" class="panel-info-text">Score a gross 2 on qualifying par 3s (or any par 4 / 5) | Prize roll over | Open to league members only | {Prize Pot}</p>
         </div>
         <div class="panel-nav-group">
           <div class="week-nav-group">
@@ -346,7 +354,7 @@
       <!-- Info / Control Bar -->
       <div class="panel-header-bar">
         <div class="panel-info-group">
-          <p id="lastman-subtitle" class="panel-info-text">Survival countdown competition • Need ≥ 2 pts on active hole to proceed • Lives save missed weeks • Last man standing wins</p>
+          <p id="lastman-subtitle" class="panel-info-text">Score what's required on the active hole to proceed</p>
         </div>
         <div class="panel-options-group">
           <div class="filter-group">
@@ -503,13 +511,13 @@
       </div>
     </section>
 
-    <!-- Tab: Player Profile & Handicap Roster -->
+    <!-- Tab: Player Profile & Handicap List -->
     <section id="tab-player" class="view-panel">
       <!-- Sub-view Mode Switcher Bar -->
       <div class="panel-header-bar players-mode-bar">
         <div class="players-mode-toggle" role="group" aria-label="Player Profile View Selection">
           <button type="button" id="btn-players-mode-profile" class="players-mode-btn active" title="View Individual Player Profile & Scorecards">👤 Player Details</button>
-          <button type="button" id="btn-players-mode-roster" class="players-mode-btn" title="View League Handicap Matrix & Cuts Roster">📋 Handicap Roster</button>
+          <button type="button" id="btn-players-mode-roster" class="players-mode-btn" title="View League Handicap Matrix & Cuts List">📋 Handicap List</button>
         </div>
       </div>
 
@@ -518,10 +526,10 @@
         <!-- Info / Control Bar -->
         <div class="panel-header-bar">
           <div class="panel-info-group">
-            <p class="panel-info-text">Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member</p>
+            <p id="player-subtitle" class="panel-info-text">Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member</p>
           </div>
           <div class="panel-options-group">
-            <button type="button" id="btn-goto-roster" class="quick-pick-btn" title="View full league handicap matrix">📋 View Handicap Roster</button>
+            <button type="button" id="btn-goto-roster" class="quick-pick-btn" title="View full league handicap matrix">📋 View Handicap List</button>
           </div>
           <div class="panel-search-group">
             <div class="player-search-wrapper">
@@ -572,7 +580,7 @@
         </div>
       </div>
 
-      <!-- Sub-view 2: Handicap Roster Matrix -->
+      <!-- Sub-view 2: Handicap List Matrix -->
       <div id="players-roster-view" class="players-subview" style="display: none;">
         <!-- Info / Control Bar -->
         <div class="panel-header-bar">
@@ -632,9 +640,105 @@
       </div>
     </section>
 
+    <!-- Tab: Winter League Cup (Concept Feature - Accessed via /cup) -->
+    <section id="tab-cup" class="view-panel">
+      <!-- Secret / Private Mode Notification Banner -->
+      <div class="cup-concept-banner">
+        <div class="cup-concept-info">
+          <span class="cup-concept-badge">Concept Preview</span>
+          <span><strong>Winter League Cup:</strong> Private view accessed via <code>/cup</code>. Hidden from main site navigation.</span>
+        </div>
+        <button type="button" id="btn-cup-exit" class="quick-pick-btn" title="Return to public main site">← Main Site</button>
+      </div>
+
+      <!-- Info / Control Bar -->
+      <div class="panel-header-bar">
+        <div class="panel-info-group">
+          <p id="cup-subtitle" class="panel-info-text">Weekly Matchplay • 4 Pots of 12 • 11 Rounds • Top 16 Advance to Knockout</p>
+        </div>
+        <div class="panel-options-group">
+          <div class="cup-mode-toggle" role="group" aria-label="Cup Subview Selection">
+            <button type="button" id="btn-cup-mode-table" class="cup-mode-btn active" title="View Unified 48-Player League Standings">🏆 Unified Table</button>
+            <button type="button" id="btn-cup-mode-fixtures" class="cup-mode-btn" title="View Weekly Fixtures & Match Results">🗓️ Fixtures</button>
+            <button type="button" id="btn-cup-mode-pots" class="cup-mode-btn" title="View Pots and Seedings Breakdown">🎴 Pots & Seeds</button>
+            <button type="button" id="btn-cup-mode-bracket" class="cup-mode-btn" title="View Projected Top 16 Knockout Bracket">🌳 Knockout Tree</button>
+          </div>
+        </div>
+        <div class="panel-nav-group" id="cup-nav-group" style="display: none;">
+          <div class="week-nav-group">
+            <button type="button" id="btn-cup-prev" class="week-nav-btn" title="Previous Week Fixtures">◀ Prev</button>
+            <select id="cup-week-select" class="select-control week-nav-select" title="Jump to specific week">
+              <!-- Dynamically populated Weeks 1 to 11 -->
+            </select>
+            <button type="button" id="btn-cup-next" class="week-nav-btn" title="Next Week Fixtures">Next ▶</button>
+          </div>
+          <div class="filter-group">
+            <label for="cup-pot-select">Pot:</label>
+            <select id="cup-pot-select" class="select-control" title="Filter Fixtures by Pot">
+              <option value="all">All Pots (24 Matches)</option>
+              <option value="1">Pot 1 (Championship)</option>
+              <option value="2">Pot 2 (First Division)</option>
+              <option value="3">Pot 3 (Second Division)</option>
+              <option value="4">Pot 4 (Third Division)</option>
+            </select>
+          </div>
+        </div>
+        <div class="panel-search-group" id="cup-search-group">
+          <input type="text" id="cup-search" class="search-input" placeholder="Search player name...">
+        </div>
+      </div>
+
+      <!-- Subview 1: Unified 48-Player League Standings -->
+      <div id="cup-view-table" class="cup-subview">
+        <div class="table-card">
+          <div class="table-responsive">
+            <table class="data-table" id="cup-standings-table">
+              <thead>
+                <tr id="cup-standings-thead-tr">
+                  <th class="text-center pos-col">Pos</th>
+                  <th class="sticky-col-name player-name-col"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
+                  <th class="text-center" title="Group Pot and Seed">Pot</th>
+                  <th class="text-center" title="Matches Played">Pld</th>
+                  <th class="text-center" title="Matches Won (3 pts)">W</th>
+                  <th class="text-center" title="Matches Drawn (1 pt)">D</th>
+                  <th class="text-center" title="Matches Lost (0 pts)">L</th>
+                  <th class="text-center" title="Differential to Par (36 points)">Diff</th>
+                  <th class="text-center" title="Cup Points (3 for win, 1 for draw, 0 for loss)">Pts</th>
+                </tr>
+              </thead>
+              <tbody id="cup-standings-tbody">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subview 2: Weekly Fixtures & Match Results -->
+      <div id="cup-view-fixtures" class="cup-subview" style="display: none;">
+        <div id="cup-fixtures-container">
+          <!-- Rendered dynamically: Pot groupings and 6 matches per pot -->
+        </div>
+      </div>
+
+      <!-- Subview 3: Pots & Seedings Breakdown -->
+      <div id="cup-view-pots" class="cup-subview" style="display: none;">
+        <div id="cup-pots-container" class="cup-pots-grid">
+          <!-- Rendered dynamically: Pots 1 to 4 and Reserve card -->
+        </div>
+      </div>
+
+      <!-- Subview 4: Top 16 Knockout Bracket -->
+      <div id="cup-view-bracket" class="cup-subview" style="display: none;">
+        <div id="cup-bracket-container">
+          <!-- Rendered dynamically: Bracket visualization -->
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <script src="data/data.js?v=20261020_magic2s_v3"></script>
-  <script src="app.js?v=20261020_magic2s_v3"></script>
+  <script src="data/data.js?v=20261031_cup_diff_par"></script>
+  <script src="app.js?v=20261101_magic2s_par3_update"></script>
 </body>
 </html>

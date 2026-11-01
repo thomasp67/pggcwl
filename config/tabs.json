@@ -1,51 +1,74 @@
 {
+    "mobileOptions": {
+        "hideWeekNavButtons": true,
+        "hideWeekNavEntirely": true,
+        "hidePlayerSearch": true,
+        "hideNonLeagueToggle": true,
+        "hideLastManInfo": true,
+        "hideLastManStatusDropdown": true
+    },
     "tab-weekly": {
         "name": "Weekend Stableford",
         "icon": "📅",
         "order": 1,
         "hideDesktop": false,
-        "hideMobile": false
+        "hideMobile": false,
+        "infoText": "Weekly Sweep • Individual Stableford Format\n{Number of Entrants} • Sweep Pot: {£x} • {1st Prize} • {2nd Prize} • {3rd Prize}"
     },
     "tab-leaderboard": {
         "name": "Winter League",
         "icon": "🏆",
         "order": 2,
         "hideDesktop": false,
-        "hideMobile": false
+        "hideMobile": false,
+        "infoText": "Season Long League • Best 10 Stableford Scores Count\n{Number of players in the active week} played this week"
     },
     "tab-magic2s": {
         "name": "Magic 2's",
         "icon": "🪄",
         "order": 3,
         "hideDesktop": false,
-        "hideMobile": false
+        "hideMobile": false,
+        "infoText": "Score a gross 2 on qualifying par 3s (or any par 4 / 5) • Prize roll over • Open to league members only • {Prize Pot}"
     },
     "tab-lastman": {
         "name": "Last Man Standing",
         "icon": "⚔️",
         "order": 4,
         "hideDesktop": false,
-        "hideMobile": false
+        "hideMobile": false,
+        "infoText": "Score 1 point on hole {weeks active hole} to proceed to next week • {16 of 49} Players Still Standing"
     },
     "tab-eclectic": {
         "name": "Eclectic",
         "icon": "🎯",
         "order": 5,
         "hideDesktop": false,
-        "hideMobile": true
+        "hideMobile": true,
+        "infoText": "Best Stableford score on each hole accumulated across all rounds"
     },
     "tab-parbingo": {
         "name": "Bingo",
         "icon": "🎱",
         "order": 6,
         "hideDesktop": false,
-        "hideMobile": true
+        "hideMobile": true,
+        "infoText": "First player to record a qualifying score on every hole wins"
     },
     "tab-player": {
         "name": "Player Profile",
         "icon": "👤",
         "order": 7,
         "hideDesktop": false,
-        "hideMobile": true
+        "hideMobile": true,
+        "infoText": "Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member"
+    },
+    "tab-cup": {
+        "name": "Winter League Cup",
+        "icon": "🏆",
+        "order": 8,
+        "hideDesktop": true,
+        "hideMobile": true,
+        "infoText": "Weekly Matchplay • 4 Pots of 12 • 11 Rounds • Top 16 Advance to Knockout"
     }
 }

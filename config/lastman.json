@@ -1,8 +1,9 @@
 {
-  "pointsToSurvive": 1,
-  "initialLives": 2,
-  "eligibility": "league",
-  "holeOrder": "hole_asc",
-  "hideUnplayedEliminations": false,
-  "hideCompetitionSettings": true
+    "pointsToSurvive": 1,
+    "initialLives": 0,
+    "eligibility": "league",
+    "holeOrder": "hole_asc",
+    "hideUnplayedEliminations": false,
+    "hideCompetitionSettings": true,
+    "hideInfoSection": false
 }

@@ -1,48 +1,80 @@
 /**
- * Golf Winter League & Weekly Stableford Web App
- * Client-side calculation engine, dynamic week discovery, and UI renderer.
+ * ============================================================================
+ * Port Glasgow Golf Club - Winter League & Competitions System
+ * Client-Side Calculation Engine, Dynamic Discovery & Responsive UI Controller
+ * ============================================================================
+ * 
+ * ARCHITECTURE OVERVIEW:
+ * 1. Single Page Application (SPA) architecture operating purely client-side without
+ *    any mandatory backend runtime (runs identically from static Apache or file://).
+ * 2. Pre-bundled data model loaded from `data/data.js` (with live JSON fetch fallback
+ *    when served over HTTP/HTTPS from a local or remote web server).
+ * 3. Seven (7) distinct competition & analytics engines:
+ *    - Tab 1: Weekend Stableford (Weekly Sweep, Stableford/Gross toggle, 3-way league filter)
+ *    - Tab 2: Winter League (Season-long championship, Best 10 counting scores, countback tiebreaks)
+ *    - Tab 3: Magic 2's (Weekly Par 3 draw, £1/entry pot, rollovers, non-qualifying 2 detection)
+ *    - Tab 4: Last Man Standing (Hole-by-hole sudden death knockout, lives, survivorship tracking)
+ *    - Tab 5: Eclectic (Best 18-hole score across rounds, Nett vs Stableford modes, countbacks)
+ *    - Tab 6: Bingo (Gross Pars & Net Birdies 18-hole card completion race)
+ *    - Tab 7: Player Profile & Handicap List (Individual scorecard drilldowns & 20-week matrix)
+ * 4. Handicap Adjustment Subsystem:
+ *    - Exact WHS playing handicap stroke allocation per hole via Course Rating, Slope, & SI
+ *    - Tiered handicap cut calculations with buffer caps and 0.1 increases
+ *    - Persistent visual distinction: applied cuts prominently highlighted in red
+ * ============================================================================
  */
 
 (function () {
   'use strict';
 
-  // Global State
+  /**
+   * Application Global State
+   * Centralized reactive repository for all loaded data, configurations,
+   * active tab selections, sorting states, and competition engine results.
+   */
   const state = {
-    course: null,
-    cutsConfig: null,
-    members: [],
-    weeksData: [], // Array of { weekNum, weekStr, rounds }
-    latestWeek: 0,
-    processedMembers: new Map(), // memberId -> processed state
-    weeklyResults: new Map(), // weekNum -> Array of player round results
-    lastmanConfig: {
+    course: null,                 // Course definition: par, slopeRating, courseRating, allowance, holes
+    cutsConfig: null,             // Handicap cut rules: triggerPoints, bufferCap, tiers, increase
+    members: [],                  // Club membership registry: memberId, name, origHCI, inLeague
+    weeksData: [],                // Chronological weekly rounds: Array of { weekNum, weekStr, rounds }
+    latestWeek: 0,                // Highest week index currently played and verified
+    processedMembers: new Map(),  // memberId -> calculated member state (league scores, cuts, averages)
+    weeklyResults: new Map(),     // weekNum -> Array of evaluated round results for that week
+    lastmanConfig: {              // Last Man Standing runtime rules (synced with config/lastman.json)
       pointsToSurvive: 2,
       initialLives: 3,
       eligibility: 'league',
       holeOrder: 'si_desc',
       hideUnplayedEliminations: false,
-      hideCompetitionSettings: false
+      hideCompetitionSettings: false,
+      hideBanner: false
     },
-    activeTab: null,
-    leaderboardWeek: 0,
-    leaderboardSortCol: null, // Sort column for Winter League: 'pos', 'cut', 'round', 'avg', 'money', 'total'
-    leaderboardSortDir: 'desc', // Sort direction: 'desc' (1st click) or 'asc' (2nd click)
-    selectedWeek: 0,
-    eclecticWeek: 0,
-    eclecticScoringMode: 'nett', // 'nett' or 'points'
-    eclecticSortCol: null, // 'pos', 'rounds', 'points', 'nett'
-    eclecticSortDir: 'desc', // 'desc' or 'asc'
-    magic2sWeek: 0,
-    magic2sWeeklyPots: new Map(),
-    magic2sConfig: null,
-    prizesConfig: null,
-    tabsConfig: null,
-    lastmanWeek: 0,
-    parbingoWeek: 0,
-    parbingoEligibility: 'league',
-    bingoMode: 'gross', // 'gross' (Gross Pars) or 'nett' (Net Birdies)
-    selectedPlayerId: null,
-    playersViewMode: 'profile' // 'profile' (Individual Player Details) or 'roster' (Handicap Roster Matrix)
+    weeklyLeagueFilter: 'all',    // Tri-state sweep filter: 'all' -> 'league' -> 'non-league'
+    activeTab: null,              // ID of currently visible view panel (e.g. 'tab-weekly')
+    leaderboardWeek: 0,           // Historical week selector for Winter League (0 = latest)
+    leaderboardSortCol: null,     // Active sorting column on Winter League leaderboard
+    leaderboardSortDir: 'desc',   // Direction of leaderboard sorting: 'asc' or 'desc'
+    selectedWeek: 0,              // Active week number for Weekend Stableford sweep
+    eclecticWeek: 0,              // Historical week ceiling for Eclectic standings (0 = latest)
+    eclecticScoringMode: 'nett',  // Eclectic scoring format: 'nett' (Strokes) or 'points' (Stableford)
+    eclecticSortCol: null,        // Column to sort Eclectic standings by
+    eclecticSortDir: 'desc',      // Direction for Eclectic sorting
+    magic2sWeek: 0,               // Active week number for Magic 2's sweep inspection
+    magic2sWeeklyPots: new Map(), // Pre-calculated financial pots, rollovers, and winners per week
+    magic2sConfig: null,          // Configuration rules for Magic 2's (synced with magic2s.json)
+    prizesConfig: null,           // Sweep entry fee and distribution tiers (prizes.json)
+    tabsConfig: null,             // Tab ordering, visibility, and custom info templates (tabs.json)
+    lastmanWeek: 0,               // Active evaluation week for Last Man Standing
+    parbingoWeek: 0,              // Historical round ceiling for Bingo standings
+    parbingoEligibility: 'league',// Bingo eligibility filter: 'league' or 'all'
+    bingoMode: 'gross',           // Bingo game mode: 'gross' (Gross Pars) or 'nett' (Net Birdies)
+    selectedPlayerId: null,       // Currently inspected player in Player Details subview
+    playersViewMode: 'profile',   // Unified tab subview mode: 'profile' or 'roster' (Handicap List)
+    cupSubView: 'table',          // Cup subview mode: 'table' | 'fixtures' | 'pots' | 'bracket'
+    cupWeek: 1,                   // Active week for cup fixtures inspection (1 to 11)
+    cupPotFilter: 'all',          // Fixture pot filter: 'all' | 1 | 2 | 3 | 4
+    cupConfig: null,              // Cup configuration rules (config/cup.json)
+    cupData: null                 // Precalculated cup data (pots, fixtures, unified standings, bracket)
   };
 
   // DOM Elements
@@ -73,6 +105,7 @@
     weeklySearch: document.getElementById('weekly-search'),
     weeklySubtitle: document.getElementById('weekly-subtitle'),
     weeklyHideNonLeague: document.getElementById('weekly-hide-non-league'),
+    weeklyShowGross: document.getElementById('weekly-show-gross'),
     weeklyTbody: document.getElementById('weekly-tbody'),
     btnWeeklyPrev: document.getElementById('btn-weekly-prev'),
     btnWeeklyNext: document.getElementById('btn-weekly-next'),
@@ -108,7 +141,7 @@
     btnGotoRoster: document.getElementById('btn-goto-roster'),
     btnBackToProfile: document.getElementById('btn-back-to-profile'),
 
-    // Handicap Tracker (Roster Subview)
+    // Handicap Tracker (Handicap List Subview)
     handicapTheadTr: document.getElementById('handicap-thead-tr'),
     handicapTbody: document.getElementById('handicap-tbody'),
     handicapSearch: document.getElementById('handicap-search'),
@@ -161,6 +194,31 @@
     parbingoTheadTr: document.getElementById('parbingo-thead-tr'),
     parbingoTbody: document.getElementById('parbingo-tbody'),
 
+    // Winter League Cup (Concept Feature - /cup)
+    optTabCup: document.getElementById('opt-tab-cup'),
+    btnTabCup: document.getElementById('btn-tab-cup'),
+    btnCupExit: document.getElementById('btn-cup-exit'),
+    cupSubtitle: document.getElementById('cup-subtitle'),
+    btnCupModeTable: document.getElementById('btn-cup-mode-table'),
+    btnCupModeFixtures: document.getElementById('btn-cup-mode-fixtures'),
+    btnCupModePots: document.getElementById('btn-cup-mode-pots'),
+    btnCupModeBracket: document.getElementById('btn-cup-mode-bracket'),
+    cupNavGroup: document.getElementById('cup-nav-group'),
+    cupSearchGroup: document.getElementById('cup-search-group'),
+    btnCupPrev: document.getElementById('btn-cup-prev'),
+    cupWeekSelect: document.getElementById('cup-week-select'),
+    btnCupNext: document.getElementById('btn-cup-next'),
+    cupPotSelect: document.getElementById('cup-pot-select'),
+    cupSearch: document.getElementById('cup-search'),
+    cupViewTable: document.getElementById('cup-view-table'),
+    cupViewFixtures: document.getElementById('cup-view-fixtures'),
+    cupViewPots: document.getElementById('cup-view-pots'),
+    cupViewBracket: document.getElementById('cup-view-bracket'),
+    cupStandingsTbody: document.getElementById('cup-standings-tbody'),
+    cupFixturesContainer: document.getElementById('cup-fixtures-container'),
+    cupPotsContainer: document.getElementById('cup-pots-container'),
+    cupBracketContainer: document.getElementById('cup-bracket-container'),
+
     // Local file protocol notice
     localProtocolBanner: document.getElementById('local-protocol-banner'),
     localNoticeClose: document.getElementById('local-notice-close')
@@ -212,6 +270,51 @@
   }
 
   /**
+   * Format player handicap display: HCI (strokes) e.g. "8.4 (8)"
+   * Displays both the exact Handicap Index (1 decimal place) and playing strokes in brackets.
+   */
+  function formatPlayerHci(hci, strokes) {
+    const parts = [];
+    if (hci !== undefined && hci !== null && !isNaN(Number(hci))) {
+      parts.push(Number(hci).toFixed(1));
+    }
+    if (strokes !== undefined && strokes !== null && !isNaN(Number(strokes))) {
+      parts.push(`(${strokes})`);
+    }
+    return parts.join(' ');
+  }
+
+  /**
+   * Render a color-coded Gross score chip relative to hole par
+   * - <= Par - 2: Eagle or better (dark green)
+   * - Par - 1: Birdie (mid green)
+   * - Par: Par (light green)
+   * - Par + 1: Bogey (yellow)
+   * - >= Par + 2: Double bogey or worse (red)
+   * - 0 / NR: Grey 'NR' chip
+   */
+  function renderGrossScoreChip(gross, holePar) {
+    if (gross === undefined || gross === null || gross === '-' || gross === 0) {
+      return `<span class="gross-chip gross-nr" title="No Return">NR</span>`;
+    }
+    const num = Number(gross);
+    if (isNaN(num) || num <= 0) {
+      return `<span class="gross-chip gross-nr" title="No Return">NR</span>`;
+    }
+    const par = Number(holePar);
+    let colorClass = 'gross-par';
+    if (!isNaN(par)) {
+      const diff = num - par;
+      if (diff <= -2) colorClass = 'gross-eagle';
+      else if (diff === -1) colorClass = 'gross-birdie';
+      else if (diff === 0) colorClass = 'gross-par';
+      else if (diff === 1) colorClass = 'gross-bogey';
+      else colorClass = 'gross-double-plus';
+    }
+    return `<span class="gross-chip ${colorClass}">${num}</span>`;
+  }
+
+  /**
    * Build tooltip for a hole cell showing Gross Score, Handicap Strokes, and Stroke Index
    */
   function buildHoleTooltip(round, holeIndex) {
@@ -246,6 +349,50 @@
     const raw = allowance * (hci * (slopeRating / 113) + (courseRating - par));
     const rounded = Math.round(raw);
     return Math.min(strokeLimit, rounded);
+  }
+
+  /**
+   * Retrieves a player's active entering Handicap Index (HCI) for a specific competition week,
+   * accounting for all cumulative cuts and relief earned in prior weeks (1 to targetWeek - 1).
+   * For targetWeek <= 1, returns the player's original starting handicap (origHCI).
+   *
+   * @param {string|number} memberId - Player's unique membership ID
+   * @param {number} targetWeek - Target competition week (1 to 18)
+   * @returns {number} Entering HCI rounded to 1 decimal place
+   */
+  function getPlayerEnteringHciAtWeek(memberId, targetWeek) {
+    const p = state.processedMembers ? state.processedMembers.get(String(memberId)) : null;
+    if (!p) {
+      const raw = state.members ? state.members.find(m => String(m.memberId) === String(memberId)) : null;
+      return raw ? round1(raw.origHCI) : 0;
+    }
+    const tWeek = Number(targetWeek) || 1;
+    if (tWeek <= 1) {
+      return round1(p.origHCI);
+    }
+    let cutsPrior = 0;
+    for (let w = 1; w < tWeek; w++) {
+      const cut = p.weeklyCuts ? p.weeklyCuts.get(w) : null;
+      if (cut !== null && cut !== undefined && !isNaN(cut)) {
+        cutsPrior = round1(cutsPrior + cut);
+      }
+    }
+    return round1(p.origHCI + cutsPrior);
+  }
+
+  /**
+   * Retrieves a player's active current Handicap Index (HCI) including all cumulative cuts up to the latest week.
+   *
+   * @param {string|number} memberId - Player's unique membership ID
+   * @returns {number} Current HCI rounded to 1 decimal place
+   */
+  function getPlayerCurrentHci(memberId) {
+    const p = state.processedMembers ? state.processedMembers.get(String(memberId)) : null;
+    if (!p) {
+      const raw = state.members ? state.members.find(m => String(m.memberId) === String(memberId)) : null;
+      return raw ? round1(raw.origHCI) : 0;
+    }
+    return round1(p.origHCI + (p.cumulativeCuts || 0));
   }
 
   /**
@@ -320,31 +467,31 @@
     return -1 * round1(finalCut);
   }
 
-  // Default Magic 2's configuration: 20 combinations of 3 par-3 holes from course [1, 8, 11, 13, 17, 18]
+  // Default Magic 2's configuration: 20 combinations of 3 par-3 holes from course [1, 9, 12, 13, 17, 18]
   const DEFAULT_MAGIC2S_CONFIG = {
     competitionName: "Magic 2's",
-    par3Holes: [1, 8, 11, 13, 17, 18],
+    par3Holes: [1, 9, 12, 13, 17, 18],
     allowPar4And5Twos: true,
     weeks: {
-      "1": [1, 8, 11],
-      "2": [1, 8, 13],
-      "3": [1, 8, 17],
-      "4": [1, 8, 18],
-      "5": [1, 11, 13],
-      "6": [1, 11, 17],
-      "7": [1, 11, 18],
+      "1": [9, 12, 17],
+      "2": [1, 9, 13],
+      "3": [1, 9, 17],
+      "4": [1, 9, 18],
+      "5": [1, 12, 13],
+      "6": [1, 12, 17],
+      "7": [1, 12, 18],
       "8": [1, 13, 17],
       "9": [1, 13, 18],
       "10": [1, 17, 18],
-      "11": [8, 11, 13],
-      "12": [8, 11, 17],
-      "13": [8, 11, 18],
-      "14": [8, 13, 17],
-      "15": [8, 13, 18],
-      "16": [8, 17, 18],
-      "17": [11, 13, 17],
-      "18": [11, 13, 18],
-      "19": [11, 17, 18],
+      "11": [9, 12, 13],
+      "12": [1, 9, 12],
+      "13": [9, 12, 18],
+      "14": [9, 13, 17],
+      "15": [9, 13, 18],
+      "16": [9, 17, 18],
+      "17": [12, 13, 17],
+      "18": [12, 13, 18],
+      "19": [12, 17, 18],
       "20": [13, 17, 18]
     }
   };
@@ -366,15 +513,46 @@
     }
   };
 
-  // Default Navigation Tabs Visibility and Ordering configuration
+  // Default Last Man Standing Configuration
+  const DEFAULT_LASTMAN_CONFIG = {
+    pointsToSurvive: 2,
+    initialLives: 3,
+    eligibility: 'league',
+    holeOrder: 'si_desc',
+    hideUnplayedEliminations: false,
+    hideCompetitionSettings: false,
+    hideBanner: false
+  };
+
+  // Default Navigation Tabs Visibility, Mobile Display, and Ordering configuration
   const DEFAULT_TABS_CONFIG = {
-    "tab-leaderboard": { "name": "Winter League", "icon": "🏆", "order": 1, "hideDesktop": false, "hideMobile": false },
-    "tab-weekly": { "name": "Weekend Stableford", "icon": "📅", "order": 2, "hideDesktop": false, "hideMobile": false },
-    "tab-eclectic": { "name": "Eclectic", "icon": "🎯", "order": 3, "hideDesktop": false, "hideMobile": false },
-    "tab-magic2s": { "name": "Magic 2's", "icon": "🪄", "order": 4, "hideDesktop": false, "hideMobile": false },
-    "tab-lastman": { "name": "Last Man Standing", "icon": "⚔️", "order": 5, "hideDesktop": false, "hideMobile": false },
-    "tab-parbingo": { "name": "Bingo", "icon": "🎱", "order": 6, "hideDesktop": false, "hideMobile": false },
-    "tab-player": { "name": "Player Profile", "icon": "👤", "order": 7, "hideDesktop": false, "hideMobile": false }
+    "mobileOptions": {
+      "hideWeekNavButtons": false,
+      "hideWeekNavEntirely": false,
+      "hidePlayerSearch": false,
+      "hideNonLeagueToggle": false,
+      "hideLastManInfo": false,
+      "hideLastManStatusDropdown": false
+    },
+    "tab-weekly": { "name": "Weekend Stableford", "icon": "📅", "order": 1, "hideDesktop": false, "hideMobile": false, "infoText": "Weekly Sweep • Individual Stableford Format\n{Number of Entrants} • Sweep Pot: {£x} • {1st Prize} • {2nd Prize} • {3rd Prize}" },
+    "tab-leaderboard": { "name": "Winter League", "icon": "🏆", "order": 2, "hideDesktop": false, "hideMobile": false, "infoText": "Season Long League • Best 10 Stableford Scores Count\n{Number of players in the active week} played this week" },
+    "tab-magic2s": { "name": "Magic 2's", "icon": "🪄", "order": 3, "hideDesktop": false, "hideMobile": false, "infoText": "Score a gross 2 on qualifying par 3s (or any par 4 / 5) • Prize roll over • Open to league members only • {Prize Pot}" },
+    "tab-lastman": { "name": "Last Man Standing", "icon": "⚔️", "order": 4, "hideDesktop": false, "hideMobile": false, "infoText": "Score 1 point on hole {weeks active hole} to proceed to next week • {16 of 49} Players Still Standing" },
+    "tab-eclectic": { "name": "Eclectic", "icon": "🎯", "order": 5, "hideDesktop": false, "hideMobile": true, "infoText": "Best Stableford score on each hole accumulated across all rounds" },
+    "tab-parbingo": { "name": "Bingo", "icon": "🎱", "order": 6, "hideDesktop": false, "hideMobile": true, "infoText": "First player to record a qualifying score on every hole wins" },
+    "tab-player": { "name": "Player Profile", "icon": "👤", "order": 7, "hideDesktop": false, "hideMobile": true, "infoText": "Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member" },
+    "tab-cup": { "name": "Winter League Cup", "icon": "🏆", "order": 8, "hideDesktop": true, "hideMobile": true, "infoText": "Weekly Matchplay • 4 Pots of 12 • 11 Rounds • Top 16 Advance to Knockout" }
+  };
+
+  // Default Cup Configuration
+  const DEFAULT_CUP_CONFIG = {
+    competitionName: "Winter League Cup",
+    potsCount: 4,
+    potSize: 12,
+    totalPlayers: 48,
+    groupWeeks: 11,
+    scoring: { winPoints: 3, drawPoints: 1, lossPoints: 0 },
+    knockout: { qualifiers: 16, roundOf16Week: 12, quarterFinalsWeek: 13, semiFinalsWeek: 14, finalWeek: 15 }
   };
 
   // Embedded sample dataset for offline / local file protocol preview (file://)
@@ -530,14 +708,15 @@
         return fetch(`config/${cfgFile}?v=${ts}`, fetchOpts);
       };
 
-      const [courseRes, cutsRes, membersRes, lastmanRes, magic2sRes, prizesRes, tabsRes] = await Promise.all([
+      const [courseRes, cutsRes, membersRes, lastmanRes, magic2sRes, prizesRes, tabsRes, cupRes] = await Promise.all([
         fetchConfigWithFallback('course.json', 'course.json'),
         fetchConfigWithFallback('cuts.json', 'cuts.json'),
         fetch(`data/members.json?v=${ts}`, fetchOpts),
         fetchConfigWithFallback('lastman.json', 'lastman_config.json').catch(() => null),
         fetchConfigWithFallback('magic2s.json', 'magic2s_config.json').catch(() => null),
         fetchConfigWithFallback('prizes.json', 'prizes_config.json').catch(() => null),
-        fetchConfigWithFallback('tabs.json', 'tabs.json').catch(() => null)
+        fetchConfigWithFallback('tabs.json', 'tabs.json').catch(() => null),
+        fetchConfigWithFallback('cup.json', null).catch(() => null)
       ]);
 
       if (!courseRes.ok) throw new Error(`Could not load config/course.json (Status: ${courseRes.status})`);
@@ -590,6 +769,17 @@
         state.tabsConfig = DEFAULT_TABS_CONFIG;
       }
 
+      if (cupRes && cupRes.ok) {
+        try {
+          state.cupConfig = await cupRes.json();
+        } catch (e) {
+          console.warn('Could not parse config/cup.json', e);
+        }
+      }
+      if (!state.cupConfig) {
+        state.cupConfig = DEFAULT_CUP_CONFIG;
+      }
+
       // Sequential discovery from 01.json to 20.json
       const loadedWeeks = [];
       for (let w = 1; w <= 20; w++) {
@@ -628,6 +818,22 @@
       renderAllViews();
       applyTabVisibility();
 
+      if (isCupRoute()) {
+        activateTab('tab-cup');
+      } else {
+        const hash = window.location.hash ? window.location.hash.substring(1) : '';
+        if (hash && document.getElementById(hash)) {
+          activateTab(hash);
+        } else {
+          const ordered = getOrderedTabs();
+          const isMobile = window.innerWidth <= 1024;
+          const firstVis = ordered.find(t => isMobile ? !isTabHiddenOnMobile(t.id) : !isTabHiddenOnDesktop(t.id));
+          if (firstVis) {
+            activateTab(firstVis.id);
+          }
+        }
+      }
+
     } catch (err) {
       console.warn('Network fetch failed, falling back to bundled or local dataset:', err);
       if (window.GOLF_DATA && window.GOLF_DATA.course && window.GOLF_DATA.members) {
@@ -652,6 +858,7 @@
     state.magic2sConfig = dataset.magic2sConfig || DEFAULT_MAGIC2S_CONFIG;
     state.prizesConfig = dataset.prizesConfig || DEFAULT_PRIZES_CONFIG;
     state.tabsConfig = dataset.tabsConfig || DEFAULT_TABS_CONFIG;
+    state.cupConfig = dataset.cupConfig || state.cupConfig || DEFAULT_CUP_CONFIG;
     state.latestWeek = state.weeksData.length;
     state.selectedWeek = state.latestWeek;
     state.leaderboardWeek = state.latestWeek;
@@ -669,16 +876,20 @@
     renderAllViews();
     applyTabVisibility();
 
-    // Activate tab based on URL hash or first visible tab in configured order
-    const hash = window.location.hash ? window.location.hash.substring(1) : '';
-    if (hash && document.getElementById(hash)) {
-      activateTab(hash);
+    // Activate tab based on Cup route, URL hash or first visible tab in configured order
+    if (isCupRoute()) {
+      activateTab('tab-cup');
     } else {
-      const ordered = getOrderedTabs();
-      const isMobile = window.innerWidth <= 1024;
-      const firstVis = ordered.find(t => isMobile ? !isTabHiddenOnMobile(t.id) : !isTabHiddenOnDesktop(t.id));
-      if (firstVis) {
-        activateTab(firstVis.id);
+      const hash = window.location.hash ? window.location.hash.substring(1) : '';
+      if (hash && document.getElementById(hash)) {
+        activateTab(hash);
+      } else {
+        const ordered = getOrderedTabs();
+        const isMobile = window.innerWidth <= 1024;
+        const firstVis = ordered.find(t => isMobile ? !isTabHiddenOnMobile(t.id) : !isTabHiddenOnDesktop(t.id));
+        if (firstVis) {
+          activateTab(firstVis.id);
+        }
       }
     }
   }
@@ -729,6 +940,7 @@
         if (cardMap.has(mId)) {
           const card = cardMap.get(mId);
           const grossScores = card.gross || [];
+          const playedDay = card.day || (card.playedDay || '');
 
           // Compute 18-hole Stableford breakdown
           const holePoints = [];
@@ -790,6 +1002,7 @@
             grossScores: grossScores,
             grossTotal: grossTotal,
             stablefordTotal: stablefordTotal,
+            points: stablefordTotal,
             b9: b9,
             b6: b6,
             b3: b3,
@@ -798,7 +1011,8 @@
             holeStrokes: holeStrokes,
             cut: cutVal,
             prizeMoney: 0,
-            magic2sPrize: 0
+            magic2sPrize: 0,
+            day: playedDay
           };
 
           player.weeklyRounds.set(w, roundResult);
@@ -1141,6 +1355,9 @@
     renderLastManView();
     populateParBingoWeekSelector();
     renderParBingoView();
+    calculateCupCompetition();
+    populateCupWeekSelector();
+    renderCupView();
   }
 
   /**
@@ -1281,13 +1498,13 @@
       }
     });
 
-    // Subtitle indicator
+    // Subtitle indicator from tabs.json configuration
     if (elements.leaderboardSubtitle) {
-      if (asOfWeek === state.latestWeek) {
-        elements.leaderboardSubtitle.textContent = 'Best 10 stableford scores';
-      } else {
-        elements.leaderboardSubtitle.innerHTML = `<span class="badge" style="background:#fef3c7; color:#b45309; font-weight:700; margin-right:6px;">Historical: Round ${asOfWeek}</span> Best 10 stableford scores`;
-      }
+      const resolved = getResolvedTabInfoText('tab-leaderboard', { weekNum: asOfWeek });
+      const badgeHtml = (asOfWeek < state.latestWeek)
+        ? `<span class="badge" style="background:#fef3c7; color:#b45309; font-weight:700; margin-right:6px;">Historical: Round ${asOfWeek}</span> `
+        : '';
+      elements.leaderboardSubtitle.innerHTML = badgeHtml + formatInfoTextHtml(resolved);
     }
 
     // Keep nav buttons & select synchronized
@@ -1390,7 +1607,7 @@
       tr.title = `${rankTitle} • Click to view counting scores & scoring breakdown`;
       tr.innerHTML = `
         <td class="text-center"><span class="rank-badge ${rankClass}" title="${escapeHtml(rankTitle)}">${p.pos}</span></td>
-        <td class="sticky-col-name player-name-cell">${escapeHtml(p.name)} <span class="player-hci">(${p.playingStrokes})</span>${rankChangeHtml}</td>
+        <td class="sticky-col-name player-name-cell">${escapeHtml(p.name)} <span class="player-hci">${formatPlayerHci(p.currentHCI, p.playingStrokes)}</span>${rankChangeHtml}</td>
         <td class="text-center total-cut-cell">${totalCutsHtml}</td>
         <td class="text-center rounds-col">${p.rounds}</td>
         <td class="text-center avg-col col-desktop-only" title="${escapeHtml(avgTip)}">${avgDisplay}</td>
@@ -1447,29 +1664,77 @@
     }
   }
 
+  function updateWeeklyLeagueFilterUI() {
+    const chk = elements.weeklyHideNonLeague;
+    const txt = document.getElementById('weekly-league-filter-text');
+    const lbl = document.getElementById('lbl-weekly-league-filter');
+    if (!chk) return;
+
+    if (state.weeklyLeagueFilter === 'league') {
+      chk.checked = true;
+      chk.indeterminate = false;
+      if (txt) txt.textContent = 'League Only';
+      if (lbl) lbl.title = 'Showing league members only (Click for Non-League Only)';
+    } else if (state.weeklyLeagueFilter === 'non-league') {
+      chk.checked = false;
+      chk.indeterminate = true;
+      if (txt) txt.textContent = 'Non-League Only';
+      if (lbl) lbl.title = 'Showing non-league players only (Click to show All Players)';
+    } else {
+      state.weeklyLeagueFilter = 'all';
+      chk.checked = false;
+      chk.indeterminate = false;
+      if (txt) txt.textContent = 'All Players';
+      if (lbl) lbl.title = 'Showing all players (Click for League Only)';
+    }
+  }
+
+  function cycleWeeklyLeagueFilter() {
+    if (state.weeklyLeagueFilter === 'all') {
+      state.weeklyLeagueFilter = 'league';
+    } else if (state.weeklyLeagueFilter === 'league') {
+      state.weeklyLeagueFilter = 'non-league';
+    } else {
+      state.weeklyLeagueFilter = 'all';
+    }
+    updateWeeklyLeagueFilterUI();
+    renderWeeklyView();
+  }
+
   /**
    * View 2: Weekly Competition Renderer
    */
   function renderWeeklyView() {
     updateWeeklyNavButtons();
+    updateWeeklyLeagueFilterUI();
 
     const weekNum = parseInt(state.selectedWeek, 10);
     const results = state.weeklyResults.get(weekNum) || [];
     const query = (elements.weeklySearch.value || '').trim().toLowerCase();
-    const hideNonLeague = elements.weeklyHideNonLeague ? elements.weeklyHideNonLeague.checked : false;
+    const showGross = elements.weeklyShowGross ? elements.weeklyShowGross.checked : false;
 
-    // Subtitle with sweep pot breakdown
+    // Toggle total column header text between Total and Gross
+    const totalTh = document.querySelector('#weekly-table th.total-score-col');
+    if (totalTh) {
+      if (showGross) {
+        totalTh.textContent = 'Gross';
+        totalTh.title = 'Total Gross score for 18 holes';
+      } else {
+        totalTh.textContent = 'Total';
+        totalTh.title = 'Total Stableford points';
+      }
+    }
+
+    // Subtitle indicator from tabs.json configuration
     if (elements.weeklySubtitle) {
-      const sweepCfg = (state.prizesConfig && state.prizesConfig.sweep) ? state.prizesConfig.sweep : DEFAULT_PRIZES_CONFIG.sweep;
-      const sweepFee = (sweepCfg && typeof sweepCfg.entryFee === 'number') ? sweepCfg.entryFee : 2.00;
-      const entrantsCount = results.length;
-      const totalPot = (entrantsCount * sweepFee).toFixed(2);
-      elements.weeklySubtitle.textContent = `Individual Stableford • ${entrantsCount} entrants • Sweep Pot: £${totalPot} • Click row for scorecard`;
+      elements.weeklySubtitle.innerHTML = formatInfoTextHtml(getResolvedTabInfoText('tab-weekly', { weekNum, results }));
     }
 
     let filtered = results;
-    if (hideNonLeague) {
+    if (state.weeklyLeagueFilter === 'league') {
       filtered = filtered.filter(r => r.inLeague);
+    } else if (state.weeklyLeagueFilter === 'non-league') {
+      filtered = filtered.filter(r => !r.inLeague);
     }
     if (query) {
       filtered = filtered.filter(r => r.name.toLowerCase().includes(query));
@@ -1496,16 +1761,37 @@
       else if (r.numericRank === 3) rankClass = 'rank-top-3';
 
       let holeCellsHtml = '';
-      if (r.holePoints && r.holePoints.length >= 18) {
-        for (let h = 0; h < 18; h++) {
-          const pt = r.holePoints[h] !== undefined ? r.holePoints[h] : '-';
-          const tip = buildHoleTooltip(r, h);
-          holeCellsHtml += `<td class="text-center hole-col" title="${escapeHtml(tip)}">${renderPointChip(pt)}</td>`;
+      if (showGross) {
+        if (r.grossScores && r.grossScores.length >= 18) {
+          for (let h = 0; h < 18; h++) {
+            const g = r.grossScores[h];
+            const holePar = (state.course && state.course.holes && state.course.holes[h]) ? state.course.holes[h].par : 4;
+            const tip = buildHoleTooltip(r, h);
+            holeCellsHtml += `<td class="text-center hole-col" title="${escapeHtml(tip)}">${renderGrossScoreChip(g, holePar)}</td>`;
+          }
+        } else {
+          for (let h = 0; h < 18; h++) {
+            holeCellsHtml += `<td class="text-center hole-col" style="color: var(--text-light);">-</td>`;
+          }
         }
       } else {
-        for (let h = 0; h < 18; h++) {
-          holeCellsHtml += `<td class="text-center hole-col" style="color: var(--text-light);">-</td>`;
+        if (r.holePoints && r.holePoints.length >= 18) {
+          for (let h = 0; h < 18; h++) {
+            const pt = r.holePoints[h] !== undefined ? r.holePoints[h] : '-';
+            const tip = buildHoleTooltip(r, h);
+            holeCellsHtml += `<td class="text-center hole-col" title="${escapeHtml(tip)}">${renderPointChip(pt)}</td>`;
+          }
+        } else {
+          for (let h = 0; h < 18; h++) {
+            holeCellsHtml += `<td class="text-center hole-col" style="color: var(--text-light);">-</td>`;
+          }
         }
+      }
+
+      let totalCellDisplay = r.stablefordTotal;
+      if (showGross) {
+        const hasIncomplete = !r.grossScores || r.grossScores.length < 18 || r.grossScores.some(g => !g || g <= 0);
+        totalCellDisplay = hasIncomplete ? 'NR' : r.grossTotal;
       }
 
       const prizeBadgeHtml = (r.prizeMoney && r.prizeMoney > 0)
@@ -1518,9 +1804,9 @@
 
       tr.innerHTML = `
         <td class="text-center"><span class="rank-badge ${rankClass}">${r.pos}</span></td>
-        <td class="sticky-col-name player-name-cell">${escapeHtml(r.name)} <span class="player-hci">(${r.playingHcap})</span>${prizeBadgeHtml}</td>
+        <td class="sticky-col-name player-name-cell">${escapeHtml(r.name)} <span class="player-hci">${formatPlayerHci(r.enteringHCI, r.playingHcap)}</span></td>
         ${holeCellsHtml}
-        <td class="text-center total-score-cell">${r.stablefordTotal}</td>
+        <td class="text-center total-score-cell">${totalCellDisplay}</td>
         <td class="text-center countback-col tiebreaker-val">(${r.b9}/${r.b6}/${r.b3})</td>
         <td class="text-center">${cutDisplay}</td>
       `;
@@ -1803,14 +2089,13 @@
     const list = getPreparedEclectic(asOfWeek, scoringMode);
     const query = (elements.eclecticSearch ? elements.eclecticSearch.value : '').trim().toLowerCase();
 
-    // Subtitle indicator
+    // Subtitle indicator from tabs.json configuration
     if (elements.eclecticSubtitle) {
-      const modeDesc = isNettMode ? 'Winner: Nett (tiebreak by Points)' : 'Winner: Points (tiebreak by Nett)';
-      if (asOfWeek === state.latestWeek) {
-        elements.eclecticSubtitle.textContent = `Each member's best Stableford score recorded on each hole • ${modeDesc}`;
-      } else {
-        elements.eclecticSubtitle.innerHTML = `<span class="badge" style="background:#fef3c7; color:#b45309; font-weight:700; margin-right:6px;">Historical: Round ${asOfWeek}</span> State of play after Round ${asOfWeek} of ${state.latestWeek} • ${modeDesc}`;
-      }
+      const resolved = getResolvedTabInfoText('tab-eclectic', { weekNum: asOfWeek });
+      const badgeHtml = (asOfWeek < state.latestWeek)
+        ? `<span class="badge" style="background:#fef3c7; color:#b45309; font-weight:700; margin-right:6px;">Historical: Round ${asOfWeek}</span> `
+        : '';
+      elements.eclecticSubtitle.innerHTML = badgeHtml + formatInfoTextHtml(resolved);
     }
 
     // Keep nav buttons & select synchronized
@@ -1941,7 +2226,7 @@
       tr.title = `${rankTitle} • Click to view eclectic scorecard breakdown`;
       tr.innerHTML = `
         <td class="text-center"><span class="rank-badge ${rankClass}" title="${escapeHtml(rankTitle)}">${p.pos}</span></td>
-        <td class="sticky-col-name player-name-cell">${escapeHtml(p.name)} <span class="player-hci">(${p.playingStrokes})</span></td>
+        <td class="sticky-col-name player-name-cell">${escapeHtml(p.name)} <span class="player-hci">${formatPlayerHci(p.currentHCI, p.playingStrokes)}</span></td>
         <td class="text-center rounds-col font-bold">${p.rounds}</td>
         <td class="text-center total-score-cell points-cell">${totalHtml}</td>
         <td class="text-center total-score-cell nett-cell">${nettHtml}</td>
@@ -2247,14 +2532,17 @@
     const drawnHoles = potData.drawnHoles;
 
     if (elements.magic2sSubtitle) {
-      elements.magic2sSubtitle.innerHTML = `£${potData.entryFee.toFixed(2)} entry • League members • Par 3s: <span style="color:#64748b; font-weight:700;">⬜ Non-qualifier (Grey)</span> • <span style="color:#166534; font-weight:700;">🟩 Qualifier (Green)</span> • <span style="color:#854d0e; font-weight:700;">🟨 Magic 2 (Gold)</span>`;
+      elements.magic2sSubtitle.innerHTML = formatInfoTextHtml(getResolvedTabInfoText('tab-magic2s', { weekNum: asOfWeek }));
     }
 
-    // Par 3 holes list
+    // Par 3 holes list: prefer active course par-3s (1, 9, 12, 13, 17, 18), fallback to config / default
+    const coursePar3s = (state.course && Array.isArray(state.course.holes))
+      ? state.course.holes.filter(h => h.par === 3).map(h => h.hole)
+      : null;
     const cfg = state.magic2sConfig || DEFAULT_MAGIC2S_CONFIG;
-    const par3Holes = (cfg && Array.isArray(cfg.par3Holes))
-      ? cfg.par3Holes
-      : [1, 8, 11, 13, 17, 18];
+    const par3Holes = (coursePar3s && coursePar3s.length === 6)
+      ? coursePar3s
+      : ((cfg && Array.isArray(cfg.par3Holes)) ? cfg.par3Holes : [1, 9, 12, 13, 17, 18]);
 
     // Helper: Build the 6 Par 3 chips for an entry
     function buildPar3ChipsHtml(entry, drawnList) {
@@ -2476,7 +2764,7 @@
 
         tr.innerHTML = `
           <td class="text-center font-bold week-cell"><span class="badge-week" title="Week ${entry.weekNum}"><span class="th-full">Wk </span>${entry.weekNum}</span></td>
-          <td class="sticky-col-name player-name-cell">${displayName} <span class="player-hci">(${entry.playingHandicap})</span></td>
+          <td class="sticky-col-name player-name-cell">${displayName} <span class="player-hci">${formatPlayerHci(entry.enteringHCI, entry.playingHandicap)}</span></td>
           <td class="text-center magic2s-count-cell">${magicBadge}</td>
           <td class="text-center magic2s-details-col">${buildPar3ChipsHtml(entry, entry.drawnHoles)}</td>
           <td class="text-center font-bold magic2s-prize-cell">${prizeCellContent}</td>
@@ -2606,7 +2894,7 @@
       tr.className = 'clickable-row';
       tr.title = `Click to view handicap cut & adjustment log`;
       tr.innerHTML = `
-        <td class="sticky-col-name player-name-cell">${escapeHtml(m.name)} <span class="player-hci">(${playingStrokes})</span></td>
+        <td class="sticky-col-name player-name-cell">${escapeHtml(m.name)} <span class="player-hci">${formatPlayerHci(currentHCI, playingStrokes)}</span></td>
         <td class="text-center hci-col">${m.origHCI.toFixed(1)}</td>
         ${weeklyCellsHtml}
         <td class="text-center current-hci-col"><strong style="font-variant-numeric: tabular-nums;">${currentHCI.toFixed(1)}</strong></td>
@@ -2745,7 +3033,7 @@
       btn.type = 'button';
       btn.className = 'quick-pick-btn';
       const playingStrokes = p.playingStrokes !== undefined ? p.playingStrokes : calculatePlayingHandicap(p.currentHCI, state.course);
-      btn.textContent = `${p.name} (${playingStrokes})`;
+      btn.textContent = `${p.name} ${formatPlayerHci(p.currentHCI, playingStrokes)}`;
       btn.addEventListener('click', () => {
         selectPlayer(p.memberId);
       });
@@ -2799,7 +3087,7 @@
       item.innerHTML = `
         <div class="suggestion-name-block">
           <strong>${escapeHtml(m.name)}</strong>
-          <span class="player-hci">(${calculatePlayingHandicap(currentHCI, state.course)})</span>
+          <span class="player-hci">${formatPlayerHci(currentHCI, calculatePlayingHandicap(currentHCI, state.course))}</span>
         </div>
         <div class="suggestion-badge-block">
           ${m.inLeague ? '<span class="badge-league">League</span>' : '<span class="badge-open">Open</span>'}
@@ -2816,7 +3104,7 @@
   }
 
   /**
-   * Switch between Player Details and Handicap Roster subviews within the unified Player Profile tab
+   * Switch between Player Details and Handicap List subviews within the unified Player Profile tab
    * @param {'profile' | 'roster'} mode 
    */
   function switchPlayersViewMode(mode) {
@@ -2886,7 +3174,7 @@
     elements.playerDetailsCard.style.display = 'block';
 
     const currentHCI = round1(player.origHCI + player.cumulativeCuts);
-    elements.playerCardName.textContent = player.name;
+    elements.playerCardName.textContent = `${player.name} ${formatPlayerHci(currentHCI, calculatePlayingHandicap(currentHCI, state.course))}`;
 
     if (player.inLeague) {
       elements.playerCardBadge.className = 'badge-league';
@@ -3147,27 +3435,11 @@
     });
   }
 
+  /**
+   * Delegates player rounds table accordion toggle to the unified scorecard accordion system.
+   */
   function togglePlayerAccordion(tr, round) {
-    const tbody = tr.parentElement;
-    const isOpen = tr.classList.contains('accordion-open');
-    if (tbody) {
-      const existingOpen = tbody.querySelector('.clickable-row.accordion-open');
-      const existingDetail = tbody.querySelector('.accordion-detail-row');
-      if (existingDetail) existingDetail.remove();
-      if (existingOpen) existingOpen.classList.remove('accordion-open');
-    }
-
-    if (isOpen) return;
-
-    tr.classList.add('accordion-open');
-    const detailTr = document.createElement('tr');
-    detailTr.className = 'accordion-detail-row';
-    const detailTd = document.createElement('td');
-    detailTd.colSpan = tr.cells.length || 24;
-    detailTd.innerHTML = buildScorecardTableHtml(round);
-    detailTr.appendChild(detailTd);
-    tr.after(detailTr);
-    attachScorecardAccordionHandlers(detailTd, round);
+    toggleAccordion(tr, round);
   }
 
   /**
@@ -3455,9 +3727,52 @@
       }
     }
 
+    let handicapBadgesHtml = '';
+    if (round && (round.enteringHCI !== undefined || round.currentHCI !== undefined)) {
+      const currentHciVal = round.enteringHCI !== undefined ? round.enteringHCI : round.currentHCI;
+      const currentHciDisplay = (typeof currentHciVal === 'number' && !isNaN(currentHciVal)) ? currentHciVal.toFixed(1) : '-';
+
+      const cutVal = (round.cut !== undefined && round.cut !== null) ? round.cut : 0;
+      let cutDisplay = '0.0';
+      let cutPillClass = '';
+      if (cutVal < 0) {
+        cutDisplay = cutVal.toFixed(1);
+        cutPillClass = 'sc-pill-danger';
+      } else if (cutVal > 0) {
+        cutDisplay = `+${cutVal.toFixed(1)}`;
+        cutPillClass = 'sc-pill-increase';
+      } else {
+        cutDisplay = '0.0';
+      }
+
+      const newHciVal = (typeof currentHciVal === 'number' && !isNaN(currentHciVal)) ? round1(currentHciVal + cutVal) : null;
+      const newHciDisplay = newHciVal !== null ? newHciVal.toFixed(1) : '-';
+
+      const playedDay = (round && (round.day || round.playedDay)) ? String(round.day || round.playedDay).trim() : '';
+      let dayPillHtml = '';
+      if (playedDay) {
+        const isSat = playedDay.toLowerCase().startsWith('sat');
+        const isSun = playedDay.toLowerCase().startsWith('sun');
+        const dayClass = isSat ? 'day-sat' : (isSun ? 'day-sun' : '');
+        dayPillHtml = `<span class="sc-pill sc-pill-day ${dayClass}" style="white-space: nowrap;" title="Round played on ${escapeHtml(playedDay)}">Day: <strong>${escapeHtml(playedDay)}</strong></span>`;
+      }
+
+      handicapBadgesHtml = `
+        <div class="scorecard-accordion-header" style="margin-bottom: 0.65rem;">
+          <div class="sc-header-pills" style="display: flex; flex-wrap: nowrap; align-items: center; gap: 0.4rem 0.6rem; overflow-x: auto;">
+            <span class="sc-pill" style="white-space: nowrap;" title="Playing handicap index entering this round">Current HCI: <strong>${currentHciDisplay}</strong></span>
+            <span class="sc-pill ${cutPillClass}" style="white-space: nowrap;" title="Handicap adjustment / cut earned from this round">Cut: <strong>${cutDisplay}</strong></span>
+            <span class="sc-pill sc-pill-highlight" style="white-space: nowrap;" title="Updated handicap index for next week">New HCI: <strong>${newHciDisplay}</strong></span>
+            ${dayPillHtml}
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <div class="scorecard-accordion-box">
         ${magic2sPrizeBanner}
+        ${handicapBadgesHtml}
         <!-- Desktop Horizontal Scorecard View (> 1024px) -->
         <div class="table-responsive scorecard-horizontal-view">
           <table class="scorecard-detail-table">
@@ -3821,7 +4136,7 @@
       <div class="scorecard-accordion-box">
         <div class="scorecard-accordion-header">
           <div class="sc-header-top">
-            <span class="sc-header-name">${escapeHtml(p.name)}</span>
+            <span class="sc-header-name">${escapeHtml(p.name)} <span class="player-hci">${formatPlayerHci(p.currentHCI, p.playingStrokes)}</span></span>
             <span class="sc-pill sc-pill-highlight">Points: <strong>${p.total} pts</strong></span>
           </div>
           <div class="sc-header-pills">
@@ -4000,7 +4315,7 @@
       <div class="scorecard-accordion-box">
         <div class="scorecard-accordion-header">
           <div class="sc-header-top">
-            <span class="sc-header-name">${escapeHtml(p.name)}</span>
+            <span class="sc-header-name">${escapeHtml(p.name)} <span class="player-hci">${formatPlayerHci(p.currentHCI, p.playingStrokes)}</span></span>
             <span class="sc-pill sc-pill-highlight"><strong>${completedCount} / 18 Holes</strong></span>
           </div>
           <div class="sc-header-pills">
@@ -4110,7 +4425,7 @@
       <div class="scorecard-accordion-box">
         <div class="scorecard-accordion-header">
           <div class="sc-header-top">
-            <span class="sc-header-name">${escapeHtml(m.name)}</span>
+            <span class="sc-header-name">${escapeHtml(m.name)} <span class="player-hci">${formatPlayerHci(currentHCI, playingStrokes)}</span></span>
             <span class="sc-pill sc-pill-highlight">Current HCI: <strong>${currentHCI.toFixed(1)}</strong></span>
           </div>
           <div class="sc-header-pills">
@@ -4239,13 +4554,13 @@
       ? '👑 Champion'
       : (player.status === 'joint-winner'
           ? '🤝 Joint Champion'
-          : (player.status === 'alive' ? '⚔️ Alive / Still Standing' : '💀 Eliminated'));
+          : (player.status === 'alive' ? '⚔️ Alive / Still Standing' : `Wk ${player.eliminatedWeek || '-'} 💀`));
 
     return `
       <div class="scorecard-accordion-box">
         <div class="scorecard-accordion-header">
           <div class="sc-header-top">
-            <span class="sc-header-name">${escapeHtml(player.name)}</span>
+            <span class="sc-header-name">${escapeHtml(player.name)} <span class="player-hci">${formatPlayerHci(player.currentHCI, player.playingStrokes)}</span></span>
             <span class="sc-pill ${player.status === 'eliminated' ? 'sc-pill-danger' : 'sc-pill-highlight'}">${statusTitle}</span>
           </div>
           <div class="sc-header-pills">
@@ -4691,14 +5006,17 @@
     };
     const orderLabel = orderLabels[cfg.holeOrder] || 'SI 18 - SI 1';
 
-    // Update subtitle with round information
+    // Update subtitle from tabs.json configuration
     if (elements.lastmanSubtitle) {
-      const activeHoleInfo = totalWeeks > 0 ? getTargetHoleForWeek(totalWeeks, cfg.holeOrder) : null;
-      const holeText = activeHoleInfo ? ` • Round ${totalWeeks} Target: Hole ${activeHoleInfo.hole} (SI ${activeHoleInfo.si})` : '';
-      elements.lastmanSubtitle.textContent = `Survival countdown competition • Need ≥ ${cfg.minPoints} pts on active hole to proceed • Lives save missed weeks • Last man standing wins${holeText}`;
+      elements.lastmanSubtitle.innerHTML = formatInfoTextHtml(getResolvedTabInfoText('tab-lastman', { weekNum: asOfWeek, data, totalWeeks }));
     }
 
     // 1. Render Banner
+    const hideBanner = Boolean(state.lastmanConfig && (state.lastmanConfig.hideBanner || state.lastmanConfig.hideInfoSection));
+    if (elements.lastmanBanner) {
+      elements.lastmanBanner.style.display = hideBanner ? 'none' : '';
+    }
+
     if (data.competitionEnded) {
       if (data.winners.length === 1) {
         const w = data.winners[0];
@@ -4706,7 +5024,7 @@
           <div class="lastman-banner-winner">
             <div class="lastman-banner-icon">🏆</div>
             <div>
-              <div class="lastman-banner-title">Winner: ${escapeHtml(w.name)} (${w.playingStrokes})</div>
+              <div class="lastman-banner-title">Winner: ${escapeHtml(w.name)} ${formatPlayerHci(w.currentHCI, w.playingStrokes)}</div>
               <div class="lastman-banner-sub">Crowned Last Man Standing in Week ${data.winningWeek}! (Rules: ≥ ${cfg.minPoints} pt(s) to qualify • ${livesLabel} • ${orderLabel} • ${eligLabel})</div>
             </div>
           </div>
@@ -4716,7 +5034,7 @@
           <div class="lastman-banner-winner">
             <div class="lastman-banner-icon">🤝</div>
             <div>
-              <div class="lastman-banner-title">Joint Winners: ${data.winners.map(w => `${escapeHtml(w.name)} (${w.playingStrokes})`).join(', ')}</div>
+              <div class="lastman-banner-title">Joint Winners: ${data.winners.map(w => `${escapeHtml(w.name)} ${formatPlayerHci(w.currentHCI, w.playingStrokes)}`).join(', ')}</div>
               <div class="lastman-banner-sub">Simultaneous elimination in Week ${data.winningWeek} — Joint Champions! (Rules: ≥ ${cfg.minPoints} pt(s) to qualify • ${livesLabel} • ${orderLabel} • ${eligLabel})</div>
             </div>
           </div>
@@ -4826,7 +5144,7 @@
             ? '<span class="lm-status-chip lm-joint">Joint 🤝</span>'
             : (player.status === 'alive'
                 ? `<span class="lm-status-chip lm-alive" title="${player.lives} lives remaining">Alive ✅${cfg.initialLives > 0 ? ` (${player.lives}❤️)` : ''}</span>`
-                : `<span class="lm-status-chip lm-elim" title="${escapeHtml(player.eliminationReason || '')}">Elim 💀 Wk ${player.eliminatedWeek || '-'}</span>`));
+                : `<span class="lm-status-chip lm-elim" title="${escapeHtml(player.eliminationReason || '')}">Wk ${player.eliminatedWeek || '-'} 💀</span>`));
 
       let weekCellsHtml = '';
       for (let w = 1; w <= totalWeeks; w++) {
@@ -4869,7 +5187,7 @@
       tr.title = (player.eliminationReason ? player.eliminationReason + ' • ' : '') + 'Click to view survival log';
       tr.innerHTML = `
         <td class="text-center font-bold pos-col" style="color: var(--text-muted);">${posDisplay}</td>
-        <td class="sticky-col-name player-name-cell">${escapeHtml(player.name)} <span class="player-hci">(${player.playingStrokes})</span></td>
+        <td class="sticky-col-name player-name-cell">${escapeHtml(player.name)} <span class="player-hci">${formatPlayerHci(player.currentHCI, player.playingStrokes)}</span></td>
         <td class="text-center lastman-status-col">${statusBadge}</td>
         ${weekCellsHtml}
       `;
@@ -5169,11 +5487,11 @@
       const elLabel = eligibility === 'all' ? 'All Club Members (Open)' : 'Winter League Members Only';
       const targetLabel = isNetBirdie ? 'net birdie or better' : 'gross par or better';
       const formatLabel = isNetBirdie ? 'Net scores (after handicap strokes)' : 'Gross scores only';
-      if (asOfWeek === state.latestWeek) {
-        elements.parbingoSubtitle.textContent = `First player to register a ${targetLabel} on every hole on the course • ${elLabel} • ${formatLabel}`;
-      } else {
-        elements.parbingoSubtitle.innerHTML = `<span class="badge" style="background:#fef3c7; color:#b45309; font-weight:700; margin-right:6px;">Historical: Round ${asOfWeek}</span> State of play after Round ${asOfWeek} of ${state.latestWeek} • ${targetLabel} • ${elLabel}`;
-      }
+      const resolved = getResolvedTabInfoText('tab-parbingo', { weekNum: asOfWeek });
+      const badgeHtml = (asOfWeek < state.latestWeek)
+        ? `<span class="badge" style="background:#fef3c7; color:#b45309; font-weight:700; margin-right:6px;">Historical: Round ${asOfWeek}</span> `
+        : '';
+      elements.parbingoSubtitle.innerHTML = badgeHtml + formatInfoTextHtml(resolved);
     }
 
     const bingoData = calculateParBingo(asOfWeek, eligibility, currentMode);
@@ -5340,7 +5658,7 @@
 
       tr.innerHTML = `
         <td class="text-center pos-col"><span class="rank-badge ${rankClass}">${p.pos}</span></td>
-        <td class="sticky-col-name player-name-cell">${escapeHtml(p.name)} <span class="player-hci">(${p.playingStrokes})</span></td>
+        <td class="sticky-col-name player-name-cell">${escapeHtml(p.name)} <span class="player-hci">${formatPlayerHci(p.currentHCI, p.playingStrokes)}</span></td>
         <td class="text-center bingo-status-col">${statusHtml}</td>
         <td class="text-center font-bold rounds-col" style="color: var(--text-muted);">${p.roundsPlayed}</td>
         ${holeCellsHtml}
@@ -5356,6 +5674,805 @@
 
       elements.parbingoTbody.appendChild(tr);
     });
+  }
+
+  /* ==========================================================================
+   * Winter League Cup Engine & View Renderers (Concept Feature - Access via /cup)
+   * ========================================================================== */
+
+  /**
+   * Helper: Checks whether current browser URL or hash targets the hidden Cup route (/cup)
+   */
+  function isCupRoute() {
+    const path = (window.location.pathname || '').replace(/\/+$/, '');
+    const hash = (window.location.hash || '').toLowerCase();
+    const search = new URLSearchParams(window.location.search).get('tab');
+    return path.endsWith('/cup') || hash === '#cup' || hash === '#tab-cup' || search === 'cup';
+  }
+
+  /**
+   * Helper: Berger Circle Round-Robin Generator for 12 players across 11 rounds.
+   * Round 0 (Week 1) matches: 1v12, 2v11, 3v10, 4v9, 5v8, 6v7.
+   */
+  function generateBergerSchedule(players) {
+    const n = players.length; // 12
+    const fixturesByWeek = [];
+    const rotating = players.slice(1); // 11 players
+
+    for (let r = 0; r < n - 1; r++) {
+      const weekMatches = [];
+      const topRow = [players[0]].concat(rotating.slice(0, (n / 2) - 1));
+      const bottomRow = rotating.slice((n / 2) - 1).reverse();
+
+      for (let i = 0; i < n / 2; i++) {
+        weekMatches.push({
+          home: topRow[i],
+          away: bottomRow[i]
+        });
+      }
+      fixturesByWeek.push(weekMatches);
+
+      // Rotate clockwise
+      const last = rotating.pop();
+      rotating.unshift(last);
+    }
+    return fixturesByWeek;
+  }
+
+  /**
+   * Main Cup Competition Engine:
+   * 1. Filters 49 league members, takes top 48 by starting HCI, designates #49 as Reserve.
+   * 2. Partitions 48 players into 4 Pots of 12 (Seeds 1–12 in each pot).
+   * 3. Generates 11 weeks of Berger round-robin fixtures within pots.
+   * 4. Ingests weekly Stableford points from state.weeklyResults to score matchplay (Win = 3, Draw = 1, Loss = 0).
+   * 5. Tracks score differential (diff = PF - PA) accumulated across weeks.
+   * 6. Ranks all 48 players in a single unified table (Points -> Diff -> PF -> PA -> origHCI).
+   * 7. Projects Top 16 knockout bracket (1v16, 8v9, 4v13, 5v12, 2v15, 7v10, 3v14, 6v11).
+   */
+  function calculateCupCompetition() {
+    if (!state.members || state.members.length === 0) return;
+
+    // 1. Filter Winter League members and sort by origHCI ASC, name ASC
+    const leagueMembers = state.members
+      .filter(m => m.inLeague)
+      .slice()
+      .sort((a, b) => a.origHCI - b.origHCI || a.name.localeCompare(b.name));
+
+    const top48 = leagueMembers.slice(0, 48);
+    const reserve = leagueMembers.length > 48 ? leagueMembers[48] : null;
+
+    const POT_NAMES = [
+      'Pot 1 (Championship Tier)',
+      'Pot 2 (First Division)',
+      'Pot 3 (Second Division)',
+      'Pot 4 (Third Division)'
+    ];
+
+    // 2. Divide into 4 Pots of 12
+    const pots = [];
+    const playerStatsMap = new Map();
+
+    for (let p = 0; p < 4; p++) {
+      const potPlayers = top48.slice(p * 12, (p + 1) * 12).map((player, idx) => {
+        const enriched = {
+          ...player,
+          pot: p + 1,
+          potName: POT_NAMES[p],
+          seed: idx + 1,
+          overallSeed: p * 12 + idx + 1,
+          played: 0,
+          won: 0,
+          drawn: 0,
+          lost: 0,
+          pointsFor: 0,
+          pointsAgainst: 0,
+          diff: 0,
+          cupPoints: 0,
+          matchHistory: [] // Array of { week, opponent, ownPts, oppPts, diff, outcome, cupPts }
+        };
+        playerStatsMap.set(String(player.memberId), enriched);
+        return enriched;
+      });
+      pots.push(potPlayers);
+    }
+
+    // 3. Generate round-robin fixtures for each pot (11 rounds)
+    const potFixtures = pots.map(pot => generateBergerSchedule(pot));
+
+    // 4. Map weekly Stableford points for each player across played weeks
+    const weeklyPointsMap = new Map();
+    const availableWeeks = state.latestWeek || 0;
+
+    for (let w = 1; w <= availableWeeks; w++) {
+      const weekRoundResults = state.weeklyResults.get(w) || [];
+      weekRoundResults.forEach(r => {
+        const pts = (typeof r.stablefordTotal === 'number')
+          ? r.stablefordTotal
+          : ((typeof r.points === 'number') ? r.points : 0);
+        weeklyPointsMap.set(`${w}_${String(r.memberId)}`, pts);
+      });
+    }
+
+    // 5. Evaluate matches for weeks 1 to 11
+    const weeksFixtures = [];
+
+    for (let w = 1; w <= 11; w++) {
+      const weekMatches = [];
+      const hasScoresThisWeek = w <= availableWeeks;
+
+      for (let p = 0; p < 4; p++) {
+        const roundMatches = potFixtures[p][w - 1]; // 6 matches in Pot p for week w
+        roundMatches.forEach(rm => {
+          const p1 = playerStatsMap.get(String(rm.home.memberId));
+          const p2 = playerStatsMap.get(String(rm.away.memberId));
+
+          const key1 = `${w}_${p1.memberId}`;
+          const key2 = `${w}_${p2.memberId}`;
+
+          const p1Played = weeklyPointsMap.has(key1);
+          const p2Played = weeklyPointsMap.has(key2);
+
+          const p1Pts = (p1Played && typeof weeklyPointsMap.get(key1) === 'number') ? weeklyPointsMap.get(key1) : 0;
+          const p2Pts = (p2Played && typeof weeklyPointsMap.get(key2) === 'number') ? weeklyPointsMap.get(key2) : 0;
+
+          let status = 'scheduled';
+          let outcome = 'Scheduled';
+          let winnerId = null;
+          let diff1 = 0;
+          let diff2 = 0;
+          let p1CupPts = 0;
+          let p2CupPts = 0;
+
+          if (hasScoresThisWeek && (p1Played || p2Played)) {
+            status = 'completed';
+            p1.played += 1;
+            p2.played += 1;
+            p1.pointsFor += p1Pts;
+            p1.pointsAgainst += p2Pts;
+            p2.pointsFor += p2Pts;
+            p2.pointsAgainst += p1Pts;
+
+            // Diff to par (36 points):
+            // e.g. Gordon Convery Jnr (39 pts) = +3, Ryan Gallagher (32 pts) = -4
+            // If a player does not play, diff does not change for them
+            const p1DiffToPar = p1Played ? (p1Pts - 36) : 0;
+            const p2DiffToPar = p2Played ? (p2Pts - 36) : 0;
+
+            if (p1Played) {
+              p1.diff += p1DiffToPar;
+            }
+            if (p2Played) {
+              p2.diff += p2DiffToPar;
+            }
+
+            if (p1Pts > p2Pts) {
+              outcome = `${p1.name} Win`;
+              winnerId = p1.memberId;
+              p1CupPts = 3;
+              p1.won += 1;
+              p2.lost += 1;
+            } else if (p2Pts > p1Pts) {
+              outcome = `${p2.name} Win`;
+              winnerId = p2.memberId;
+              p2CupPts = 3;
+              p2.won += 1;
+              p1.lost += 1;
+            } else {
+              outcome = 'Draw';
+              p1CupPts = 1;
+              p2CupPts = 1;
+              p1.drawn += 1;
+              p2.drawn += 1;
+            }
+
+            p1.cupPoints += p1CupPts;
+            p2.cupPoints += p2CupPts;
+
+            p1.matchHistory.push({
+              week: w,
+              opponent: p2,
+              ownPts: p1Pts,
+              oppPts: p2Pts,
+              hasPlayed: p1Played,
+              diff: p1DiffToPar,
+              outcome: p1CupPts === 3 ? 'Win' : (p1CupPts === 1 ? 'Draw' : 'Loss'),
+              cupPts: p1CupPts
+            });
+
+            p2.matchHistory.push({
+              week: w,
+              opponent: p1,
+              ownPts: p2Pts,
+              oppPts: p1Pts,
+              hasPlayed: p2Played,
+              diff: p2DiffToPar,
+              outcome: p2CupPts === 3 ? 'Win' : (p2CupPts === 1 ? 'Draw' : 'Loss'),
+              cupPts: p2CupPts
+            });
+          }
+
+          weekMatches.push({
+            pot: p + 1,
+            potName: POT_NAMES[p],
+            week: w,
+            player1: p1,
+            score1: p1Pts,
+            player2: p2,
+            score2: p2Pts,
+            status,
+            outcome,
+            winnerId,
+            diff1: p1Played ? (p1Pts - 36) : 0,
+            diff2: p2Played ? (p2Pts - 36) : 0
+          });
+        });
+      }
+      weeksFixtures.push(weekMatches);
+    }
+
+    // 6. Rank unified 48-player standings:
+    // 1. cupPoints DESC
+    // 2. diff DESC (diff to par 36)
+    // 3. pointsFor DESC
+    // 4. Fewest matches lost ASC
+    // 5. origHCI ASC
+    const unifiedStandings = Array.from(playerStatsMap.values()).sort((a, b) => {
+      if (b.cupPoints !== a.cupPoints) return b.cupPoints - a.cupPoints;
+      if (b.diff !== a.diff) return b.diff - a.diff;
+      if (b.pointsFor !== a.pointsFor) return b.pointsFor - a.pointsFor;
+      if (a.lost !== b.lost) return a.lost - b.lost;
+      return a.origHCI - b.origHCI;
+    });
+
+    unifiedStandings.forEach((p, idx) => {
+      p.pos = idx + 1;
+      p.isQualifying = idx < 16;
+    });
+
+    // 7. Knockout Bracket Top 16:
+    const top16 = unifiedStandings.slice(0, 16);
+    const r16Pairs = [
+      { matchId: 1, seedA: 1, seedB: 16 },
+      { matchId: 2, seedA: 8, seedB: 9 },
+      { matchId: 3, seedA: 4, seedB: 13 },
+      { matchId: 4, seedA: 5, seedB: 12 },
+      { matchId: 5, seedA: 2, seedB: 15 },
+      { matchId: 6, seedA: 7, seedB: 10 },
+      { matchId: 7, seedA: 3, seedB: 14 },
+      { matchId: 8, seedA: 6, seedB: 11 }
+    ].map(m => ({
+      ...m,
+      playerA: top16[m.seedA - 1],
+      playerB: top16[m.seedB - 1]
+    }));
+
+    state.cupData = {
+      pots,
+      potNames: POT_NAMES,
+      reserve,
+      weeksFixtures,
+      unifiedStandings,
+      r16Pairs
+    };
+  }
+
+  /**
+   * Populates the week selector for Cup fixtures (Weeks 1 to 11)
+   */
+  function populateCupWeekSelector() {
+    if (!elements.cupWeekSelect) return;
+    elements.cupWeekSelect.innerHTML = '';
+    for (let w = 1; w <= 11; w++) {
+      const opt = document.createElement('option');
+      opt.value = w;
+      opt.textContent = `Week ${w}`;
+      if (w === state.cupWeek) {
+        opt.selected = true;
+      }
+      elements.cupWeekSelect.appendChild(opt);
+    }
+  }
+
+  /**
+   * Main Cup View Switcher
+   */
+  function renderCupView() {
+    if (!state.cupData) {
+      calculateCupCompetition();
+    }
+    if (!state.cupData) return;
+
+    // Apply header subtitle
+    if (elements.cupSubtitle) {
+      elements.cupSubtitle.innerHTML = formatInfoTextHtml(getResolvedTabInfoText('tab-cup'));
+    }
+
+    // Toggle subview navigation buttons
+    if (elements.btnCupModeTable) elements.btnCupModeTable.classList.toggle('active', state.cupSubView === 'table');
+    if (elements.btnCupModeFixtures) elements.btnCupModeFixtures.classList.toggle('active', state.cupSubView === 'fixtures');
+    if (elements.btnCupModePots) elements.btnCupModePots.classList.toggle('active', state.cupSubView === 'pots');
+    if (elements.btnCupModeBracket) elements.btnCupModeBracket.classList.toggle('active', state.cupSubView === 'bracket');
+
+    // Show/hide subviews
+    if (elements.cupViewTable) elements.cupViewTable.style.display = state.cupSubView === 'table' ? 'block' : 'none';
+    if (elements.cupViewFixtures) elements.cupViewFixtures.style.display = state.cupSubView === 'fixtures' ? 'block' : 'none';
+    if (elements.cupViewPots) elements.cupViewPots.style.display = state.cupSubView === 'pots' ? 'block' : 'none';
+    if (elements.cupViewBracket) elements.cupViewBracket.style.display = state.cupSubView === 'bracket' ? 'block' : 'none';
+
+    // Show fixture nav controls only in fixtures mode
+    if (elements.cupNavGroup) {
+      elements.cupNavGroup.style.display = state.cupSubView === 'fixtures' ? 'flex' : 'none';
+    }
+
+    // Render active subview
+    switch (state.cupSubView) {
+      case 'table':
+        renderCupStandings();
+        break;
+      case 'fixtures':
+        renderCupFixtures();
+        break;
+      case 'pots':
+        renderCupPots();
+        break;
+      case 'bracket':
+        renderCupBracket();
+        break;
+    }
+  }
+
+  /**
+   * Renders Unified 48-Player Standings Table
+   */
+  function renderCupStandings() {
+    if (!elements.cupStandingsTbody || !state.cupData) return;
+    elements.cupStandingsTbody.innerHTML = '';
+
+    const query = (elements.cupSearch && elements.cupSearch.value.trim().toLowerCase()) || '';
+    const standings = state.cupData.unifiedStandings;
+
+    const filtered = query
+      ? standings.filter(p => p.name.toLowerCase().includes(query))
+      : standings;
+
+    if (filtered.length === 0) {
+      elements.cupStandingsTbody.innerHTML = `
+        <tr><td colspan="9" class="empty-cell">No players match "${escapeHtml(query)}"</td></tr>
+      `;
+      return;
+    }
+
+    filtered.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.className = `clickable-row ${p.isQualifying ? 'cup-top16-row' : ''}`;
+      tr.title = 'Click to inspect player fixture schedule and match results';
+
+      const diffClass = p.diff > 0 ? 'cup-diff-pos' : (p.diff < 0 ? 'cup-diff-neg' : 'cup-diff-zero');
+      const diffFormatted = p.diff > 0 ? `+${p.diff}` : `${p.diff}`;
+
+      const currentHci = getPlayerCurrentHci(p.memberId);
+      const playingStrokes = calculatePlayingHandicap(currentHci, state.course);
+      const cutDiff = round1(currentHci - p.origHCI);
+      const cutApplied = cutDiff < 0;
+      const hciHtml = cutApplied
+        ? `<span class="player-hci" style="color:#b91c1c; font-weight:700;" title="League cut applied: ${cutDiff.toFixed(1)} (${p.origHCI.toFixed(1)} -> ${currentHci.toFixed(1)})">${formatPlayerHci(currentHci, playingStrokes)}</span>`
+        : `<span class="player-hci">${formatPlayerHci(currentHci, playingStrokes)}</span>`;
+
+      tr.innerHTML = `
+        <td class="text-center font-bold pos-col">${p.pos}</td>
+        <td class="sticky-col-name player-name-cell">
+          ${escapeHtml(p.name)}
+          ${hciHtml}
+        </td>
+        <td class="text-center"><span class="badge" style="background:var(--surface-alt); font-size:0.75rem; font-weight:700;">Pot ${p.pot} (S${p.seed})</span></td>
+        <td class="text-center font-bold" style="color:var(--text-muted);">${p.played}</td>
+        <td class="text-center font-bold" style="color:#15803d;">${p.won}</td>
+        <td class="text-center" style="color:var(--text-muted);">${p.drawn}</td>
+        <td class="text-center" style="color:#b91c1c;">${p.lost}</td>
+        <td class="text-center font-bold ${diffClass}">${diffFormatted}</td>
+        <td class="text-center font-bold" style="font-size:0.95rem; color:var(--primary);">${p.cupPoints}</td>
+      `;
+
+      tr.addEventListener('click', () => {
+        toggleCupPlayerAccordion(tr, p);
+      });
+
+      elements.cupStandingsTbody.appendChild(tr);
+
+      // Add visual demarcation line right after 16th position when not searching
+      if (p.pos === 16 && !query) {
+        const cutlineTr = document.createElement('tr');
+        cutlineTr.className = 'cup-cutline-row';
+        cutlineTr.innerHTML = `
+          <td colspan="9">
+            🏆 TOP 16 QUALIFICATION CUTLINE — ADVANCE TO WEEK 12 KNOCKOUT
+          </td>
+        `;
+        elements.cupStandingsTbody.appendChild(cutlineTr);
+      }
+    });
+  }
+
+  /**
+   * Accordion detail row for Cup player match history
+   */
+  function toggleCupPlayerAccordion(tr, player) {
+    const isAlreadyOpen = tr.classList.contains('accordion-open');
+    closeAllAccordions();
+    if (isAlreadyOpen) return;
+
+    tr.classList.add('accordion-open');
+    const detailTr = document.createElement('tr');
+    detailTr.className = 'accordion-detail-row';
+
+    let historyRowsHtml = '';
+    const matches = player.matchHistory || [];
+
+    if (matches.length === 0) {
+      historyRowsHtml = `<tr><td colspan="6" class="text-center" style="padding:0.75rem; color:var(--text-muted);">No completed matches yet. Scheduled matches begin in Week 1.</td></tr>`;
+    } else {
+      matches.forEach(m => {
+        const resColor = m.outcome === 'Win' ? '#15803d' : (m.outcome === 'Draw' ? '#b45309' : '#b91c1c');
+        const diffText = m.hasPlayed ? (m.diff > 0 ? `+${m.diff}` : `${m.diff}`) : '-';
+        const diffColor = m.hasPlayed ? (m.diff > 0 ? '#15803d' : (m.diff < 0 ? '#b91c1c' : 'var(--text-muted)')) : 'var(--text-muted)';
+        const oppHciAtWeek = getPlayerEnteringHciAtWeek(m.opponent.memberId, m.week);
+        const oppStrokesAtWeek = calculatePlayingHandicap(oppHciAtWeek, state.course);
+        const oppCutApplied = round1(oppHciAtWeek - m.opponent.origHCI) < 0;
+        const oppHciStyle = oppCutApplied ? 'color:#b91c1c; font-weight:700;' : '';
+
+        historyRowsHtml += `
+          <tr style="border-bottom:1px solid rgba(0,0,0,0.05);">
+            <td class="text-center font-bold" style="padding:0.4rem 0.5rem;">Week ${m.week}</td>
+            <td style="padding:0.4rem 0.5rem;">vs ${escapeHtml(m.opponent.name)} <span class="player-hci" style="${oppHciStyle}">${formatPlayerHci(oppHciAtWeek, oppStrokesAtWeek)}</span> (Pot ${m.opponent.pot} - S${m.opponent.seed})</td>
+            <td class="text-center font-bold" style="padding:0.4rem 0.5rem;">${m.ownPts} - ${m.oppPts} pts</td>
+            <td class="text-center font-bold" style="padding:0.4rem 0.5rem; color:${resColor};">${m.outcome}</td>
+            <td class="text-center font-bold" style="padding:0.4rem 0.5rem; color:${diffColor};">${diffText}</td>
+            <td class="text-center font-bold" style="padding:0.4rem 0.5rem; color:var(--primary);">${m.cupPts} pts</td>
+          </tr>
+        `;
+      });
+    }
+
+    const playerCurrentHci = getPlayerCurrentHci(player.memberId);
+    const playerStrokes = calculatePlayingHandicap(playerCurrentHci, state.course);
+    const playerCutApplied = round1(playerCurrentHci - player.origHCI) < 0;
+    const playerHciStyle = playerCutApplied ? 'color:#b91c1c; font-weight:700;' : '';
+
+    detailTr.innerHTML = `
+      <td colspan="9" style="background:#f8fafc; padding:0.85rem 1.25rem;">
+        <div style="margin-bottom:0.5rem; display:flex; justify-content:space-between; align-items:center;">
+          <h4 style="margin:0; font-size:0.88rem; font-weight:800; color:var(--text-main);">
+            Match Record: ${escapeHtml(player.name)} <span class="player-hci" style="${playerHciStyle}">${formatPlayerHci(playerCurrentHci, playerStrokes)}</span> — Pot ${player.pot} (Seed ${player.seed})
+          </h4>
+          <span style="font-size:0.75rem; color:var(--text-muted);">
+            Record: ${player.won}W - ${player.drawn}D - ${player.lost}L | Diff to Par: ${player.diff >= 0 ? '+' : ''}${player.diff}
+          </span>
+        </div>
+        <div style="background:#ffffff; border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.8rem;">
+            <thead>
+              <tr style="background:var(--surface-alt); border-bottom:1px solid var(--border); color:var(--text-muted);">
+                <th class="text-center" style="padding:0.4rem 0.5rem;">Round</th>
+                <th style="padding:0.4rem 0.5rem;">Opponent</th>
+                <th class="text-center" style="padding:0.4rem 0.5rem;">Score</th>
+                <th class="text-center" style="padding:0.4rem 0.5rem;">Outcome</th>
+                <th class="text-center" style="padding:0.4rem 0.5rem;">Diff (Par 36)</th>
+                <th class="text-center" style="padding:0.4rem 0.5rem;">Cup Pts</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${historyRowsHtml}
+            </tbody>
+          </table>
+        </div>
+      </td>
+    `;
+
+    tr.parentNode.insertBefore(detailTr, tr.nextSibling);
+  }
+
+  /**
+   * Renders Weekly Fixtures and Match Results
+   */
+  function renderCupFixtures() {
+    if (!elements.cupFixturesContainer || !state.cupData) return;
+    elements.cupFixturesContainer.innerHTML = '';
+
+    const weekNum = state.cupWeek || 1;
+    const weekMatches = (state.cupData.weeksFixtures && state.cupData.weeksFixtures[weekNum - 1]) || [];
+    const potFilter = state.cupPotFilter || 'all';
+    const query = (elements.cupSearch && elements.cupSearch.value.trim().toLowerCase()) || '';
+
+    let displayedMatches = weekMatches;
+    if (potFilter !== 'all') {
+      const potId = parseInt(potFilter, 10);
+      displayedMatches = displayedMatches.filter(m => m.pot === potId);
+    }
+    if (query) {
+      displayedMatches = displayedMatches.filter(m =>
+        m.player1.name.toLowerCase().includes(query) || m.player2.name.toLowerCase().includes(query)
+      );
+    }
+
+    if (displayedMatches.length === 0) {
+      elements.cupFixturesContainer.innerHTML = `
+        <div class="empty-state" style="padding:2rem; text-align:center;">
+          <p>No fixtures match your selected filter.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Group matches by Pot
+    const potsGrouped = new Map();
+    displayedMatches.forEach(m => {
+      if (!potsGrouped.has(m.pot)) {
+        potsGrouped.set(m.pot, []);
+      }
+      potsGrouped.get(m.pot).push(m);
+    });
+
+    potsGrouped.forEach((matches, potId) => {
+      const potName = state.cupData.potNames[potId - 1] || `Pot ${potId}`;
+      const block = document.createElement('div');
+      block.className = 'cup-fixtures-pot-block';
+
+      let matchesHtml = '';
+      matches.forEach(m => {
+        const isCompleted = m.status === 'completed';
+        const p1Won = isCompleted && m.winnerId === m.player1.memberId;
+        const p2Won = isCompleted && m.winnerId === m.player2.memberId;
+        const isDraw = isCompleted && m.winnerId === null && (m.score1 > 0 || m.score2 > 0);
+
+        const scoreText = isCompleted ? `${m.score1} - ${m.score2}` : 'vs';
+        let resultTagText = 'Scheduled';
+        let resultTagColor = 'var(--text-muted)';
+
+        if (p1Won) {
+          resultTagText = `${m.player1.name} Win (+${m.diff1})`;
+          resultTagColor = '#15803d';
+        } else if (p2Won) {
+          resultTagText = `${m.player2.name} Win (+${m.diff2})`;
+          resultTagColor = '#15803d';
+        } else if (isDraw) {
+          resultTagText = 'Draw (1 pt each)';
+          resultTagColor = '#b45309';
+        }
+
+        const p1EnteringHci = getPlayerEnteringHciAtWeek(m.player1.memberId, weekNum);
+        const p2EnteringHci = getPlayerEnteringHciAtWeek(m.player2.memberId, weekNum);
+        const p1Strokes = calculatePlayingHandicap(p1EnteringHci, state.course);
+        const p2Strokes = calculatePlayingHandicap(p2EnteringHci, state.course);
+
+        const p1CutDiff = round1(p1EnteringHci - m.player1.origHCI);
+        const p1CutApplied = p1CutDiff < 0;
+        const p1HciHtml = p1CutApplied
+          ? `<span style="color:#b91c1c; font-weight:700;" title="League cut applied: ${p1CutDiff.toFixed(1)} (${m.player1.origHCI.toFixed(1)} -> ${p1EnteringHci.toFixed(1)})">${formatPlayerHci(p1EnteringHci, p1Strokes)}</span>`
+          : formatPlayerHci(p1EnteringHci, p1Strokes);
+
+        const p2CutDiff = round1(p2EnteringHci - m.player2.origHCI);
+        const p2CutApplied = p2CutDiff < 0;
+        const p2HciHtml = p2CutApplied
+          ? `<span style="color:#b91c1c; font-weight:700;" title="League cut applied: ${p2CutDiff.toFixed(1)} (${m.player2.origHCI.toFixed(1)} -> ${p2EnteringHci.toFixed(1)})">${formatPlayerHci(p2EnteringHci, p2Strokes)}</span>`
+          : formatPlayerHci(p2EnteringHci, p2Strokes);
+
+        matchesHtml += `
+          <div class="cup-match-card">
+            <div class="cup-match-team ${p1Won ? 'winner' : ''}">
+              <div class="cup-team-name">
+                <span class="cup-seed-badge">S${m.player1.seed}</span>
+                ${escapeHtml(m.player1.name)}
+              </div>
+              <div class="cup-team-sub">${p1HciHtml}</div>
+            </div>
+
+            <div class="cup-match-center">
+              <div class="cup-score-badge">${scoreText}</div>
+              <div class="cup-result-tag" style="color:${resultTagColor};">${resultTagText}</div>
+            </div>
+
+            <div class="cup-match-team team-away ${p2Won ? 'winner' : ''}">
+              <div class="cup-team-name">
+                ${escapeHtml(m.player2.name)}
+                <span class="cup-seed-badge">S${m.player2.seed}</span>
+              </div>
+              <div class="cup-team-sub">${p2HciHtml}</div>
+            </div>
+          </div>
+        `;
+      });
+
+      block.innerHTML = `
+        <div class="cup-fixtures-pot-header">
+          <span>${escapeHtml(potName)}</span>
+          <span style="font-size:0.75rem; font-weight:600; color:var(--text-muted);">Week ${weekNum} Fixtures</span>
+        </div>
+        <div class="cup-matches-grid">
+          ${matchesHtml}
+        </div>
+      `;
+
+      elements.cupFixturesContainer.appendChild(block);
+    });
+  }
+
+  /**
+   * Renders Pots and Seedings Breakdown
+   */
+  function renderCupPots() {
+    if (!elements.cupPotsContainer || !state.cupData) return;
+    elements.cupPotsContainer.innerHTML = '';
+
+    const pots = state.cupData.pots || [];
+    const potNames = state.cupData.potNames || [];
+
+    pots.forEach((pot, pIdx) => {
+      const potCard = document.createElement('div');
+      potCard.className = 'cup-pot-card';
+
+      const minHci = Math.min(...pot.map(p => p.origHCI)).toFixed(1);
+      const maxHci = Math.max(...pot.map(p => p.origHCI)).toFixed(1);
+
+      let itemsHtml = '';
+      pot.forEach(p => {
+        const currentHci = getPlayerCurrentHci(p.memberId);
+        const strokes = calculatePlayingHandicap(currentHci, state.course);
+        const cutDiff = round1(currentHci - p.origHCI);
+        const cutApplied = cutDiff < 0;
+        const hciHtml = cutApplied
+          ? `<span class="player-hci" style="color:#b91c1c; font-weight:700;" title="League cut applied: ${cutDiff.toFixed(1)} (${p.origHCI.toFixed(1)} -> ${currentHci.toFixed(1)})">${formatPlayerHci(currentHci, strokes)}</span>`
+          : `<span class="player-hci">${formatPlayerHci(currentHci, strokes)}</span>`;
+
+        itemsHtml += `
+          <li class="cup-pot-item">
+            <div>
+              <span class="cup-seed-badge">S${p.seed}</span>
+              <span style="font-weight:600;">${escapeHtml(p.name)}</span>
+            </div>
+            ${hciHtml}
+          </li>
+        `;
+      });
+
+      potCard.innerHTML = `
+        <div class="cup-pot-header">
+          <h3 class="cup-pot-title">${escapeHtml(potNames[pIdx])}</h3>
+          <p class="cup-pot-subtitle">HCI Range: ${minHci} – ${maxHci} | 12 Players</p>
+        </div>
+        <ul class="cup-pot-list">
+          ${itemsHtml}
+        </ul>
+      `;
+
+      elements.cupPotsContainer.appendChild(potCard);
+    });
+
+    // Add Reserve Card
+    if (state.cupData.reserve) {
+      const res = state.cupData.reserve;
+      const resCurrentHci = getPlayerCurrentHci(res.memberId);
+      const strokes = calculatePlayingHandicap(resCurrentHci, state.course);
+      const resCutDiff = round1(resCurrentHci - res.origHCI);
+      const resCutApplied = resCutDiff < 0;
+      const resHciHtml = resCutApplied
+        ? `<strong style="color:#b91c1c;">${resCurrentHci.toFixed(1)}</strong> <span class="player-hci" style="color:#b91c1c; font-weight:700;">(${strokes})</span>`
+        : `<strong>${resCurrentHci.toFixed(1)}</strong> <span class="player-hci">(${strokes})</span>`;
+
+      const resBox = document.createElement('div');
+      resBox.className = 'cup-reserve-box';
+      resBox.innerHTML = `
+        <div>
+          <span class="badge" style="background:#e0e7ff; color:#3730a3; font-weight:800; margin-right:8px;">1st Reserve</span>
+          <strong>${escapeHtml(res.name)}</strong> (Player #49)
+        </div>
+        <div>
+          Current HCI: ${resHciHtml}
+        </div>
+      `;
+      elements.cupPotsContainer.appendChild(resBox);
+    }
+  }
+
+  /**
+   * Renders Projected Top 16 Knockout Tournament Bracket
+   */
+  function renderCupBracket() {
+    if (!elements.cupBracketContainer || !state.cupData) return;
+    elements.cupBracketContainer.innerHTML = '';
+
+    const r16Pairs = state.cupData.r16Pairs || [];
+
+    let r16TilesHtml = '';
+    r16Pairs.forEach(m => {
+      const a = m.playerA;
+      const b = m.playerB;
+      const aCurrentHci = getPlayerCurrentHci(a.memberId);
+      const bCurrentHci = getPlayerCurrentHci(b.memberId);
+      const aStrokes = calculatePlayingHandicap(aCurrentHci, state.course);
+      const bStrokes = calculatePlayingHandicap(bCurrentHci, state.course);
+      const aCutApplied = round1(aCurrentHci - a.origHCI) < 0;
+      const bCutApplied = round1(bCurrentHci - b.origHCI) < 0;
+
+      r16TilesHtml += `
+        <div class="cup-bracket-tile">
+          <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Match ${m.matchId}</div>
+          <div class="cup-bracket-player">
+            <span><strong>#${m.seedA}</strong> ${escapeHtml(a.name)} <span class="player-hci" style="${aCutApplied ? 'color:#b91c1c; font-weight:700;' : ''}">(${aStrokes})</span></span>
+            <span class="font-bold" style="color:var(--primary); font-size:0.75rem;">${a.cupPoints}pts</span>
+          </div>
+          <div class="cup-bracket-player">
+            <span><strong>#${m.seedB}</strong> ${escapeHtml(b.name)} <span class="player-hci" style="${bCutApplied ? 'color:#b91c1c; font-weight:700;' : ''}">(${bStrokes})</span></span>
+            <span class="font-bold" style="color:var(--primary); font-size:0.75rem;">${b.cupPoints}pts</span>
+          </div>
+        </div>
+      `;
+    });
+
+    const board = document.createElement('div');
+    board.className = 'cup-bracket-board';
+    board.innerHTML = `
+      <div class="cup-bracket-round">
+        <div class="cup-bracket-round-title">Round of 16 (Week 12)</div>
+        <div class="cup-bracket-matchups">
+          ${r16TilesHtml}
+        </div>
+      </div>
+
+      <div class="cup-bracket-round">
+        <div class="cup-bracket-round-title">Quarter-Finals (Week 13)</div>
+        <div class="cup-bracket-matchups">
+          <div class="cup-bracket-tile">
+            <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">QF 1</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner Match 1</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner Match 2</div>
+          </div>
+          <div class="cup-bracket-tile">
+            <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">QF 2</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner Match 3</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner Match 4</div>
+          </div>
+          <div class="cup-bracket-tile">
+            <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">QF 3</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner Match 5</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner Match 6</div>
+          </div>
+          <div class="cup-bracket-tile">
+            <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">QF 4</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner Match 7</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner Match 8</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cup-bracket-round">
+        <div class="cup-bracket-round-title">Semi-Finals (Week 14)</div>
+        <div class="cup-bracket-matchups">
+          <div class="cup-bracket-tile">
+            <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">SF 1</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner QF 1</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner QF 2</div>
+          </div>
+          <div class="cup-bracket-tile">
+            <div style="font-size:0.68rem; font-weight:700; color:var(--text-muted); margin-bottom:4px;">SF 2</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner QF 3</div>
+            <div class="cup-bracket-player" style="color:var(--text-muted);">Winner QF 4</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cup-bracket-round">
+        <div class="cup-bracket-round-title">Grand Final (Week 15)</div>
+        <div class="cup-bracket-matchups">
+          <div class="cup-bracket-tile" style="border:2px solid #f59e0b;">
+            <div style="font-size:0.68rem; font-weight:800; color:#d97706; margin-bottom:4px;">🏆 Cup Championship Match</div>
+            <div class="cup-bracket-player" style="font-weight:700; color:var(--text-muted);">Winner SF 1</div>
+            <div class="cup-bracket-player" style="font-weight:700; color:var(--text-muted);">Winner SF 2</div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    elements.cupBracketContainer.appendChild(board);
   }
 
   /**
@@ -5390,6 +6507,7 @@
     if (elements.handicapSearch) elements.handicapSearch.value = '';
     if (elements.lastmanSearch) elements.lastmanSearch.value = '';
     if (elements.parbingoSearch) elements.parbingoSearch.value = '';
+    if (elements.cupSearch) elements.cupSearch.value = '';
 
     // Reset eclectic scoring mode to default 'nett' and clear sort
     state.eclecticScoringMode = 'nett';
@@ -5445,6 +6563,9 @@
       case 'tab-parbingo':
         renderParBingoView();
         break;
+      case 'tab-cup':
+        renderCupView();
+        break;
     }
   }
 
@@ -5483,13 +6604,31 @@
     elements.tabButtons.forEach(b => {
       b.classList.toggle('active', b.getAttribute('data-tab') === targetTab);
     });
+    if (elements.btnTabCup) {
+      if (targetTab === 'tab-cup' || isCupRoute()) {
+        elements.btnTabCup.style.display = '';
+      } else {
+        elements.btnTabCup.style.display = 'none';
+      }
+    }
     elements.viewPanels.forEach(p => {
       p.classList.toggle('active', p.id === targetTab);
     });
-    if (elements.mobileTabSelect && elements.mobileTabSelect.value !== targetTab) {
-      const opt = elements.mobileTabSelect.querySelector(`option[value="${targetTab}"]`);
-      if (opt) {
-        elements.mobileTabSelect.value = targetTab;
+    if (elements.mobileTabSelect) {
+      if (targetTab === 'tab-cup' || isCupRoute()) {
+        let optCup = elements.mobileTabSelect.querySelector('option[value="tab-cup"]');
+        if (!optCup) {
+          optCup = document.createElement('option');
+          optCup.value = 'tab-cup';
+          optCup.textContent = '🏆 Winter League Cup';
+          elements.mobileTabSelect.appendChild(optCup);
+        }
+      }
+      if (elements.mobileTabSelect.value !== targetTab) {
+        const opt = elements.mobileTabSelect.querySelector(`option[value="${targetTab}"]`);
+        if (opt) {
+          elements.mobileTabSelect.value = targetTab;
+        }
       }
     }
   }
@@ -5504,7 +6643,8 @@
     { id: 'tab-magic2s', name: 'Magic 2\'s', icon: '🪄', defaultOrder: 4 },
     { id: 'tab-lastman', name: 'Last Man Standing', icon: '⚔️', defaultOrder: 5 },
     { id: 'tab-parbingo', name: 'Bingo', icon: '🎱', defaultOrder: 6 },
-    { id: 'tab-player', name: 'Player Profile', icon: '👤', defaultOrder: 7 }
+    { id: 'tab-player', name: 'Player Profile', icon: '👤', defaultOrder: 7 },
+    { id: 'tab-cup', name: 'Winter League Cup', icon: '🏆', defaultOrder: 8 }
   ];
 
   function getTabVisibilityConfig(tabId) {
@@ -5514,12 +6654,18 @@
   }
 
   function isTabHiddenOnDesktop(tabId) {
+    if (tabId === 'tab-cup') {
+      return !isCupRoute() && state.activeTab !== 'tab-cup';
+    }
     const cfg = getTabVisibilityConfig(tabId);
     if (!cfg) return false;
     return Boolean(cfg.hideDesktop || cfg.hideOnDesktop);
   }
 
   function isTabHiddenOnMobile(tabId) {
+    if (tabId === 'tab-cup') {
+      return !isCupRoute() && state.activeTab !== 'tab-cup';
+    }
     const cfg = getTabVisibilityConfig(tabId);
     if (!cfg) return false;
     return Boolean(cfg.hideMobile || cfg.hideOnMobile);
@@ -5555,6 +6701,205 @@
     return list;
   }
 
+  const SUBTITLE_ID_MAP = {
+    'tab-weekly': 'weekly-subtitle',
+    'tab-leaderboard': 'leaderboard-subtitle',
+    'tab-eclectic': 'eclectic-subtitle',
+    'tab-magic2s': 'magic2s-subtitle',
+    'tab-lastman': 'lastman-subtitle',
+    'tab-parbingo': 'parbingo-subtitle',
+    'tab-player': 'player-subtitle',
+    'tab-cup': 'cup-subtitle'
+  };
+
+  /**
+   * Formats an evaluated info text string into responsive HTML.
+   * Multi-line text (separated by \n) is wrapped in <span class="info-line"> elements,
+   * separated by <span class="info-line-sep"> • </span> so desktop renders lines as separate blocks
+   * and mobile renders them seamlessly on a single line.
+   * 
+   * @param {string} text - Raw evaluated text
+   * @returns {string} Responsive HTML string
+   */
+  function formatInfoTextHtml(text) {
+    if (!text) return '';
+    const rawLines = String(text).split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    if (rawLines.length === 0) return '';
+    if (rawLines.length === 1) {
+      return `<span class="info-line">${escapeHtml(rawLines[0])}</span>`;
+    }
+    return rawLines
+      .map(line => `<span class="info-line">${escapeHtml(line)}</span>`)
+      .join('<span class="info-line-sep"> • </span>');
+  }
+
+  /**
+   * Resolve dynamic info bar template for a tab
+   * Evaluates custom infoText configured in config/tabs.json and replaces dynamic tokens:
+   * - {Number of Entrants} -> e.g. "21 Entrants"
+   * - {£x} or {x} -> e.g. "£42.00"
+   * - {1st Prize}, {2nd Prize}, {3rd Prize} -> e.g. "1st Prize: £21.00", "2nd Prize: £12.60", "3rd Prize: £8.40"
+   * - {Number of players in the active week} -> e.g. "21 Players" or "21" when followed by "played this week"
+   * - {Prize Pot} -> e.g. "Prize Pot: £21.00"
+   * - {weeks active hole} -> e.g. "10"
+   * - {16 of 49} -> e.g. "48 of 49"
+   * 
+   * @param {string} tabId - e.g. 'tab-weekly', 'tab-leaderboard', etc.
+   * @param {Object} [context] - Optional active round / week data
+   * @returns {string} Evaluated text string
+   */
+  function getResolvedTabInfoText(tabId, context = {}) {
+    const rawTabs = state.tabsConfig && (state.tabsConfig.tabs || state.tabsConfig);
+    const tabCfg = (rawTabs && rawTabs[tabId]) || DEFAULT_TABS_CONFIG[tabId];
+    let template = (tabCfg && typeof tabCfg.infoText === 'string') ? tabCfg.infoText : '';
+    if (!template && DEFAULT_TABS_CONFIG[tabId]) {
+      template = DEFAULT_TABS_CONFIG[tabId].infoText || '';
+    }
+    if (!template) return '';
+
+    if (tabId === 'tab-weekly') {
+      const weekNum = context.weekNum !== undefined ? context.weekNum : parseInt(state.selectedWeek, 10);
+      const results = context.results || state.weeklyResults.get(weekNum) || [];
+      const entrantsCount = results.length;
+
+      const sweepCfg = (state.prizesConfig && state.prizesConfig.sweep) ? state.prizesConfig.sweep : DEFAULT_PRIZES_CONFIG.sweep;
+      const sweepFee = (sweepCfg && typeof sweepCfg.entryFee === 'number') ? sweepCfg.entryFee : 2.00;
+      const totalPot = entrantsCount * sweepFee;
+
+      let prizePcts = [];
+      const tiers = (sweepCfg && Array.isArray(sweepCfg.tiers)) ? sweepCfg.tiers : [
+        { minEntrants: 16, shares: [0.50, 0.30, 0.20] },
+        { minEntrants: 10, shares: [0.65, 0.35] }
+      ];
+      for (const t of tiers) {
+        if (entrantsCount >= t.minEntrants) {
+          prizePcts = t.shares;
+          break;
+        }
+      }
+      if (prizePcts.length === 0 && entrantsCount > 0) {
+        prizePcts = [1.00];
+      }
+
+      const p1Amount = prizePcts[0] ? (totalPot * prizePcts[0]) : 0;
+      const p2Amount = prizePcts[1] ? (totalPot * prizePcts[1]) : 0;
+      const p3Amount = prizePcts[2] ? (totalPot * prizePcts[2]) : 0;
+
+      const entrantsLabel = entrantsCount === 1 ? '1 Entrant' : `${entrantsCount} Entrants`;
+      const p1Label = p1Amount > 0 ? `1st Prize: £${p1Amount.toFixed(2)}` : '1st Prize: -';
+      const p2Label = p2Amount > 0 ? `2nd Prize: £${p2Amount.toFixed(2)}` : '2nd Prize: -';
+      const p3Label = p3Amount > 0 ? `3rd Prize: £${p3Amount.toFixed(2)}` : '3rd Prize: -';
+
+      // Replace {Number of Entrants} / {entrants}
+      template = template.replace(/\{number of entrants\}/gi, (m, offset, full) => {
+        const after = full.slice(offset + m.length).trim().toLowerCase();
+        return after.startsWith('entrant') ? `${entrantsCount}` : entrantsLabel;
+      });
+      template = template.replace(/\{entrants\}/gi, (m, offset, full) => {
+        const after = full.slice(offset + m.length).trim().toLowerCase();
+        return after.startsWith('entrant') ? `${entrantsCount}` : entrantsLabel;
+      });
+
+      // Replace {£x} or {x}
+      template = template.replace(/\{£x\}/gi, `£${totalPot.toFixed(2)}`);
+      template = template.replace(/\{x\}/gi, `£${totalPot.toFixed(2)}`);
+
+      // Replace {Sweep Pot}
+      template = template.replace(/((?:Sweep\s+)?Pot:?\s*)?\{sweep pot\}/gi, (m, prefix) => {
+        return prefix ? `${prefix}£${totalPot.toFixed(2)}` : `Sweep Pot: £${totalPot.toFixed(2)}`;
+      });
+
+      // Replace {1st Prize}, {2nd Prize}, {3rd Prize}
+      template = template.replace(/((?:1st(?:\s+Prize)?:?\s*)?)\{1st prize\}/gi, (m, prefix) => {
+        return prefix ? `${prefix}£${p1Amount.toFixed(2)}` : p1Label;
+      });
+      template = template.replace(/((?:2nd(?:\s+Prize)?:?\s*)?)\{2nd prize\}/gi, (m, prefix) => {
+        return prefix ? (p2Amount > 0 ? `${prefix}£${p2Amount.toFixed(2)}` : `${prefix}-`) : p2Label;
+      });
+      template = template.replace(/((?:3rd(?:\s+Prize)?:?\s*)?)\{3rd prize\}/gi, (m, prefix) => {
+        return prefix ? (p3Amount > 0 ? `${prefix}£${p3Amount.toFixed(2)}` : `${prefix}-`) : p3Label;
+      });
+
+    } else if (tabId === 'tab-leaderboard') {
+      const asOfWeek = context.weekNum !== undefined ? context.weekNum : (state.leaderboardWeek || state.latestWeek);
+      const results = state.weeklyResults.get(asOfWeek) || [];
+      const playerCount = results.length;
+      const playersLabel = playerCount === 1 ? '1 Player' : `${playerCount} Players`;
+
+      template = template.replace(/\{number of players in the active week\}/gi, (m, offset, full) => {
+        const after = full.slice(offset + m.length).trim().toLowerCase();
+        return (after.startsWith('player') || after.startsWith('played')) ? `${playerCount}` : playersLabel;
+      });
+      template = template.replace(/\{number of players\}/gi, (m, offset, full) => {
+        const after = full.slice(offset + m.length).trim().toLowerCase();
+        return (after.startsWith('player') || after.startsWith('played')) ? `${playerCount}` : playersLabel;
+      });
+      template = template.replace(/\{players in active week\}/gi, (m, offset, full) => {
+        const after = full.slice(offset + m.length).trim().toLowerCase();
+        return (after.startsWith('player') || after.startsWith('played')) ? `${playerCount}` : playersLabel;
+      });
+
+    } else if (tabId === 'tab-magic2s') {
+      const weekNum = context.weekNum !== undefined ? context.weekNum : (state.magic2sWeek || state.latestWeek);
+      const potData = getMagic2sForWeek(weekNum);
+      const potAmount = potData.totalAvailablePot || 0;
+      const potLabel = `Prize Pot: £${potAmount.toFixed(2)}`;
+
+      template = template.replace(/((?:(?:Prize\s+)?Pot:?\s*)?)\{prize pot\}/gi, (m, prefix) => {
+        return prefix ? `${prefix}£${potAmount.toFixed(2)}` : potLabel;
+      });
+      template = template.replace(/\{£x\}/gi, `£${potAmount.toFixed(2)}`);
+      template = template.replace(/\{x\}/gi, `£${potAmount.toFixed(2)}`);
+
+    } else if (tabId === 'tab-lastman') {
+      const asOfWeek = context.weekNum !== undefined ? context.weekNum : (state.lastmanWeek || state.latestWeek || 1);
+      const data = context.data || (typeof calculateLastManStanding === 'function' ? calculateLastManStanding(asOfWeek) : null);
+      const totalWeeks = context.totalWeeks || (data && data.simulatedWeek) || asOfWeek;
+      const cfg = (data && data.config) || state.lastmanConfig || DEFAULT_LASTMAN_CONFIG;
+      const activeHoleObj = totalWeeks > 0
+        ? getTargetHoleForWeek(totalWeeks, cfg.holeOrder)
+        : getTargetHoleForWeek(1, cfg.holeOrder);
+      const activeHoleNum = activeHoleObj ? activeHoleObj.hole : 1;
+      const aliveCount = (data && typeof data.aliveCount === 'number') ? data.aliveCount : 0;
+      const totalCount = (data && typeof data.totalCount === 'number') ? data.totalCount : (data && data.players ? data.players.length : 0);
+
+      template = template.replace(/\{weeks active hole\}/gi, `${activeHoleNum}`);
+      template = template.replace(/\{active hole\}/gi, `${activeHoleNum}`);
+      template = template.replace(/\{\d+\s+of\s+\d+(\s+players\s+still\s+standing)?\}/gi, (m) => {
+        return m.toLowerCase().includes('players')
+          ? `${aliveCount} of ${totalCount} Players Still Standing`
+          : `${aliveCount} of ${totalCount}`;
+      });
+      template = template.replace(/\{alive of total\}/gi, `${aliveCount} of ${totalCount}`);
+    }
+
+    return template;
+  }
+
+  function applyTabSubtitles() {
+    Object.keys(SUBTITLE_ID_MAP).forEach(tabId => {
+      const elId = SUBTITLE_ID_MAP[tabId];
+      const el = document.getElementById(elId);
+      if (!el) return;
+      const text = getResolvedTabInfoText(tabId);
+      if (text) {
+        el.innerHTML = formatInfoTextHtml(text);
+      }
+    });
+  }
+
+  function applyMobileUiOptions() {
+    const rawMap = state.tabsConfig && (state.tabsConfig.tabs || state.tabsConfig);
+    const mOpts = (state.tabsConfig && state.tabsConfig.mobileOptions) || (rawMap && rawMap.mobileOptions) || {};
+
+    document.body.classList.toggle('mobile-hide-week-nav-btns', Boolean(mOpts.hideWeekNavButtons));
+    document.body.classList.toggle('mobile-hide-week-nav-entirely', Boolean(mOpts.hideWeekNavEntirely));
+    document.body.classList.toggle('mobile-hide-player-search', Boolean(mOpts.hidePlayerSearch));
+    document.body.classList.toggle('mobile-hide-weekly-nonleague', Boolean(mOpts.hideNonLeagueToggle));
+    document.body.classList.toggle('mobile-hide-lastman-info', Boolean(mOpts.hideLastManInfo));
+    document.body.classList.toggle('mobile-hide-lastman-status', Boolean(mOpts.hideLastManStatusDropdown));
+  }
+
   /**
    * Dynamically applies tab ordering and visibility rules to desktop navigation buttons
    * and the mobile dropdown selector. Switches to first visible tab if active tab is hidden.
@@ -5562,6 +6907,10 @@
   function applyTabVisibility() {
     const isMobile = window.innerWidth <= 1024;
     const orderedTabs = getOrderedTabs();
+
+    // Apply mobile display options and custom info bar texts
+    applyMobileUiOptions();
+    applyTabSubtitles();
 
     // 1. Desktop Tab Buttons in .tab-nav (re-ordered dynamically in DOM)
     const tabNav = elements.tabNav || document.querySelector('.tab-nav');
@@ -5725,7 +7074,24 @@
     }
 
     if (elements.weeklyHideNonLeague) {
-      elements.weeklyHideNonLeague.addEventListener('change', () => {
+      elements.weeklyHideNonLeague.addEventListener('click', (e) => {
+        e.preventDefault();
+        cycleWeeklyLeagueFilter();
+      });
+    }
+
+    const lblWeeklyLeagueFilter = document.getElementById('lbl-weekly-league-filter');
+    if (lblWeeklyLeagueFilter) {
+      lblWeeklyLeagueFilter.addEventListener('click', (e) => {
+        if (e.target !== elements.weeklyHideNonLeague) {
+          e.preventDefault();
+          cycleWeeklyLeagueFilter();
+        }
+      });
+    }
+
+    if (elements.weeklyShowGross) {
+      elements.weeklyShowGross.addEventListener('change', () => {
         renderWeeklyView();
       });
     }
@@ -6073,6 +7439,112 @@
         elements.localProtocolBanner.style.display = 'none';
       });
     }
+
+    // Winter League Cup controls (/cup)
+    if (elements.btnCupExit) {
+      elements.btnCupExit.addEventListener('click', () => {
+        if (window.location.pathname.endsWith('/cup') || window.location.pathname.endsWith('/cup/')) {
+          window.location.href = 'index.html';
+        } else {
+          history.replaceState(null, null, 'index.html');
+          activateTab('tab-weekly');
+          applyTabVisibility();
+        }
+      });
+    }
+
+    if (elements.btnCupModeTable) {
+      elements.btnCupModeTable.addEventListener('click', () => {
+        if (state.cupSubView !== 'table') {
+          state.cupSubView = 'table';
+          renderCupView();
+        }
+      });
+    }
+
+    if (elements.btnCupModeFixtures) {
+      elements.btnCupModeFixtures.addEventListener('click', () => {
+        if (state.cupSubView !== 'fixtures') {
+          state.cupSubView = 'fixtures';
+          renderCupView();
+        }
+      });
+    }
+
+    if (elements.btnCupModePots) {
+      elements.btnCupModePots.addEventListener('click', () => {
+        if (state.cupSubView !== 'pots') {
+          state.cupSubView = 'pots';
+          renderCupView();
+        }
+      });
+    }
+
+    if (elements.btnCupModeBracket) {
+      elements.btnCupModeBracket.addEventListener('click', () => {
+        if (state.cupSubView !== 'bracket') {
+          state.cupSubView = 'bracket';
+          renderCupView();
+        }
+      });
+    }
+
+    if (elements.btnCupPrev) {
+      elements.btnCupPrev.addEventListener('click', () => {
+        if (state.cupWeek > 1) {
+          state.cupWeek -= 1;
+          if (elements.cupWeekSelect) elements.cupWeekSelect.value = state.cupWeek;
+          renderCupFixtures();
+        }
+      });
+    }
+
+    if (elements.btnCupNext) {
+      elements.btnCupNext.addEventListener('click', () => {
+        if (state.cupWeek < 11) {
+          state.cupWeek += 1;
+          if (elements.cupWeekSelect) elements.cupWeekSelect.value = state.cupWeek;
+          renderCupFixtures();
+        }
+      });
+    }
+
+    if (elements.cupWeekSelect) {
+      elements.cupWeekSelect.addEventListener('change', (e) => {
+        const selected = parseInt(e.target.value, 10);
+        if (selected >= 1 && selected <= 11) {
+          state.cupWeek = selected;
+          renderCupFixtures();
+        }
+      });
+    }
+
+    if (elements.cupPotSelect) {
+      elements.cupPotSelect.addEventListener('change', (e) => {
+        state.cupPotFilter = e.target.value;
+        renderCupFixtures();
+      });
+    }
+
+    if (elements.cupSearch) {
+      elements.cupSearch.addEventListener('input', () => {
+        if (state.cupSubView === 'table') {
+          renderCupStandings();
+        } else if (state.cupSubView === 'fixtures') {
+          renderCupFixtures();
+        }
+      });
+    }
+
+    // Hash change routing (e.g. #cup or #tab-cup)
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash ? window.location.hash.substring(1) : '';
+      if (hash === 'cup' || hash === 'tab-cup') {
+        activateTab('tab-cup');
+      } else if (hash && document.getElementById(hash)) {
+        activateTab(hash);
+      }
+    });
   }
 
   // Initial Boot

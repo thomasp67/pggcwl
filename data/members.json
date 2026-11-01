@@ -33,7 +33,7 @@
         "memberId": "4002796324",
         "name": "Alan Leonard",
         "origHCI": 17.8,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4104045622",
@@ -51,7 +51,7 @@
         "memberId": "4001585196",
         "name": "Alex Graham",
         "origHCI": 23.8,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4003087844",
@@ -92,13 +92,13 @@
     {
         "memberId": "4003106963",
         "name": "Andrew Harkness",
-        "origHCI": 12.8,
+        "origHCI": 12.5,
         "inLeague": false
     },
     {
         "memberId": "4104111715",
         "name": "Andrew McGuckian",
-        "origHCI": 16.2,
+        "origHCI": 15.7,
         "inLeague": false
     },
     {
@@ -129,7 +129,7 @@
         "memberId": "4001586956",
         "name": "Billy Whiteside",
         "origHCI": 17.4,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4104084704",
@@ -204,12 +204,6 @@
         "inLeague": false
     },
     {
-        "memberId": "4002980699",
-        "name": "Chris Gibson",
-        "origHCI": 12.7,
-        "inLeague": false
-    },
-    {
         "memberId": "4104107336",
         "name": "Chris Kelly",
         "origHCI": 21.1,
@@ -219,7 +213,7 @@
         "memberId": "4001584273",
         "name": "Chris McEwan",
         "origHCI": 3.9,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4104052636",
@@ -231,7 +225,7 @@
         "memberId": "4002379211",
         "name": "Colin Blaikie",
         "origHCI": 11,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4001586052",
@@ -272,13 +266,13 @@
     {
         "memberId": "4001585337",
         "name": "Darren Logan",
-        "origHCI": 6.2,
+        "origHCI": 6,
         "inLeague": true
     },
     {
         "memberId": "4104087426",
         "name": "Darren O'Hagan",
-        "origHCI": 27.7,
+        "origHCI": 27.3,
         "inLeague": true
     },
     {
@@ -297,7 +291,7 @@
         "memberId": "4002952970",
         "name": "David Brady",
         "origHCI": 21,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4001585668",
@@ -308,7 +302,7 @@
     {
         "memberId": "4001892422",
         "name": "David Casement",
-        "origHCI": 5.6,
+        "origHCI": 5.2,
         "inLeague": false
     },
     {
@@ -348,34 +342,10 @@
         "inLeague": false
     },
     {
-        "memberId": "4104050967",
-        "name": "David McCabe",
-        "origHCI": 24,
-        "inLeague": false
-    },
-    {
-        "memberId": "4104040297",
-        "name": "David McDade",
-        "origHCI": 19.6,
-        "inLeague": false
-    },
-    {
         "memberId": "4002484407",
         "name": "David Tolan",
         "origHCI": 26.6,
-        "inLeague": false
-    },
-    {
-        "memberId": "4002045989",
-        "name": "Derek Church",
-        "origHCI": 10.5,
-        "inLeague": false
-    },
-    {
-        "memberId": "4104025671",
-        "name": "Derek Dick",
-        "origHCI": 31,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4002702317",
@@ -386,20 +356,20 @@
     {
         "memberId": "4002867054",
         "name": "Duncan Macfarlane",
-        "origHCI": 20.3,
+        "origHCI": 20.7,
         "inLeague": false
     },
     {
         "memberId": "4002946957",
         "name": "Dylan Leonard",
         "origHCI": 32.4,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4002943487",
         "name": "Dylan Potter",
         "origHCI": 19.9,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4104108958",
@@ -423,7 +393,7 @@
         "memberId": "4001585699",
         "name": "Ernie Hopkins",
         "origHCI": 20.9,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4001584481",
@@ -435,12 +405,6 @@
         "memberId": "4104048578",
         "name": "Filippo Mazzoni",
         "origHCI": 45,
-        "inLeague": false
-    },
-    {
-        "memberId": "4001585046",
-        "name": "Frank Boyland",
-        "origHCI": 3.6,
         "inLeague": false
     },
     {
@@ -476,19 +440,13 @@
     {
         "memberId": "4104112513",
         "name": "Gary Millar",
-        "origHCI": 34.8,
+        "origHCI": 34.1,
         "inLeague": false
     },
     {
         "memberId": "4104022755",
         "name": "Gary Watt",
         "origHCI": 14.4,
-        "inLeague": false
-    },
-    {
-        "memberId": "4001145114",
-        "name": "George Fleming",
-        "origHCI": 11.4,
         "inLeague": false
     },
     {
@@ -518,7 +476,7 @@
     {
         "memberId": "4003083512",
         "name": "Gordon Convery Jnr",
-        "origHCI": 17.8,
+        "origHCI": 19.1,
         "inLeague": true
     },
     {
@@ -546,12 +504,6 @@
         "inLeague": false
     },
     {
-        "memberId": "4003103022",
-        "name": "Greg Dunn",
-        "origHCI": 24.9,
-        "inLeague": false
-    },
-    {
         "memberId": "4104025806",
         "name": "Greg Stringfellow",
         "origHCI": 17.7,
@@ -570,12 +522,6 @@
         "inLeague": false
     },
     {
-        "memberId": "4002211827",
-        "name": "Hugh Barilli",
-        "origHCI": 5.8,
-        "inLeague": false
-    },
-    {
         "memberId": "4001586047",
         "name": "Hugh McGivern",
         "origHCI": 13.2,
@@ -591,7 +537,7 @@
         "memberId": "4001584667",
         "name": "Ian Hendry",
         "origHCI": 8.4,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4002655374",
@@ -618,16 +564,10 @@
         "inLeague": false
     },
     {
-        "memberId": "4002770247",
-        "name": "James Cassidy",
-        "origHCI": 15,
-        "inLeague": false
-    },
-    {
         "memberId": "4001584520",
         "name": "James Devine",
         "origHCI": 12.1,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4104076376",
@@ -638,7 +578,7 @@
     {
         "memberId": "4002946961",
         "name": "James McCleary",
-        "origHCI": 21.3,
+        "origHCI": 21.7,
         "inLeague": true
     },
     {
@@ -674,7 +614,7 @@
     {
         "memberId": "4002545733",
         "name": "Jason Gillespie",
-        "origHCI": 14.5,
+        "origHCI": 15.3,
         "inLeague": true
     },
     {
@@ -692,7 +632,7 @@
     {
         "memberId": "4002741240",
         "name": "Jim Rennie",
-        "origHCI": 10.7,
+        "origHCI": 11.5,
         "inLeague": false
     },
     {
@@ -837,7 +777,7 @@
         "memberId": "4001584294",
         "name": "Kenneth McNeill",
         "origHCI": 19.4,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4002986748",
@@ -854,7 +794,7 @@
     {
         "memberId": "4002530826",
         "name": "Kevin McAulay",
-        "origHCI": 9,
+        "origHCI": 9.2,
         "inLeague": true
     },
     {
@@ -890,7 +830,7 @@
     {
         "memberId": "4104104550",
         "name": "Leigh Weston",
-        "origHCI": 8.6,
+        "origHCI": 9.3,
         "inLeague": false
     },
     {
@@ -914,7 +854,7 @@
     {
         "memberId": "4001585316",
         "name": "Mark Deegan",
-        "origHCI": 22.4,
+        "origHCI": 22.6,
         "inLeague": true
     },
     {
@@ -926,7 +866,7 @@
     {
         "memberId": "4104044200",
         "name": "Mark Gorman",
-        "origHCI": 25.1,
+        "origHCI": 24.5,
         "inLeague": false
     },
     {
@@ -942,18 +882,6 @@
         "inLeague": false
     },
     {
-        "memberId": "4002653126",
-        "name": "Martin McFadyen",
-        "origHCI": 22.3,
-        "inLeague": false
-    },
-    {
-        "memberId": "4003101662",
-        "name": "Matthew Hagan",
-        "origHCI": 19.3,
-        "inLeague": false
-    },
-    {
         "memberId": "4104070699",
         "name": "Matthew Rodgers",
         "origHCI": 27.7,
@@ -966,12 +894,6 @@
         "inLeague": false
     },
     {
-        "memberId": "4104020207",
-        "name": "Nathan Fabiani",
-        "origHCI": 9.7,
-        "inLeague": false
-    },
-    {
         "memberId": "4001584358",
         "name": "Nicky Rodger",
         "origHCI": 14.7,
@@ -981,7 +903,7 @@
         "memberId": "4003099072",
         "name": "Norman Caitens",
         "origHCI": 34.5,
-        "inLeague": true
+        "inLeague": false
     },
     {
         "memberId": "4001584447",
@@ -999,7 +921,7 @@
         "memberId": "4002717288",
         "name": "Paul Hagan",
         "origHCI": 7.8,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4001585080",
@@ -1022,7 +944,7 @@
     {
         "memberId": "4001585476",
         "name": "Paul Van Der Made",
-        "origHCI": 2.9,
+        "origHCI": 2.3,
         "inLeague": false
     },
     {
@@ -1070,7 +992,7 @@
     {
         "memberId": "4002658836",
         "name": "Rory Gallagher",
-        "origHCI": 11.8,
+        "origHCI": 12.6,
         "inLeague": true
     },
     {
@@ -1125,7 +1047,7 @@
         "memberId": "4001585235",
         "name": "Ryan Gallagher",
         "origHCI": 4.4,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4003081173",
@@ -1154,14 +1076,14 @@
     {
         "memberId": "4001584679",
         "name": "Scott Hillhouse",
-        "origHCI": 10,
+        "origHCI": 10.4,
         "inLeague": true
     },
     {
         "memberId": "4002532093",
         "name": "Scott Logan",
         "origHCI": 10.8,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4104052783",
@@ -1184,8 +1106,8 @@
     {
         "memberId": "4001587060",
         "name": "Stephen Duddy",
-        "origHCI": 10.1,
-        "inLeague": false
+        "origHCI": 10.2,
+        "inLeague": true
     },
     {
         "memberId": "4001584336",
@@ -1194,22 +1116,10 @@
         "inLeague": true
     },
     {
-        "memberId": "4104047385",
-        "name": "Stephen Stewart",
-        "origHCI": 21.7,
-        "inLeague": false
-    },
-    {
-        "memberId": "4001586006",
-        "name": "Steven Gallagher",
-        "origHCI": 9.2,
-        "inLeague": false
-    },
-    {
         "memberId": "4104068401",
         "name": "Steven Gillies",
         "origHCI": 20.3,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4001586109",
@@ -1227,13 +1137,13 @@
         "memberId": "4002928283",
         "name": "Steven Millar",
         "origHCI": 3.2,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4002942738",
         "name": "Steven Thompson",
         "origHCI": 15.7,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4002786355",
@@ -1242,9 +1152,9 @@
         "inLeague": false
     },
     {
-        "memberId": "4003100780",
-        "name": "Thomas Kirkwood",
-        "origHCI": 19.8,
+        "memberId": "4003086091",
+        "name": "Suzanne Innes",
+        "origHCI": 39,
         "inLeague": false
     },
     {
@@ -1262,7 +1172,7 @@
     {
         "memberId": "4002742659",
         "name": "Thomas Patton",
-        "origHCI": 8.1,
+        "origHCI": 8.4,
         "inLeague": true
     },
     {
@@ -1299,12 +1209,12 @@
         "memberId": "4002924730",
         "name": "Tommy Reed",
         "origHCI": 31.8,
-        "inLeague": false
+        "inLeague": true
     },
     {
         "memberId": "4001585652",
         "name": "Trevor Sims",
-        "origHCI": 14.2,
+        "origHCI": 14,
         "inLeague": true
     },
     {
@@ -1322,7 +1232,7 @@
     {
         "memberId": "4001585597",
         "name": "William Barr",
-        "origHCI": 26.9,
+        "origHCI": 27,
         "inLeague": false
     },
     {
@@ -1359,12 +1269,6 @@
         "memberId": "4001584992",
         "name": "William Roxburgh Snr",
         "origHCI": 32.4,
-        "inLeague": false
-    },
-    {
-        "memberId": "4002434570",
-        "name": "William Weston",
-        "origHCI": 8.8,
         "inLeague": false
     }
 ]

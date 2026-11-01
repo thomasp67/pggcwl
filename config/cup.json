@@ -1,0 +1,20 @@
+{
+  "competitionName": "Winter League Cup",
+  "description": "Round-robin matchplay group stage across 4 handicap pots, followed by Top 16 knockout tree",
+  "potsCount": 4,
+  "potSize": 12,
+  "totalPlayers": 48,
+  "groupWeeks": 11,
+  "scoring": {
+    "winPoints": 3,
+    "drawPoints": 1,
+    "lossPoints": 0
+  },
+  "knockout": {
+    "qualifiers": 16,
+    "roundOf16Week": 12,
+    "quarterFinalsWeek": 13,
+    "semiFinalsWeek": 14,
+    "finalWeek": 15
+  }
+}
