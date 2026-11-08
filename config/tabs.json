@@ -59,9 +59,9 @@
         "name": "WINTER CUP",
         "icon": "🏆",
         "order": 7,
-        "hideDesktop": true,
-        "hideMobile": true,
-        "infoText": "Matchplay • 5 Handicap Pots • 9 Rounds{/} • Top 16 Advance to Knockout{/} • 3pt for win • 1pt for a draw • 0 for a loss{/} • 0 points if player doesn't play"
+        "hideDesktop": false,
+        "hideMobile": false,
+        "infoText": "5 Handicap Pots • 9 Rounds{/} • Top 16 Advance to Knockout{/} • 3pt for win • 1pt for a draw • 0 for a loss{/} • 0 points if player doesn't play"
     },
     "tab-stats": {
         "name": "STATS",
