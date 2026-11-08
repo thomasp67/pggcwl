@@ -1,5 +1,7 @@
 {
   "winner": "nett",
   "hideModeOptions": true,
-  "hideProgressBanner": true
+  "hideProgressBanner": true,
+  "eligibility": "all",
+  "hideEligibility": true
 }

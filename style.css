@@ -1,4 +1,11 @@
 :root {
+  /* Information Sections Appearance Custom Variables */
+  --info-desktop-size: 0.825rem;
+  --info-desktop-color: var(--text-muted, #475569);
+  --info-desktop-font: inherit;
+  --info-mobile-size: 0.78rem;
+  --info-mobile-color: var(--text-muted, #475569);
+  --info-mobile-font: inherit;
   --primary: #0a1f56;
   --primary-hover: #07153e;
   --primary-light: #eff3fa;
@@ -198,6 +205,7 @@ body {
   appearance: auto;
   -webkit-appearance: menulist;
   box-sizing: border-box;
+  text-transform: uppercase;
 }
 
 .tab-nav {
@@ -220,7 +228,7 @@ body {
   outline: none;
   padding: 0.42rem 0.85rem;
   font-size: 0.86rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
   cursor: pointer;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
@@ -230,6 +238,8 @@ body {
   position: relative;
   transition: all 0.2s ease;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .tab-btn:hover {
@@ -281,23 +291,79 @@ body {
   }
 }
 
-/* Control Bar & Filter Cards - Standardized Info Bar */
+/* ==========================================================================
+   Page Info Banner (Spanning full page width)
+   ========================================================================== */
+.panel-info-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.9rem;
+  margin-bottom: 0.5rem;
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center; /* Center-justified on all desktop screens */
+}
+
+.panel-info-bar .panel-info-text,
+.panel-info-text {
+  font-size: var(--info-desktop-size, 0.825rem);
+  line-height: 1.45;
+  color: var(--info-desktop-color, var(--text-muted, #475569));
+  font-family: var(--info-desktop-font, inherit);
+  margin: 0;
+  width: 100%;
+  text-align: center; /* Center-justified on all desktop screens */
+  white-space: nowrap; /* Desktop: single line */
+  overflow-x: auto;
+}
+
+.panel-info-text .info-line {
+  display: inline;
+}
+
+.panel-info-text .info-sep-desktop {
+  display: inline;
+  color: inherit;
+  opacity: 0.75;
+  font-weight: 700;
+  padding: 0 0.15rem;
+}
+
+.panel-info-text .info-br-mobile {
+  display: none;
+}
+
+.panel-info-text .info-bullet {
+  color: var(--primary);
+  opacity: 0.65;
+  font-weight: 700;
+  padding: 0 0.25rem;
+}
+
+.panel-info-text .info-line-sep {
+  display: none;
+}
+
+/* ==========================================================================
+   Navigation & Controls Bar (Separate line below info banner)
+   ========================================================================== */
+.panel-controls-bar,
 .panel-header-bar {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  padding: 0.4rem 0.75rem;
-  margin-bottom: 0.6rem;
+  padding: 0.45rem 0.75rem;
+  margin-bottom: 0.65rem;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
-  flex-wrap: nowrap !important;
-  gap: 0.55rem;
+  gap: 0.65rem;
   box-sizing: border-box;
   width: 100%;
-  min-height: 46px;
+  min-height: 48px;
 }
 
 .panel-info-group {
@@ -309,7 +375,8 @@ body {
   min-width: 0;
 }
 
-.panel-options-group {
+.panel-controls-bar .panel-options-group,
+.panel-header-bar .panel-options-group {
   display: flex;
   align-items: center;
   gap: 0.65rem;
@@ -317,38 +384,34 @@ body {
   white-space: nowrap;
 }
 
-.panel-nav-group {
+/* Prev / Next navigation group: Right-justified, on the left of the search bar */
+.panel-controls-bar .panel-nav-group,
+.panel-header-bar .panel-nav-group {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto; /* Right-justifies week nav directly to the left of search */
+}
+
+/* Search group sits to the right of week nav */
+.panel-controls-bar .panel-search-group,
+.panel-header-bar .panel-search-group {
   display: flex;
   align-items: center;
   flex-shrink: 0;
 }
 
-.panel-search-group {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
+/* If controls bar has no week nav group (or nav is hidden), right-justify the search bar */
+.panel-controls-bar:not(:has(.panel-nav-group)) .panel-search-group,
+.panel-header-bar:not(:has(.panel-nav-group)) .panel-search-group,
+.panel-controls-bar > .panel-options-group + .panel-search-group,
+.panel-header-bar > .panel-options-group + .panel-search-group {
+  margin-left: auto;
 }
 
 .panel-search-group .search-input {
-  width: 210px;
-  min-width: 170px;
-}
-
-.panel-info-text {
-  font-size: 0.8rem;
-  line-height: 1.35;
-  color: var(--text-muted);
-  margin: 0;
-  min-width: 0;
-  flex-shrink: 1;
-}
-
-.panel-info-text .info-line {
-  display: block;
-}
-
-.panel-info-text .info-line-sep {
-  display: none;
+  width: 220px;
+  min-width: 180px;
 }
 
 /* Standardized 36px control height for seamless alignment across all pages */
@@ -916,6 +979,9 @@ tr.row-non-magic-two td.player-name-cell {
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -3178,9 +3244,10 @@ td.hilo-col {
 
 .sc-header-pills {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap !important;
   gap: 0.35rem 0.5rem;
   align-items: center;
+  overflow-x: visible !important;
 }
 
 .sc-pill {
@@ -3623,51 +3690,84 @@ td.hilo-col {
   #cup-standings-table th.cup-diff-col, #cup-standings-table td.cup-diff-col { width: 12% !important; }
   #cup-standings-table th.cup-pts-col, #cup-standings-table td.cup-pts-col { width: 12% !important; }
 
-  /* Controls row & filters layout on mobile: Full Container Width */
+  /* Info Bar & Controls layout on mobile */
+  .panel-info-bar {
+    padding: 0.5rem 0.65rem !important;
+    margin-bottom: 0.45rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    text-align: center !important; /* Centre justify in mobile view */
+  }
+
+  .panel-info-bar .panel-info-text,
+  .panel-info-text {
+    display: block !important;
+    font-size: var(--info-mobile-size, 0.78rem) !important;
+    line-height: 1.4 !important;
+    color: var(--info-mobile-color, var(--text-muted, #475569)) !important;
+    font-family: var(--info-mobile-font, inherit) !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    margin: 0 !important;
+    text-align: center !important; /* Centre justify in mobile view */
+  }
+
+  .panel-info-text .info-line {
+    display: inline !important;
+    white-space: normal !important;
+    text-align: center !important; /* Centre justify in mobile view */
+  }
+
+  .panel-info-text .info-sep-desktop {
+    display: none !important;
+  }
+
+  .panel-info-text .info-br-mobile {
+    display: block !important;
+    margin-top: 0.12rem !important;
+  }
+
+  .panel-info-text .info-br-mobile br {
+    display: block !important;
+    content: "" !important;
+  }
+
+  .panel-info-text .info-line-sep {
+    display: none !important;
+  }
+
+  /* Auto-hide controls bar on mobile if empty or if no controls are visible */
+  .panel-controls-bar:empty,
+  .panel-controls-bar.is-empty-bar {
+    display: none !important;
+  }
+
+  /* Controls Bar on mobile */
+  .panel-controls-bar,
   .panel-header-bar {
-    padding: 0.65rem !important;
+    padding: 0.55rem 0.65rem !important;
     margin-bottom: 0.55rem !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 0.5rem !important;
     width: 100% !important;
+    min-height: auto !important;
     box-sizing: border-box !important;
   }
 
-  /* 1. Info text directly below the mobile dropdown */
-  .panel-info-group {
+  .panel-controls-bar .panel-nav-group,
+  .panel-header-bar .panel-nav-group {
     order: 1 !important;
-    display: block !important;
+    margin-left: 0 !important;
     width: 100% !important;
-    margin: 0 0 0.2rem 0 !important;
-    padding: 0.2rem 0.2rem 0.45rem 0.2rem !important;
-    border-bottom: 1px solid var(--border-light, #e2e8f0) !important;
+    margin: 0 !important;
     box-sizing: border-box !important;
   }
 
-  .panel-info-text {
-    display: block !important;
-    font-size: 0.78rem !important;
-    line-height: 1.35 !important;
-    color: var(--text-muted, #64748b) !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    margin: 0 !important;
-  }
-
-  .panel-info-text .info-line {
-    display: inline !important;
-    white-space: normal !important;
-  }
-
-  .panel-info-text .info-line-sep {
-    display: inline !important;
-  }
-
-  /* 2. Page-specific options */
-  .panel-options-group {
+  .panel-controls-bar .panel-options-group,
+  .panel-header-bar .panel-options-group {
     order: 2 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -3686,8 +3786,47 @@ td.hilo-col {
     box-sizing: border-box !important;
   }
 
-  /* 3. Prev/Next navigation */
-  /* Configurable Mobile Display Toggles */
+  .panel-controls-bar .panel-search-group,
+  .panel-header-bar .panel-search-group {
+    order: 3 !important;
+    margin-left: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .panel-controls-bar .panel-search-group .search-input,
+  .panel-header-bar .panel-search-group .search-input {
+    width: 100% !important;
+    min-width: 100% !important;
+  }
+
+  /* Auto-hide empty controls bar when week nav and search are hidden on mobile */
+  body.mobile-hide-week-nav-entirely.mobile-hide-player-search #tab-leaderboard .panel-controls-bar,
+  body.mobile-hide-week-nav-entirely.mobile-hide-player-search #tab-magic2s .panel-controls-bar,
+  body.mobile-hide-week-nav-entirely.mobile-hide-player-search #tab-lastman .panel-controls-bar {
+    display: none !important;
+  }
+
+  body.mobile-hide-week-nav-entirely.mobile-hide-player-search.mobile-hide-weekly-nonleague #tab-weekly .panel-controls-bar {
+    display: none !important;
+  }
+
+  /* Eclectic Mobile: Hide winner dropdown and non-members toggle */
+  #tab-eclectic .panel-options-group,
+  #tab-eclectic #eclectic-winner-filter-group,
+  #tab-eclectic label[for="eclectic-hide-non-league"] {
+    display: none !important;
+  }
+
+  body.mobile-hide-week-nav-entirely.mobile-hide-player-search #tab-eclectic .panel-controls-bar {
+    display: none !important;
+  }
+
+  body.mobile-hide-week-nav-entirely.mobile-hide-player-search .panel-controls-bar:not(:has(> .panel-options-group:not([style*="display: none"]))) {
+    display: none !important;
+  }
+
   body.mobile-hide-week-nav-btns .week-nav-btn {
     display: none !important;
   }
@@ -3718,21 +3857,6 @@ td.hilo-col {
   body.mobile-hide-lastman-status #tab-lastman .filter-group,
   body.mobile-hide-lastman-status #tab-lastman #lastman-filter-status {
     display: none !important;
-  }
-
-  .panel-nav-group {
-    order: 3 !important;
-    width: 100% !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
-  }
-
-  /* 4. Player search directly above results list */
-  .panel-search-group {
-    order: 4 !important;
-    width: 100% !important;
-    margin: 0 !important;
-    box-sizing: border-box !important;
   }
 
   /* Standardized Week Navigation spanning full width */
@@ -4830,3 +4954,498 @@ td.hilo-col {
   }
 }
 
+
+
+/* ==========================================================================
+   Course Statistics Heatmap Styles
+   Smooth, balanced 18-step difficulty gradient (Rank 1 hardest: dark red text / light red bg -> Rank 18 easiest: dark green text / light green bg)
+   ========================================================================== */
+.stats-hm-rank-1  { background-color: #fad6d6 !important; color: #620e0e !important; }
+.stats-hm-rank-2  { background-color: #f9dbd7 !important; color: #64180c !important; }
+.stats-hm-rank-3  { background-color: #f9e0d7 !important; color: #65240b !important; }
+.stats-hm-rank-4  { background-color: #f8e5d8 !important; color: #67300a !important; }
+.stats-hm-rank-5  { background-color: #f7ead9 !important; color: #683d08 !important; }
+.stats-hm-rank-6  { background-color: #f7eed9 !important; color: #694a07 !important; }
+.stats-hm-rank-7  { background-color: #f8f4e2 !important; color: #514405 !important; }
+.stats-hm-rank-8  { background-color: #f8f7e2 !important; color: #524f05 !important; }
+.stats-hm-rank-9  { background-color: #f6f8e2 !important; color: #4b5204 !important; }
+.stats-hm-rank-10 { background-color: #f3f8e2 !important; color: #405204 !important; }
+.stats-hm-rank-11 { background-color: #ecf6da !important; color: #456a06 !important; }
+.stats-hm-rank-12 { background-color: #e8f6da !important; color: #376907 !important; }
+.stats-hm-rank-13 { background-color: #e4f7d9 !important; color: #2a6907 !important; }
+.stats-hm-rank-14 { background-color: #dff7d9 !important; color: #1d6808 !important; }
+.stats-hm-rank-15 { background-color: #dbf8d8 !important; color: #11670a !important; }
+.stats-hm-rank-16 { background-color: #d7f9d9 !important; color: #0b6510 !important; }
+.stats-hm-rank-17 { background-color: #d7f9dd !important; color: #0c641e !important; }
+.stats-hm-rank-18 { background-color: #d6fae2 !important; color: #0e622a !important; }
+
+/* ==========================================================================
+   Course Statistics Table Anchoring & Formatting
+   ========================================================================== */
+#stats-table {
+  table-layout: fixed !important;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+/* Absolute Column Widths on Desktop to prevent sorting bounce */
+#stats-table th.stats-hole-col,
+#stats-table td.stats-hole-col {
+  width: 70px !important;
+  min-width: 70px !important;
+  max-width: 70px !important;
+  box-sizing: border-box;
+}
+
+#stats-table th.stats-name-col,
+#stats-table td.stats-name-col {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  box-sizing: border-box;
+}
+
+#stats-table th.stats-par-col,
+#stats-table td.stats-par-col {
+  width: 60px !important;
+  min-width: 60px !important;
+  max-width: 60px !important;
+  box-sizing: border-box;
+}
+
+#stats-table th.stats-si-col,
+#stats-table td.stats-si-col {
+  width: 70px !important;
+  min-width: 70px !important;
+  max-width: 70px !important;
+  box-sizing: border-box;
+}
+
+#stats-table th.stats-avg-col,
+#stats-table td.stats-avg-col {
+  width: 100px !important;
+  min-width: 100px !important;
+  max-width: 100px !important;
+  box-sizing: border-box;
+}
+
+#stats-table th.stats-diff-col,
+#stats-table td.stats-diff-col {
+  width: 85px !important;
+  min-width: 85px !important;
+  max-width: 85px !important;
+  box-sizing: border-box;
+}
+
+#stats-table th.stats-rank-col,
+#stats-table td.stats-rank-col {
+  width: 95px !important;
+  min-width: 95px !important;
+  max-width: 95px !important;
+  box-sizing: border-box;
+  white-space: nowrap !important;
+}
+
+#stats-table th.stats-scores-col,
+#stats-table td.stats-scores-col {
+  width: 80px !important;
+  min-width: 80px !important;
+  max-width: 80px !important;
+  box-sizing: border-box;
+}
+
+#stats-table th.stats-dist-col,
+#stats-table td.stats-dist-col {
+  width: 75px !important;
+  min-width: 75px !important;
+  max-width: 75px !important;
+  box-sizing: border-box;
+}
+
+/* Absolute Column Widths on Mobile (5 columns total) */
+@media (max-width: 768px) {
+  #stats-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+  }
+  #stats-table th.stats-hole-col,
+  #stats-table td.stats-hole-col {
+    width: 20% !important;
+    min-width: 20% !important;
+    max-width: 20% !important;
+  }
+  #stats-table th.stats-si-col,
+  #stats-table td.stats-si-col {
+    width: 15% !important;
+    min-width: 15% !important;
+    max-width: 15% !important;
+  }
+  #stats-table th.stats-avg-col,
+  #stats-table td.stats-avg-col {
+    width: 23% !important;
+    min-width: 23% !important;
+    max-width: 23% !important;
+  }
+  #stats-table th.stats-diff-col,
+  #stats-table td.stats-diff-col {
+    width: 22% !important;
+    min-width: 22% !important;
+    max-width: 22% !important;
+  }
+  #stats-table th.stats-rank-col,
+  #stats-table td.stats-rank-col {
+    width: 20% !important;
+    min-width: 20% !important;
+    max-width: 20% !important;
+  }
+}
+
+#stats-table tfoot {
+  position: sticky;
+  bottom: 0;
+  z-index: 6;
+}
+
+#stats-table tfoot tr {
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.05);
+}
+
+#stats-table tfoot tr.tfoot-out td {
+  background: #f8fafc !important;
+  font-weight: 700;
+  border-top: 2px solid var(--border, #e2e8f0);
+  border-bottom: 1px solid var(--border, #e2e8f0);
+}
+
+#stats-table tfoot tr.tfoot-in td {
+  background: #f8fafc !important;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border-dark, #cbd5e1);
+}
+
+#stats-table tfoot tr.tfoot-total td {
+  background: #f1f5f9 !important;
+  font-weight: 800;
+  font-size: 0.94rem;
+  border-top: 2px solid var(--border-dark, #94a3b8);
+  border-bottom: 2px solid var(--border-dark, #94a3b8);
+}
+
+/* ==========================================================================
+   Fixtures & Schedule Tab (#tab-fixtures)
+   ========================================================================== */
+.fixtures-filter-group {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface-secondary, #f1f5f9);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 6px);
+  padding: 2px;
+  gap: 2px;
+}
+
+.fixtures-filter-btn {
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.fixtures-filter-btn:hover {
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.fixtures-filter-btn.active {
+  background: var(--primary, #15803d);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.fixture-row {
+  transition: background-color var(--transition-fast);
+}
+
+.fixture-row:hover {
+  background-color: var(--row-hover, #f8fafc);
+}
+
+.fixture-completed-row {
+  background-color: #fafdfa;
+  cursor: pointer;
+}
+
+.fixture-completed-row:hover {
+  background-color: #f0fdf4 !important;
+}
+
+.fixture-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fixture-date {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.fixture-winner-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.fixture-winner-text {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.fixture-winner-pts {
+  color: var(--primary, #15803d);
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.fixture-action-btn {
+  padding: 0.2rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 4px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.fixture-action-btn:hover {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #93c5fd;
+}
+
+/* Mobile Optimizations for Fixtures View */
+@media (max-width: 768px) {
+  #fixtures-table {
+    display: block !important;
+    width: 100% !important;
+    border-collapse: separate !important;
+  }
+
+  #fixtures-table thead {
+    display: none !important;
+  }
+
+  #fixtures-table tbody {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  #fixtures-table tr.fixture-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding: 0.55rem 0.65rem !important;
+    border-bottom: 1px solid var(--border-color, #e2e8f0) !important;
+    gap: 0.2rem 0.45rem !important;
+    box-sizing: border-box !important;
+  }
+
+  #fixtures-table tr:not(.fixture-row) {
+    display: block !important;
+    width: 100% !important;
+    padding: 1.25rem !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  #fixtures-table tr:not(.fixture-row) td {
+    display: block !important;
+    width: 100% !important;
+    border: none !important;
+    text-align: center !important;
+  }
+
+  #fixtures-table td {
+    padding: 0 !important;
+    border: none !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Line 1 - Item 1: Week Number Badge */
+  #fixtures-table .fixture-week-col {
+    order: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    background: #f1f5f9 !important;
+    color: #334155 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    padding: 0.08rem 0.4rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  #fixtures-table .fixture-completed-row .fixture-week-col {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+    border-color: #86efac !important;
+  }
+
+  /* Line 1 - Item 2: Date */
+  #fixtures-table .fixture-date-col {
+    order: 2 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    font-size: 0.74rem !important;
+    color: #64748b !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    line-height: 1.25 !important;
+  }
+
+  #fixtures-table .fixture-date-col::after {
+    content: "•";
+    margin-left: 0.45rem;
+    color: #94a3b8;
+  }
+
+  /* Line 1 - Item 3: Event Name */
+  #fixtures-table .fixture-name-col {
+    order: 3 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    color: var(--text-color, #0f172a) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    line-height: 1.25 !important;
+  }
+
+  /* Hidden on Mobile */
+  #fixtures-table .fixture-format-col {
+    display: none !important;
+  }
+
+  /* Line 2: Winner below the wk / date / event line */
+  #fixtures-table .fixture-winner-col {
+    order: 4 !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    padding-top: 0.15rem !important;
+    padding-left: 0.1rem !important;
+  }
+
+  #fixtures-table .fixture-winner-wrapper {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    width: 100% !important;
+  }
+
+  #fixtures-table .fixture-winner-text {
+    font-size: 0.76rem !important;
+    line-height: 1.3 !important;
+    color: #1e293b !important;
+  }
+
+  #fixtures-table .fixture-action-btn {
+    display: none !important; /* Entire completed row is clickable to view sweep on mobile */
+  }
+
+  .fixtures-filter-group {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: stretch !important;
+  }
+
+  .fixtures-filter-btn {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 0.25rem 0.4rem !important;
+    font-size: 0.76rem !important;
+    height: 30px !important;
+  }
+}
+
+
+/* Stats Metric Cards Center Justification */
+#stats-metrics-grid .stat-card {
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+}
+
+#stats-metrics-grid .stat-card .stat-label,
+#stats-metrics-grid .stat-card .stat-val,
+#stats-metrics-grid .stat-card span {
+  text-align: center;
+  width: 100%;
+}
+
+/* Magic 2s Info Box Text Alignment */
+.magic2s-stat-card .stat-label,
+.magic2s-stat-card .stat-val,
+.magic2s-stat-card .stat-sub {
+  text-align: center;
+  width: 100%;
+}
+
+/* Course Stats Difficulty Rank Comparison Indicator (+/- vs SI) */
+.stats-rank-diff {
+  font-size: 0.76rem;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.stats-rank-diff-plus {
+  color: #b91c1c !important; /* Red for + (harder than SI) */
+}
+
+.stats-rank-diff-minus {
+  color: #15803d !important; /* Green for - (easier than SI) */
+}
+
+.stats-rank-diff-zero {
+  color: #64748b !important;
+  opacity: 0.75;
+}
+
+
+/* Bingo: Hide eligibility dropdown */
+#tab-parbingo #parbingo-eligibility-group,
+#parbingo-eligibility-group.is-hidden {
+  display: none !important;
+}
+
+body.mobile-hide-week-nav-entirely.mobile-hide-player-search #tab-parbingo .panel-controls-bar {
+  display: none !important;
+}

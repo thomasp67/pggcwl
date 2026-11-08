@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Port Glasgow Golf Club - Winter Season Results</title>
-  <link rel="stylesheet" href="style.css?v=20261101_fixtures_mobile_nav">
+  <link rel="stylesheet" href="style.css?v=20261107_fixtures_tab">
   <link rel="icon" type="image/png" href="image/pggc_logo.png">
 </head>
 <body>
@@ -44,42 +44,46 @@
     <div class="mobile-nav-wrapper">
       <label for="mobile-tab-select" class="sr-only">Select Competition View</label>
       <select id="mobile-tab-select" class="mobile-nav-select" aria-label="Select Competition View">
-        <option value="tab-weekly" selected>📅 Weekend Stableford</option>
-        <option value="tab-leaderboard">🏆 Winter League</option>
-        <option value="tab-eclectic">🎯 Eclectic</option>
-        <option value="tab-magic2s">🪄 Magic 2's</option>
-        <option value="tab-lastman">⚔️ Last Man</option>
-        <option value="tab-parbingo">🎱 Bingo</option>
-        <option value="tab-player">👤 Player Profile</option>
-        <option value="tab-cup" id="opt-tab-cup" style="display: none;">🏆 Winter Cup</option>
+        <option value="tab-weekly" selected>📅 STABLEFORD</option>
+        <option value="tab-leaderboard">🏆 LEAGUE</option>
+        <option value="tab-eclectic">🎯 ECLECTIC</option>
+        <option value="tab-magic2s">🪄 MAGIC 2'S</option>
+        <option value="tab-lastman">⚔️ LAST MAN STANDING</option>
+        <option value="tab-parbingo">🎱 BINGO</option>
+        <option value="tab-cup" id="opt-tab-cup" style="display: none;">🏆 WINTER CUP</option>
+        <option value="tab-stats" id="opt-tab-stats">📊 STATS</option>
+        <option value="tab-fixtures" id="opt-tab-fixtures">🗓️ FIXTURES</option>
       </select>
     </div>
 
     <!-- Desktop Tab Navigation (Rendered on screens > 1024px) -->
     <nav class="tab-nav" aria-label="Navigation Tabs">
       <button class="tab-btn active" data-tab="tab-weekly" id="btn-tab-weekly">
-        📅 Weekend Stableford
+        📅 STABLEFORD
       </button>
       <button class="tab-btn" data-tab="tab-leaderboard" id="btn-tab-leaderboard">
-        🏆 Winter League
+        🏆 LEAGUE
       </button>
       <button class="tab-btn" data-tab="tab-eclectic" id="btn-tab-eclectic">
-        🎯 Eclectic
+        🎯 ECLECTIC
       </button>
       <button class="tab-btn" data-tab="tab-magic2s" id="btn-tab-magic2s">
-        🪄 Magic 2's
+        🪄 MAGIC 2'S
       </button>
       <button class="tab-btn" data-tab="tab-lastman" id="btn-tab-lastman">
-        ⚔️ Last Man
+        ⚔️ LAST MAN STANDING
       </button>
       <button class="tab-btn" data-tab="tab-parbingo" id="btn-tab-parbingo">
-        🎱 Bingo
-      </button>
-      <button class="tab-btn" data-tab="tab-player" id="btn-tab-player">
-        👤 Player Profile
+        🎱 BINGO
       </button>
       <button class="tab-btn" data-tab="tab-cup" id="btn-tab-cup">
-        🏆 Winter Cup
+        🏆 WINTER CUP
+      </button>
+      <button class="tab-btn" data-tab="tab-stats" id="btn-tab-stats">
+        📊 STATS
+      </button>
+      <button class="tab-btn" data-tab="tab-fixtures" id="btn-tab-fixtures">
+        🗓️ FIXTURES
       </button>
     </nav>
   </div>
@@ -101,11 +105,13 @@
 
     <!-- Tab 1: Weekly Competition -->
     <section id="tab-weekly" class="view-panel active">
-      <!-- Info / Control Bar -->
-      <div class="panel-header-bar">
-        <div class="panel-info-group">
-          <p id="weekly-subtitle" class="panel-info-text">Weekly Sweep • Individual Stableford Format<br>{Number of Entrants} • Sweep Pot: {£x} • 1st: {1st Prize} • 2nd: {2nd Prize} • 3rd: {3rd Prize}</p>
-        </div>
+      <!-- Info Bar (Spans full page width) -->
+      <div class="panel-info-bar">
+        <p id="weekly-subtitle" class="panel-info-text">Individual Stableford • countback for ties • {Number of Entrants} this week • Sweep Pot: {£x} • 1st: {1st Prize} • 2nd: {2nd Prize} • 3rd: {3rd Prize}</p>
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <div class="panel-controls-bar">
         <div class="panel-options-group">
           <label class="checkbox-control" id="lbl-weekly-league-filter" for="weekly-hide-non-league" title="Click to filter: All Players ➔ League Only ➔ Non-League Only">
             <input type="checkbox" id="weekly-hide-non-league">
@@ -171,11 +177,13 @@
 
     <!-- Tab 2: Season Leaderboard -->
     <section id="tab-leaderboard" class="view-panel">
-      <!-- Info / Control Bar -->
-      <div class="panel-header-bar">
-        <div class="panel-info-group">
-          <p id="leaderboard-subtitle" class="panel-info-text">Season Long League • Best 10 Stableford Scores Count • {Number of players in the active week} played this week<br>Handicaps shown are new hadicaps for next week.</p>
-        </div>
+      <!-- Info Bar (Spans full page width) -->
+      <div class="panel-info-bar">
+        <p id="leaderboard-subtitle" class="panel-info-text">Winter League • Best 10 Stableford Scores Count • Handicaps shown are new handicaps for next week</p>
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <div class="panel-controls-bar">
         <div class="panel-nav-group">
           <div class="week-nav-group">
             <button type="button" id="btn-leaderboard-prev" class="week-nav-btn" title="View previous week league table">◀ Prev</button>
@@ -226,11 +234,13 @@
 
     <!-- Tab: Eclectic Competition -->
     <section id="tab-eclectic" class="view-panel">
-      <!-- Info / Control Bar -->
-      <div class="panel-header-bar">
-        <div class="panel-info-group">
-          <p id="eclectic-subtitle" class="panel-info-text">Best Stableford score on each hole accumulated across all rounds | Ranked by Eclectic total</p>
-        </div>
+      <!-- Info Bar (Spans full page width) -->
+      <div class="panel-info-bar">
+        <p id="eclectic-subtitle" class="panel-info-text">Best Stableford score on each hole accumulated across all rounds</p>
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <div class="panel-controls-bar">
         <div class="panel-options-group">
           <div class="filter-group" id="eclectic-winner-filter-group" style="display: none;">
             <label for="eclectic-scoring-mode">Winner:</label>
@@ -299,11 +309,13 @@
 
     <!-- Tab: Magic 2's Competition -->
     <section id="tab-magic2s" class="view-panel">
-      <!-- Info / Control Bar -->
-      <div class="panel-header-bar">
-        <div class="panel-info-group">
-          <p id="magic2s-subtitle" class="panel-info-text">Score a gross 2 on qualifying par 3s (or any par 4 / 5) | Prize roll over | Open to league members only | {Prize Pot}</p>
-        </div>
+      <!-- Info Bar (Spans full page width) -->
+      <div class="panel-info-bar">
+        <p id="magic2s-subtitle" class="panel-info-text">Score a gross 2 on randomly selected par 3s • a 2 on any par 4/5 also qualifies Prize roll over • Open to league members only • Weekly Prize Pot: {Prize Pot}</p>
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <div class="panel-controls-bar">
         <div class="panel-nav-group">
           <div class="week-nav-group">
             <button type="button" id="btn-magic2s-prev" class="week-nav-btn" title="View previous week Magic 2's">◀ Prev</button>
@@ -351,11 +363,13 @@
 
     <!-- Tab 5: Last Man Standing -->
     <section id="tab-lastman" class="view-panel">
-      <!-- Info / Control Bar -->
-      <div class="panel-header-bar">
-        <div class="panel-info-group">
-          <p id="lastman-subtitle" class="panel-info-text">Score 1 point on hole {weeks active hole} to proceed to next week • {16 of 49} Players Still Standing after week {active week}</p>
-        </div>
+      <!-- Info Bar (Spans full page width) -->
+      <div class="panel-info-bar">
+        <p id="lastman-subtitle" class="panel-info-text">Score 1 point on hole {weeks active hole} to proceed • {X of 50} Players Still Standing after week {active week} • Next hole is {next week}</p>
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <div class="panel-controls-bar">
         <div class="panel-nav-group">
           <div class="week-nav-group">
             <button type="button" id="btn-lastman-prev" class="week-nav-btn" title="View previous week">◀ Prev</button>
@@ -447,21 +461,23 @@
 
     <!-- Tab: Bingo (Gross Pars & Net Birdies) -->
     <section id="tab-parbingo" class="view-panel">
-      <!-- Info / Control Bar -->
-      <div class="panel-header-bar">
-        <div class="panel-info-group">
-          <p id="parbingo-subtitle" class="panel-info-text">First player to record a qualifying score on every hole wins</p>
-        </div>
+      <!-- Info Bar (Spans full page width) -->
+      <div class="panel-info-bar">
+        <p id="parbingo-subtitle" class="panel-info-text">First player to record a net birdie score on every hole wins</p>
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <div class="panel-controls-bar">
         <div class="panel-options-group">
           <div class="bingo-mode-toggle is-hidden" id="bingo-mode-toggle-group" style="display: none;" role="group" aria-label="Bingo Mode Selection">
             <button type="button" id="btn-bingo-mode-gross" class="bingo-mode-btn" title="Show Gross Pars Bingo (Gross par or better on every hole)">Gross Pars</button>
             <button type="button" id="btn-bingo-mode-nett" class="bingo-mode-btn active" title="Show Net Birdies Bingo (Nett birdie or better on every hole)">Net Birdies</button>
           </div>
-          <div class="filter-group">
+          <div class="filter-group is-hidden" id="parbingo-eligibility-group" style="display: none;">
             <label for="parbingo-filter-eligibility">Eligibility:</label>
             <select id="parbingo-filter-eligibility" class="select-control" title="Filter by competition eligibility">
-              <option value="league" selected>League Members Only</option>
-              <option value="all">All Players (Open)</option>
+              <option value="all" selected>All Players (Open)</option>
+              <option value="league">League Members Only</option>
             </select>
           </div>
         </div>
@@ -501,142 +517,15 @@
       </div>
     </section>
 
-    <!-- Tab: Player Profile & Handicap List -->
-    <section id="tab-player" class="view-panel">
-      <!-- Sub-view Mode Switcher Bar -->
-      <div class="panel-header-bar players-mode-bar">
-        <div class="players-mode-toggle" role="group" aria-label="Player Profile View Selection">
-          <button type="button" id="btn-players-mode-profile" class="players-mode-btn active" title="View Individual Player Profile & Scorecards">👤 Player Details</button>
-          <button type="button" id="btn-players-mode-roster" class="players-mode-btn" title="View League Handicap Matrix & Cuts List">📋 Handicap List</button>
-        </div>
-      </div>
-
-      <!-- Sub-view 1: Individual Player Profile & Season Record -->
-      <div id="players-profile-view" class="players-subview">
-        <!-- Info / Control Bar -->
-        <div class="panel-header-bar">
-          <div class="panel-info-group">
-            <p id="player-subtitle" class="panel-info-text">Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member</p>
-          </div>
-          <div class="panel-options-group">
-            <button type="button" id="btn-goto-roster" class="quick-pick-btn" title="View full league handicap matrix">📋 View Handicap List</button>
-          </div>
-          <div class="panel-search-group">
-            <div class="player-search-wrapper">
-              <input type="text" id="player-search-input" class="search-input" placeholder="Search player name..." autocomplete="off">
-              <div id="player-suggestions" class="player-suggestions-box" style="display: none;"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Player Content Area -->
-        <div id="player-content-area">
-          <!-- Initial prompt when no player selected -->
-          <div id="player-empty-prompt" class="empty-state">
-            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏌️‍♂️</div>
-            <h3 style="font-size: 1.15rem; color: var(--text-main); margin-bottom: 0.35rem;">Select a Member to Track</h3>
-            <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.25rem auto;">
-              Search for a club member above or pick from the active players below to inspect their full season record of Stableford scores.
-            </p>
-            <div id="player-quick-picks" class="quick-picks-container">
-              <!-- Dynamic quick pick buttons -->
-            </div>
-          </div>
-
-          <!-- Selected Player Details Card -->
-          <div id="player-details-card" style="display: none;">
-            <!-- Profile Header Banner -->
-            <div class="player-profile-banner">
-              <div class="player-profile-main">
-                <div class="player-avatar-badge">👤</div>
-                <div>
-                  <div class="player-profile-name-row">
-                    <h3 id="player-card-name" class="player-profile-name">-</h3>
-                    <span id="player-card-badge" class="badge-league">League</span>
-                  </div>
-                  <div class="player-profile-meta" id="player-card-meta">
-                    <!-- Chips populated dynamically -->
-                  </div>
-                </div>
-              </div>
-              <div class="player-profile-stats" id="player-card-stats">
-                <!-- Stat pills populated dynamically -->
-              </div>
-            </div>
-
-            <!-- Rounds Table Card Container (Rendered dynamically via shared buildPlayerRoundsTableCardHtml) -->
-            <div id="player-rounds-container"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sub-view 2: Handicap List Matrix -->
-      <div id="players-roster-view" class="players-subview" style="display: none;">
-        <!-- Info / Control Bar -->
-        <div class="panel-header-bar">
-          <div class="panel-info-group">
-            <p class="panel-info-text">Chronological matrix of weekly handicap adjustments and active indexes • Tap any player to inspect</p>
-          </div>
-          <div class="panel-options-group">
-            <button type="button" id="btn-back-to-profile" class="quick-pick-btn" title="Return to Player Details view">👤 Player Details</button>
-            <div class="filter-group">
-              <label for="handicap-filter-league">Filter:</label>
-              <select id="handicap-filter-league" class="select-control">
-                <option value="all">All Members</option>
-                <option value="league" selected>League Members Only</option>
-                <option value="cut">Players with Cuts / Adjustments</option>
-              </select>
-            </div>
-            <button type="button" id="btn-toggle-cuts-rules" class="quick-pick-btn" title="View or hide active handicap cut rules & tier breakdown">⚙️ Cuts Rules</button>
-          </div>
-          <div class="panel-search-group">
-            <input type="text" id="handicap-search" class="search-input" placeholder="Search player name...">
-          </div>
-        </div>
-
-        <!-- Collapsible Cuts Rules Card -->
-        <div id="cuts-rules-card" class="table-card" style="display: none; margin-bottom: 1.25rem;">
-          <div style="padding: 0.85rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
-            <div>
-              <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.2rem;">⚙️ Active Handicap Cut System (from <code>config/cuts.json</code>)</h3>
-              <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Fully configurable in <code>config/cuts.json</code>. Run <code>node process_raw.js</code> after editing to update the offline preview.</p>
-            </div>
-            <button type="button" id="btn-close-cuts-rules" class="quick-pick-btn" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">✕ Close</button>
-          </div>
-          <div id="cuts-rules-content" style="padding: 1rem 1.25rem;">
-            <!-- Dynamically populated from state.cutsConfig -->
-          </div>
-        </div>
-
-        <!-- Handicap Matrix Table -->
-        <div class="table-card">
-          <div class="table-responsive">
-            <table class="data-table" id="handicap-table">
-              <thead>
-                <tr id="handicap-thead-tr">
-                  <th class="sticky-col-name player-name-col"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
-                  <th class="text-center hci-col" title="Starting Handicap Index"><span class="th-full">Start<br>HCI</span><span class="th-short">Start</span></th>
-                  <!-- Dynamic Week Columns (W1, W2...) -->
-                  <th class="text-center current-hci-col" title="Current Active Handicap Index"><span class="th-full">Current<br>HCI</span><span class="th-short">Now</span></th>
-                  <th class="text-center total-cut-col" title="Total Cuts and Adjustments"><span class="th-full">Total<br>Cuts</span><span class="th-short">Cuts</span></th>
-                </tr>
-              </thead>
-              <tbody id="handicap-tbody">
-                <!-- Rendered dynamically -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- Tab: Winter Cup -->
     <section id="tab-cup" class="view-panel">
-      <!-- Info / Control Bar -->
-      <div class="panel-header-bar">
-        <div class="panel-info-group">
-          <p id="cup-subtitle" class="panel-info-text">Weekly Matchplay • 5 Handicap Pots • 10 Rounds • Top 16 Advance to Knockout</p>
-        </div>
+      <!-- Info Bar (Spans full page width) -->
+      <div class="panel-info-bar">
+        <p id="cup-subtitle" class="panel-info-text">Matchplay • 5 Handicap Pots • 9 Rounds • Top 16 Advance to Knockout • 3pt for win • 1pt for a draw • 0 for a loss • 0 points if player doesn't play</p>
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <div class="panel-controls-bar">
         <div class="panel-options-group">
           <div class="cup-mode-toggle" role="group" aria-label="Cup Subview Selection">
             <button type="button" id="btn-cup-mode-table" class="cup-mode-btn active" title="View Standings Table">🏆 Table</button>
@@ -694,7 +583,7 @@
           <div class="cup-fixtures-nav-group">
             <button type="button" id="btn-cup-prev" class="cup-nav-btn" title="Previous Week Fixtures">◀ Prev</button>
             <select id="cup-week-select" class="select-control cup-week-select" title="Jump to specific week">
-              <!-- Dynamically populated Weeks 1 to 10 -->
+              <!-- Dynamically populated Weeks 1 to 9 -->
             </select>
             <button type="button" id="btn-cup-next" class="cup-nav-btn" title="Next Week Fixtures">Next ▶</button>
           </div>
@@ -717,10 +606,10 @@
           <div class="cup-fixtures-nav-group" style="width: 100%;">
             <button type="button" id="btn-cup-bracket-prev" class="cup-nav-btn" title="Previous Round">◀ Prev</button>
             <select id="cup-bracket-round-select" class="select-control cup-week-select" title="Select Knockout Round">
-              <option value="r16">Round of 16 (Week 11)</option>
-              <option value="qf">Quarter-Finals (Week 12)</option>
-              <option value="sf">Semi-Finals (Week 13)</option>
-              <option value="final">Grand Final (Week 14)</option>
+              <option value="r16">Round of 16 (Week 10)</option>
+              <option value="qf">Quarter-Finals (Week 11)</option>
+              <option value="sf">Semi-Finals (Week 12)</option>
+              <option value="final">Grand Final (Week 13)</option>
             </select>
             <button type="button" id="btn-cup-bracket-next" class="cup-nav-btn" title="Next Round">Next ▶</button>
           </div>
@@ -731,9 +620,106 @@
       </div>
     </section>
 
+    <!-- Tab 9: Course Statistics -->
+    <section id="tab-stats" class="view-panel">
+      <!-- Info Bar (Spans full page width) -->
+      <div class="panel-info-bar">
+        <p id="stats-subtitle" class="panel-info-text">Course hole statistics and scoring averages across all competition round</p>
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <div class="panel-controls-bar">
+        <div class="panel-options-group">
+          <div class="filter-group">
+            <label for="stats-round-filter">Rounds:</label>
+            <select id="stats-round-filter" class="select-control" title="Filter hole statistics by competition round">
+              <option value="all" selected>All Rounds</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Summary Metric Cards -->
+      <div class="stats-grid" id="stats-metrics-grid">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Hole Statistics Data Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="stats-table">
+            <thead>
+              <tr>
+                <th class="text-center sortable-th stats-hole-col" data-sort="hole" title="Click to sort by Hole Number"><span class="th-full">Hole</span><span class="th-short">Hole</span><span class="sort-icon"></span></th>
+                <th class="text-left sortable-th stats-name-col col-desktop-only" data-sort="name" title="Click to sort by Hole Name"><span class="th-full">Hole Name</span><span class="th-short">Name</span><span class="sort-icon"></span></th>
+                <th class="text-center sortable-th stats-par-col col-desktop-only" data-sort="par" title="Click to sort by Par"><span class="th-full">Par</span><span class="th-short">Par</span><span class="sort-icon"></span></th>
+                <th class="text-center sortable-th stats-si-col" data-sort="si" title="Click to sort by Stroke Index"><span class="th-full">Stroke Index</span><span class="th-short">SI</span><span class="sort-icon"></span></th>
+                <th class="text-center sortable-th stats-rank-col" data-sort="rank" title="Click to sort by Difficulty Rank (1 to 18)"><span class="th-full">Difficulty Rank</span><span class="th-short">RANK</span><span class="sort-icon"></span></th>
+                <th class="text-center sortable-th stats-avg-col" data-sort="avg" title="Click to sort by Scoring Average"><span class="th-full">Average Score</span><span class="th-short">AVE</span><span class="sort-icon"></span></th>
+                <th class="text-center sortable-th stats-diff-col" data-sort="diff" title="Click to sort by Score relative to Par"><span class="th-full">vs Par</span><span class="th-short">VS PAR</span><span class="sort-icon"></span></th>
+                <th class="text-center sortable-th stats-scores-col col-desktop-only" data-sort="scores" title="Click to sort by Total Recorded Scores"><span class="th-full">Scores</span><span class="th-short">Rds</span><span class="sort-icon"></span></th>
+                <th class="text-center sortable-th stats-dist-col col-desktop-only" data-sort="birdies" title="Click to sort by Birdies or better"><span class="th-full">Birdies</span><span class="th-short">Birdies</span><span class="sort-icon"></span></th>
+                <th class="text-center sortable-th stats-dist-col col-desktop-only" data-sort="pars" title="Click to sort by Pars"><span class="th-full">Pars</span><span class="th-short">Pars</span><span class="sort-icon"></span></th>
+                <th class="text-center sortable-th stats-dist-col col-desktop-only" data-sort="bogeys" title="Click to sort by Bogeys"><span class="th-full">Bogeys</span><span class="th-short">Bogeys</span><span class="sort-icon"></span></th>
+                <th class="text-center sortable-th stats-dist-col col-desktop-only" data-sort="doubles" title="Click to sort by Double Bogeys or worse"><span class="th-full">Double+</span><span class="th-short">Dbl+</span><span class="sort-icon"></span></th>
+              </tr>
+            </thead>
+            <tbody id="stats-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+            <tfoot id="stats-tfoot">
+              <!-- Rendered dynamically (OUT, IN, TOTAL anchored at bottom) -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 9: Fixtures & Schedule View -->
+    <section id="tab-fixtures" class="view-panel">
+      <!-- Info Bar (Spans full page width) -->
+      <div class="panel-info-bar">
+        <p id="fixtures-subtitle" class="panel-info-text">Winter Season Schedule • 20 Weekly Winter Sweeps • Showing fixtures, competition dates, and confirmed winners</p>
+      </div>
+
+      <!-- Controls Bar (Filter pills on left, search box on right) -->
+      <div class="panel-controls-bar">
+        <div class="panel-options-group">
+          <div class="fixtures-filter-group" role="group" aria-label="Fixtures Filter">
+            <button type="button" class="fixtures-filter-btn active" data-filter="all" id="btn-fixtures-filter-all">All (<span id="fixtures-count-all">20</span>)</button>
+            <button type="button" class="fixtures-filter-btn" data-filter="completed" id="btn-fixtures-filter-completed">Completed (<span id="fixtures-count-completed">2</span>)</button>
+            <button type="button" class="fixtures-filter-btn" data-filter="upcoming" id="btn-fixtures-filter-upcoming">Upcoming (<span id="fixtures-count-upcoming">18</span>)</button>
+          </div>
+        </div>
+        <div class="panel-search-group">
+          <input type="text" id="fixtures-search" class="search-input" placeholder="Search fixture, date, winner...">
+        </div>
+      </div>
+
+      <!-- Fixtures Table Card -->
+      <div class="table-card" id="fixtures-table-card">
+        <div class="table-responsive">
+          <table class="data-table" id="fixtures-table">
+            <thead>
+              <tr>
+                <th class="text-center fixture-week-col" style="width: 8%;"><span class="th-full">Week</span><span class="th-short">Wk</span></th>
+                <th class="fixture-name-col" style="width: 32%;"><span class="th-full">Competition</span><span class="th-short">Event</span></th>
+                <th class="fixture-date-col" style="width: 26%;">Date</th>
+                <th class="col-desktop-only fixture-format-col" style="width: 14%;">Format</th>
+                <th class="fixture-winner-col" style="width: 28%;">Winner</th>
+              </tr>
+            </thead>
+            <tbody id="fixtures-tbody">
+              <!-- Dynamically populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
   </main>
 
-  <script src="data/data.js?v=20261101_fixtures_mobile_nav"></script>
-  <script src="app.js?v=20261101_fixtures_mobile_nav"></script>
+  <script src="data/data.js?v=20261107_fixtures_tab"></script>
+  <script src="app.js?v=20261107_fixtures_tab"></script>
 </body>
 </html>

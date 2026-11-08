@@ -1,0 +1,167 @@
+{
+  "competitionName": "Winter Season Fixtures",
+  "description": "Port Glasgow Golf Club Winter Season 2026/27 Fixtures Schedule",
+  "totalWeeks": 20,
+  "fixtures": [
+    {
+      "week": 1,
+      "name": "Winter Sweep #1",
+      "date": "31 Oct 26 - 01 Nov 26",
+      "format": "Stableford",
+      "status": "completed",
+      "winner": ""
+    },
+    {
+      "week": 2,
+      "name": "Winter Sweep #2",
+      "date": "07 Nov 26 - 08 Nov 26",
+      "format": "Stableford",
+      "status": "completed",
+      "winner": ""
+    },
+    {
+      "week": 3,
+      "name": "Winter Sweep #3",
+      "date": "14 Nov 26 - 15 Nov 26",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 4,
+      "name": "Winter Sweep #4",
+      "date": "21 Nov 26 - 22 Nov 26",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 5,
+      "name": "Winter Sweep #5",
+      "date": "28 Nov 26 - 29 Nov 26",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 6,
+      "name": "Winter Sweep #6",
+      "date": "05 Dec 26 - 06 Dec 26",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 7,
+      "name": "Winter Sweep #7",
+      "date": "12 Dec 26 - 13 Dec 26",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 8,
+      "name": "Winter Sweep #8",
+      "date": "19 Dec 26 - 20 Dec 26",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 9,
+      "name": "Winter Sweep #9",
+      "date": "26 Dec 26 - 27 Dec 26",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 10,
+      "name": "Winter Sweep #10",
+      "date": "02 Jan 27 - 03 Jan 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 11,
+      "name": "Winter Sweep #11",
+      "date": "09 Jan 27 - 10 Jan 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 12,
+      "name": "Winter Sweep #12",
+      "date": "16 Jan 27 - 17 Jan 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 13,
+      "name": "Winter Sweep #13",
+      "date": "23 Jan 27 - 24 Jan 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 14,
+      "name": "Winter Sweep #14",
+      "date": "30 Jan 27 - 31 Jan 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 15,
+      "name": "Winter Sweep #15",
+      "date": "06 Feb 27 - 07 Feb 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 16,
+      "name": "Winter Sweep #16",
+      "date": "13 Feb 27 - 14 Feb 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 17,
+      "name": "Winter Sweep #17",
+      "date": "20 Feb 27 - 21 Feb 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 18,
+      "name": "Winter Sweep #18",
+      "date": "27 Feb 27 - 28 Feb 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 19,
+      "name": "Winter Sweep #19",
+      "date": "06 Mar 27 - 07 Mar 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    },
+    {
+      "week": 20,
+      "name": "Winter Sweep #20",
+      "date": "13 Mar 27 - 14 Mar 27",
+      "format": "Stableford",
+      "status": "upcoming",
+      "winner": ""
+    }
+  ]
+}

@@ -16,7 +16,6 @@
  *    - Tab 4: Last Man Standing (Hole-by-hole sudden death knockout, lives, survivorship tracking)
  *    - Tab 5: Eclectic (Best 18-hole score across rounds, Nett vs Stableford modes, countbacks)
  *    - Tab 6: Bingo (Gross Pars & Net Birdies 18-hole card completion race)
- *    - Tab 7: Player Profile & Handicap List (Individual scorecard drilldowns & 20-week matrix)
  * 4. Handicap Adjustment Subsystem:
  *    - Exact WHS playing handicap stroke allocation per hole via Course Rating, Slope, & SI
  *    - Tiered handicap cut calculations with buffer caps and 0.1 increases
@@ -67,17 +66,27 @@
     tabsConfig: null,             // Tab ordering, visibility, and custom info templates (tabs.json)
     lastmanWeek: 0,               // Active evaluation week for Last Man Standing
     parbingoWeek: 0,              // Historical round ceiling for Bingo standings
-    parbingoEligibility: 'league',// Bingo eligibility filter: 'league' or 'all'
+    parbingoEligibility: 'all',// Bingo eligibility filter: 'league' or 'all'
     bingoMode: 'nett',            // Bingo game mode: 'nett' (Net Birdies) or 'gross' (Gross Pars)
     bingoConfig: null,            // Bingo competition configuration (config/bingo.json)
-    selectedPlayerId: null,       // Currently inspected player in Player Details subview
-    playersViewMode: 'profile',   // Unified tab subview mode: 'profile' or 'roster' (Handicap List)
     cupSubView: 'table',          // Cup subview mode: 'table' | 'fixtures' | 'pots' | 'bracket'
     cupWeek: 1,                   // Active week for cup fixtures inspection (1 to 11)
     cupPotFilter: 'all',          // Fixture pot filter: 'all' | 1 | 2 | 3 | 4
     cupConfig: null,              // Cup configuration rules (config/cup.json)
-    cupData: null                 // Precalculated cup data (pots, fixtures, unified standings, bracket)
+    cupData: null,                // Precalculated cup data (pots, fixtures, unified standings, bracket)
+    statsSortCol: 'hole',         // Course Statistics active sorting column
+    statsSortDir: 'asc',          // Direction of stats sorting: 'asc' or 'desc'
+    fixturesConfig: null,         // Winter Season Fixtures config (config/fixtures.json)
+    fixturesFilter: 'all'         // Active filter for fixtures: 'all' | 'completed' | 'upcoming'
   };
+
+  // Hole names mapping
+  const COURSE_HOLE_NAMES = [
+    'Devol', 'Stey Brae', 'Valley', 'Pylon 1', 'Pylon 2', 'Green Road',
+    'Twa Burns', 'Auchentiber', 'Heathery Knowle', 'Plateau', 'Dykeside',
+    'Auchenleck', 'Ardmore', 'Harelaw', 'Dougalls Walk', 'Benview',
+    'Springwell', 'Clydeview'
+  ];
 
   // DOM Elements
   const elements = {
@@ -135,35 +144,6 @@
     magic2sWeeklyTableCard: document.getElementById('magic2s-weekly-table-card'),
     magic2sWeeklyTbody: document.getElementById('magic2s-weekly-tbody'),
 
-    // Unified Player Profile & Handicap Tracker
-    btnPlayersModeProfile: document.getElementById('btn-players-mode-profile'),
-    btnPlayersModeRoster: document.getElementById('btn-players-mode-roster'),
-    playersProfileView: document.getElementById('players-profile-view'),
-    playersRosterView: document.getElementById('players-roster-view'),
-    btnGotoRoster: document.getElementById('btn-goto-roster'),
-    btnBackToProfile: document.getElementById('btn-back-to-profile'),
-
-    // Handicap Tracker (Handicap List Subview)
-    handicapTheadTr: document.getElementById('handicap-thead-tr'),
-    handicapTbody: document.getElementById('handicap-tbody'),
-    handicapSearch: document.getElementById('handicap-search'),
-    handicapFilterLeague: document.getElementById('handicap-filter-league'),
-    btnToggleCutsRules: document.getElementById('btn-toggle-cuts-rules'),
-    btnCloseCutsRules: document.getElementById('btn-close-cuts-rules'),
-    cutsRulesCard: document.getElementById('cuts-rules-card'),
-    cutsRulesContent: document.getElementById('cuts-rules-content'),
-
-    // Player Details (Profile Subview)
-    playerSearchInput: document.getElementById('player-search-input'),
-    playerSuggestions: document.getElementById('player-suggestions'),
-    playerEmptyPrompt: document.getElementById('player-empty-prompt'),
-    playerQuickPicks: document.getElementById('player-quick-picks'),
-    playerDetailsCard: document.getElementById('player-details-card'),
-    playerCardName: document.getElementById('player-card-name'),
-    playerCardBadge: document.getElementById('player-card-badge'),
-    playerCardMeta: document.getElementById('player-card-meta'),
-    playerCardStats: document.getElementById('player-card-stats'),
-    playerRoundsContainer: document.getElementById('player-rounds-container'),
 
     // Last Man Standing
     lastmanBanner: document.getElementById('lastman-banner'),
@@ -190,6 +170,7 @@
     parbingoWeekSelect: document.getElementById('parbingo-week-select'),
     btnParbingoPrev: document.getElementById('btn-parbingo-prev'),
     btnParbingoNext: document.getElementById('btn-parbingo-next'),
+    parbingoEligibilityGroup: document.getElementById('parbingo-eligibility-group'),
     parbingoFilterEligibility: document.getElementById('parbingo-filter-eligibility'),
     parbingoSearch: document.getElementById('parbingo-search'),
     parbingoBanner: document.getElementById('parbingo-banner'),
@@ -224,6 +205,25 @@
     cupBracketRoundSelect: document.getElementById('cup-bracket-round-select'),
     btnCupBracketPrev: document.getElementById('btn-cup-bracket-prev'),
     btnCupBracketNext: document.getElementById('btn-cup-bracket-next'),
+
+    // Course Statistics
+    optTabStats: document.getElementById('opt-tab-stats'),
+    btnTabStats: document.getElementById('btn-tab-stats'),
+    statsSubtitle: document.getElementById('stats-subtitle'),
+    statsRoundFilter: document.getElementById('stats-round-filter'),
+    statsMetricsGrid: document.getElementById('stats-metrics-grid'),
+    statsTbody: document.getElementById('stats-tbody'),
+    statsTfoot: document.getElementById('stats-tfoot'),
+
+    // Fixtures View
+    optTabFixtures: document.getElementById('opt-tab-fixtures'),
+    btnTabFixtures: document.getElementById('btn-tab-fixtures'),
+    fixturesSubtitle: document.getElementById('fixtures-subtitle'),
+    fixturesSearch: document.getElementById('fixtures-search'),
+    fixturesTbody: document.getElementById('fixtures-tbody'),
+    btnFixturesFilterAll: document.getElementById('btn-fixtures-filter-all'),
+    btnFixturesFilterCompleted: document.getElementById('btn-fixtures-filter-completed'),
+    btnFixturesFilterUpcoming: document.getElementById('btn-fixtures-filter-upcoming'),
 
     // Local file protocol notice
     localProtocolBanner: document.getElementById('local-protocol-banner'),
@@ -278,14 +278,17 @@
   /**
    * Format player handicap display: HCI (strokes) e.g. "8.4 (8)"
    * Displays both the exact Handicap Index (1 decimal place) and playing strokes in brackets.
+   * Standard handicaps are unsigned numbers; plus handicaps (< 0) are shown with a "+" prefix.
    */
   function formatPlayerHci(hci, strokes) {
     const parts = [];
     if (hci !== undefined && hci !== null && !isNaN(Number(hci))) {
-      parts.push(Number(hci).toFixed(1));
+      const numHci = Number(hci);
+      parts.push(numHci < 0 ? `+${Math.abs(numHci).toFixed(1)}` : numHci.toFixed(1));
     }
     if (strokes !== undefined && strokes !== null && !isNaN(Number(strokes))) {
-      parts.push(`(${strokes})`);
+      const numStrokes = Number(strokes);
+      parts.push(numStrokes < 0 ? `(+${Math.abs(numStrokes)})` : `(${numStrokes})`);
     }
     return parts.join(' ');
   }
@@ -530,8 +533,49 @@
     hideBanner: false
   };
 
+  // Default Winter Season Fixtures Configuration (20-week schedule)
+  const DEFAULT_FIXTURES_CONFIG = {
+    competitionName: 'Winter Season Fixtures',
+    description: 'Port Glasgow Golf Club Winter Season 2026/27 Fixtures Schedule',
+    totalWeeks: 20,
+    fixtures: [
+      { week: 1, name: 'Winter Sweep #1', date: '31 Oct 26 - 01 Nov 26', format: 'Stableford', status: 'completed', winner: '' },
+      { week: 2, name: 'Winter Sweep #2', date: '07 Nov 26 - 08 Nov 26', format: 'Stableford', status: 'completed', winner: '' },
+      { week: 3, name: 'Winter Sweep #3', date: '14 Nov 26 - 15 Nov 26', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 4, name: 'Winter Sweep #4', date: '21 Nov 26 - 22 Nov 26', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 5, name: 'Winter Sweep #5', date: '28 Nov 26 - 29 Nov 26', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 6, name: 'Winter Sweep #6', date: '05 Dec 26 - 06 Dec 26', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 7, name: 'Winter Sweep #7', date: '12 Dec 26 - 13 Dec 26', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 8, name: 'Winter Sweep #8', date: '19 Dec 26 - 20 Dec 26', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 9, name: 'Winter Sweep #9', date: '26 Dec 26 - 27 Dec 26', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 10, name: 'Winter Sweep #10', date: '02 Jan 27 - 03 Jan 27', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 11, name: 'Winter Sweep #11', date: '09 Jan 27 - 10 Jan 27', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 12, name: 'Winter Sweep #12', date: '16 Jan 27 - 17 Jan 27', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 13, name: 'Winter Sweep #13', date: '23 Jan 27 - 24 Jan 27', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 14, name: 'Winter Sweep #14', date: '30 Jan 27 - 31 Jan 27', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 15, name: 'Winter Sweep #15', date: '06 Feb 27 - 07 Feb 27', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 16, name: 'Winter Sweep #16', date: '13 Feb 27 - 14 Feb 27', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 17, name: 'Winter Sweep #17', date: '20 Feb 27 - 21 Feb 27', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 18, name: 'Winter Sweep #18', date: '27 Feb 27 - 28 Feb 27', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 19, name: 'Winter Sweep #19', date: '06 Mar 27 - 07 Mar 27', format: 'Stableford', status: 'upcoming', winner: '' },
+      { week: 20, name: 'Winter Sweep #20', date: '13 Mar 27 - 14 Mar 27', format: 'Stableford', status: 'upcoming', winner: '' }
+    ]
+  };
+
   // Default Navigation Tabs Visibility, Mobile Display, and Ordering configuration
   const DEFAULT_TABS_CONFIG = {
+    "infoStyles": {
+      "desktop": {
+        "fontSize": "0.825rem",
+        "color": "#475569",
+        "fontFamily": "inherit"
+      },
+      "mobile": {
+        "fontSize": "0.78rem",
+        "color": "#475569",
+        "fontFamily": "inherit"
+      }
+    },
     "mobileOptions": {
       "hideWeekNavButtons": false,
       "hideWeekNavEntirely": false,
@@ -540,14 +584,15 @@
       "hideLastManInfo": false,
       "hideLastManStatusDropdown": false
     },
-    "tab-weekly": { "name": "Weekend Stableford", "icon": "📅", "order": 1, "hideDesktop": false, "hideMobile": false, "infoText": "Weekly Sweep • Individual Stableford Format\n{Number of Entrants} • Sweep Pot: {£x} • 1st: {1st Prize} • 2nd: {2nd Prize} • 3rd: {3rd Prize}" },
-    "tab-leaderboard": { "name": "Winter League", "icon": "🏆", "order": 2, "hideDesktop": false, "hideMobile": false, "infoText": "Season Long League • Best 10 Stableford Scores Count • {Number of players in the active week} played this week\nHandicaps shown are new hadicaps for next week." },
-    "tab-magic2s": { "name": "Magic 2's", "icon": "🪄", "order": 3, "hideDesktop": false, "hideMobile": false, "infoText": "Score a gross 2 on qualifying par 3s (or any par 4 / 5) • Prize roll over • Open to league members only • {Prize Pot}" },
-    "tab-lastman": { "name": "Last Man Standing", "icon": "⚔️", "order": 4, "hideDesktop": false, "hideMobile": false, "infoText": "Score 1 point on hole {weeks active hole} to proceed to next week • {16 of 49} Players Still Standing after week {active week}" },
-    "tab-eclectic": { "name": "Eclectic", "icon": "🎯", "order": 5, "hideDesktop": false, "hideMobile": true, "infoText": "Best Stableford score on each hole accumulated across all rounds" },
-    "tab-parbingo": { "name": "Bingo", "icon": "🎱", "order": 6, "hideDesktop": false, "hideMobile": true, "infoText": "First player to record a qualifying score on every hole wins" },
-    "tab-player": { "name": "Player Profile", "icon": "👤", "order": 7, "hideDesktop": false, "hideMobile": true, "infoText": "Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member" },
-    "tab-cup": { "name": "Winter Cup", "icon": "🏆", "order": 8, "hideDesktop": false, "hideMobile": true, "infoText": "Weekly Matchplay • 5 Handicap Pots • 10 Rounds • Top 16 Advance to Knockout" }
+    "tab-weekly": { "name": "STABLEFORD", "icon": "📅", "order": 1, "hideDesktop": false, "hideMobile": false, "infoText": "Individual Stableford • countback for ties{/} • {Number of Entrants} this week • Sweep Pot: {£x}{/} • 1st: {1st Prize} • 2nd: {2nd Prize} • 3rd: {3rd Prize}" },
+    "tab-leaderboard": { "name": "LEAGUE", "icon": "🏆", "order": 2, "hideDesktop": false, "hideMobile": false, "infoText": "Winter League • Best 10 Stableford Scores Count{/} • Handicaps shown are new handicaps for next week" },
+    "tab-magic2s": { "name": "MAGIC 2'S", "icon": "🪄", "order": 3, "hideDesktop": false, "hideMobile": false, "infoText": "Score a gross 2 on randomly selected par 3s{/} • a 2 on any par 4/5 also qualifies Prize roll over{/} • Open to league members only{/} • Weekly Prize Pot: {Prize Pot}" },
+    "tab-lastman": { "name": "LAST MAN STANDING", "icon": "⚔️", "order": 4, "hideDesktop": false, "hideMobile": false, "infoText": "Score 1 point on hole {weeks active hole} to proceed{/} • {X of 50} Players Still Standing after week {active week}{/} • Next hole is {next week}" },
+    "tab-eclectic": { "name": "ECLECTIC", "icon": "🎯", "order": 5, "hideDesktop": false, "hideMobile": true, "infoText": "Best Stableford score on each hole accumulated across all rounds" },
+    "tab-parbingo": { "name": "BINGO", "icon": "🎱", "order": 6, "hideDesktop": false, "hideMobile": true, "infoText": "First player to record a net birdie score on every hole wins" },
+    "tab-cup": { "name": "WINTER CUP", "icon": "🏆", "order": 7, "hideDesktop": true, "hideMobile": true, "infoText": "Matchplay • 5 Handicap Pots • 9 Rounds{/} • Top 16 Advance to Knockout{/} • 3pt for win • 1pt for a draw • 0 for a loss{/} • 0 points if player doesn't play" },
+    "tab-stats": { "name": "STATS", "icon": "📊", "order": 8, "hideDesktop": false, "hideMobile": true, "infoText": "Course hole statistics and scoring averages across all competition round" },
+    "tab-fixtures": { "name": "FIXTURES", "icon": "🗓️", "order": 9, "hideDesktop": false, "hideMobile": false, "infoText": "Winter Season Schedule • 20 Weekly Winter Sweeps\nShowing fixtures, competition dates, and confirmed winners" }
   };
 
   // Default Cup Configuration
@@ -572,7 +617,9 @@
   const DEFAULT_BINGO_CONFIG = {
     winner: "nett",
     hideModeOptions: true,
-    hideProgressBanner: true
+    hideProgressBanner: true,
+    eligibility: "all",
+    hideEligibility: true
   };
 
   // Embedded sample dataset for offline / local file protocol preview (file://)
@@ -585,24 +632,24 @@
       allowance: 1.0,
       strokeLimit: 36,
       holes: [
-        { hole: 1, par: 3, si: 13 },
-        { hole: 2, par: 4, si: 5 },
-        { hole: 3, par: 4, si: 17 },
-        { hole: 4, par: 5, si: 9 },
-        { hole: 5, par: 4, si: 1 },
-        { hole: 6, par: 4, si: 7 },
-        { hole: 7, par: 4, si: 11 },
-        { hole: 8, par: 3, si: 15 },
-        { hole: 9, par: 4, si: 3 },
-        { hole: 10, par: 5, si: 18 },
-        { hole: 11, par: 3, si: 16 },
-        { hole: 12, par: 4, si: 4 },
-        { hole: 13, par: 3, si: 6 },
-        { hole: 14, par: 4, si: 14 },
-        { hole: 15, par: 4, si: 12 },
-        { hole: 16, par: 4, si: 2 },
-        { hole: 17, par: 3, si: 8 },
-        { hole: 18, par: 3, si: 10 }
+        { hole: 1, name: "Devol", par: 3, si: 13 },
+        { hole: 2, name: "Stey Brae", par: 4, si: 5 },
+        { hole: 3, name: "Valley", par: 4, si: 17 },
+        { hole: 4, name: "Pylon 1", par: 5, si: 9 },
+        { hole: 5, name: "Pylon 2", par: 4, si: 1 },
+        { hole: 6, name: "Green Road", par: 4, si: 7 },
+        { hole: 7, name: "Twa Burns", par: 4, si: 11 },
+        { hole: 8, name: "Auchentiber", par: 3, si: 15 },
+        { hole: 9, name: "Heathery Knowle", par: 4, si: 3 },
+        { hole: 10, name: "Plateau", par: 5, si: 18 },
+        { hole: 11, name: "Dykeside", par: 3, si: 16 },
+        { hole: 12, name: "Auchenleck", par: 4, si: 4 },
+        { hole: 13, name: "Ardmore", par: 3, si: 6 },
+        { hole: 14, name: "Harelaw", par: 4, si: 14 },
+        { hole: 15, name: "Dougalls Walk", par: 4, si: 12 },
+        { hole: 16, name: "Benview", par: 4, si: 2 },
+        { hole: 17, name: "Springwell", par: 3, si: 8 },
+        { hole: 18, name: "Clydeview", par: 3, si: 10 }
       ]
     },
     cutsConfig: {
@@ -730,7 +777,7 @@
         return fetch(`config/${cfgFile}?v=${ts}`, fetchOpts);
       };
 
-      const [courseRes, cutsRes, membersRes, lastmanRes, magic2sRes, prizesRes, tabsRes, cupRes, eclecticRes, bingoRes] = await Promise.all([
+      const [courseRes, cutsRes, membersRes, lastmanRes, magic2sRes, prizesRes, tabsRes, cupRes, eclecticRes, bingoRes, fixturesRes] = await Promise.all([
         fetchConfigWithFallback('course.json', 'course.json'),
         fetchConfigWithFallback('cuts.json', 'cuts.json'),
         fetch(`data/members.json?v=${ts}`, fetchOpts),
@@ -740,7 +787,8 @@
         fetchConfigWithFallback('tabs.json', 'tabs.json').catch(() => null),
         fetchConfigWithFallback('cup.json', null).catch(() => null),
         fetchConfigWithFallback('eclectic.json', null).catch(() => null),
-        fetchConfigWithFallback('bingo.json', 'bingo_config.json').catch(() => null)
+        fetchConfigWithFallback('bingo.json', 'bingo_config.json').catch(() => null),
+        fetchConfigWithFallback('fixtures.json', 'fixtures_config.json').catch(() => null)
       ]);
 
       if (!courseRes.ok) throw new Error(`Could not load config/course.json (Status: ${courseRes.status})`);
@@ -826,6 +874,17 @@
         state.bingoConfig = DEFAULT_BINGO_CONFIG;
       }
 
+      if (fixturesRes && fixturesRes.ok) {
+        try {
+          state.fixturesConfig = await fixturesRes.json();
+        } catch (e) {
+          console.warn('Could not parse config/fixtures.json', e);
+        }
+      }
+      if (!state.fixturesConfig) {
+        state.fixturesConfig = DEFAULT_FIXTURES_CONFIG;
+      }
+
       // Sequential discovery from 01.json to 20.json
       const loadedWeeks = [];
       for (let w = 1; w <= 20; w++) {
@@ -905,6 +964,7 @@
     state.cupConfig = dataset.cupConfig || state.cupConfig || DEFAULT_CUP_CONFIG;
     state.eclecticConfig = dataset.eclecticConfig || state.eclecticConfig || DEFAULT_ECLECTIC_CONFIG;
     state.bingoConfig = dataset.bingoConfig || state.bingoConfig || DEFAULT_BINGO_CONFIG;
+    state.fixturesConfig = dataset.fixturesConfig || state.fixturesConfig || DEFAULT_FIXTURES_CONFIG;
     state.latestWeek = state.weeksData.length;
     state.selectedWeek = state.latestWeek;
     state.leaderboardWeek = state.latestWeek;
@@ -1236,11 +1296,12 @@
       }
       const currentHCI = round1(player.origHCI + cumCuts);
 
-      // Playing strokes received on targetWeek
+      // Playing strokes for new HCI (new HCI rounded for next week)
       const roundAtWeek = player.weeklyRounds ? player.weeklyRounds.get(targetWeek) : null;
-      const playingStrokes = roundAtWeek
+      const enteringStrokes = roundAtWeek
         ? roundAtWeek.playingHcap
         : calculatePlayingHandicap(enteringHCI, state.course);
+      const playingStrokes = calculatePlayingHandicap(currentHCI, state.course);
 
       // Total points across all rounds played up to targetWeek
       const allPointsSum = eligibleScores.reduce((sum, s) => sum + s.points, 0);
@@ -1278,6 +1339,7 @@
         totalCuts: cumCuts,
         currentHCI: currentHCI,
         playingStrokes: playingStrokes,
+        enteringStrokes: enteringStrokes,
         rounds: roundsCount,
         total: totalScore,
         avgScore: avgScore,
@@ -1393,8 +1455,6 @@
     renderEclecticView();
     populateMagic2sWeekSelector();
     renderMagic2sView();
-    renderHandicapView();
-    renderPlayerTrackerView();
     populateLastManWeekSelector();
     renderLastManView();
     populateParBingoWeekSelector();
@@ -1402,6 +1462,8 @@
     calculateCupCompetition();
     populateCupWeekSelector();
     renderCupView();
+    renderStatsView();
+    renderFixturesView();
   }
 
   /**
@@ -2149,7 +2211,8 @@
     updateEclecticNavButtons();
 
     // Apply Filter & Search (unplayed members hidden by default)
-    const hideNonLeague = elements.eclecticHideNonLeague ? elements.eclecticHideNonLeague.checked : false;
+    const isMobile = window.innerWidth <= 1024;
+    const hideNonLeague = isMobile ? false : (elements.eclecticHideNonLeague ? elements.eclecticHideNonLeague.checked : false);
     let filtered = list.filter(p => p.rounds > 0);
 
     if (hideNonLeague) {
@@ -2721,15 +2784,7 @@
       const drawnHolesList = wPotData.drawnHoles || [];
       const twosList = (wPotData && Array.isArray(wPotData.allTwosEntries)) ? wPotData.allTwosEntries : [];
 
-      // 1. Add all players who scored 2s in week w
-      twosList.forEach(entry => {
-        allEntries.push({
-          ...entry,
-          drawnHoles: drawnHolesList
-        });
-      });
-
-      // 2. If no league member scored a Magic 2 this week, include the rollover entry
+      // 1. If no league member scored a Magic 2 this week, include the rollover entry FIRST as the topmost entry for this week
       const hasMagicWinners = wPotData && Array.isArray(wPotData.winners) && wPotData.winners.length > 0;
       if (!hasMagicWinners && wPotData) {
         const rollAmt = (typeof wPotData.rolloverOut === 'number' && wPotData.rolloverOut > 0)
@@ -2744,6 +2799,14 @@
           drawnHoles: drawnHolesList
         });
       }
+
+      // 2. Add all players who scored 2s in week w
+      twosList.forEach(entry => {
+        allEntries.push({
+          ...entry,
+          drawnHoles: drawnHolesList
+        });
+      });
     }
 
     // Filter Entries (filtered by search query)
@@ -2827,496 +2890,12 @@
   }
 
   /**
-   * Handicap Index Tracker View Renderer
-   * 
-   * How Handicap Tracking Works:
-   * 1. Purpose:
-   *    - Provides a club-wide matrix showing every player's starting Handicap Index (origHCI),
-   *      their weekly handicap cut or adjustment in each round (W1 to W20), the cumulative total
-   *      cuts received, and their resulting active current HCI.
-   * 2. Cell Representation:
-   *    - Played with a cut: rendered with green/emerald text (e.g. -0.4).
-   *    - Played with an increase: rendered with orange/amber text (e.g. +0.1).
-   *    - Played in the buffer zone (no adjustment): rendered as "0".
-   *    - Did not play round: rendered as a muted gray dash "-".
-   * 3. Interactive Accordion:
-   *    - Clicking any row expands their full chronological adjustment log with points scored,
-   *      trigger cut rules, and running HCI trajectory.
-   * 
-   * @returns {void}
-   */
-  function renderHandicapView() {
-    const filter = elements.handicapFilterLeague.value; // 'all', 'league', 'cut'
-    const query = (elements.handicapSearch.value || '').trim().toLowerCase();
-
-    // Dynamically build table headers for loaded weeks
-    elements.handicapTheadTr.innerHTML = `
-      <th class="sticky-col-name player-name-col"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
-      <th class="text-center hci-col" title="Starting Handicap Index"><span class="th-full">Start<br>HCI</span><span class="th-short">Start</span></th>
-    `;
-
-    state.weeksData.forEach(w => {
-      const th = document.createElement('th');
-      th.className = 'text-center week-cut-col';
-      th.textContent = `W${w.weekNum}`;
-      th.title = `Week ${w.weekNum} Cut / Adjustment`;
-      elements.handicapTheadTr.appendChild(th);
-    });
-
-    const thCurrentHCI = document.createElement('th');
-    thCurrentHCI.className = 'text-center current-hci-col';
-    thCurrentHCI.innerHTML = `<span class="th-full">Current<br>HCI</span><span class="th-short">Now</span>`;
-    thCurrentHCI.title = 'Current Active Handicap Index';
-    elements.handicapTheadTr.appendChild(thCurrentHCI);
-
-    const thTotalCuts = document.createElement('th');
-    thTotalCuts.className = 'text-center total-cut-col';
-    thTotalCuts.innerHTML = `<span class="th-full">Total<br>Cuts</span><span class="th-short">Cuts</span>`;
-    thTotalCuts.title = 'Total Cuts and Adjustments';
-    elements.handicapTheadTr.appendChild(thTotalCuts);
-
-    // Prepare list of members
-    const memberList = Array.from(state.processedMembers.values());
-
-    // Apply Filter & Search
-    let filtered = memberList;
-    if (filter === 'league') {
-      filtered = filtered.filter(m => m.inLeague);
-    } else if (filter === 'cut') {
-      filtered = filtered.filter(m => Math.abs(m.cumulativeCuts) > 0.001);
-    }
-
-    if (query) {
-      filtered = filtered.filter(m => m.name.toLowerCase().includes(query));
-    }
-
-    // Sort alphabetically by surname
-    filtered.sort((a, b) => getSurname(a.name).localeCompare(getSurname(b.name)) || a.name.localeCompare(b.name));
-
-    elements.handicapTbody.innerHTML = '';
-    if (filtered.length === 0) {
-      const colSpan = 4 + state.weeksData.length;
-      elements.handicapTbody.innerHTML = `
-        <tr>
-          <td colspan="${colSpan}" class="empty-state">No matching members found.</td>
-        </tr>
-      `;
-      return;
-    }
-
-    filtered.forEach(m => {
-      const tr = document.createElement('tr');
-      const currentHCI = round1(m.origHCI + m.cumulativeCuts);
-
-      let weeklyCellsHtml = '';
-      state.weeksData.forEach(w => {
-        const cut = m.weeklyCuts.get(w.weekNum);
-        const score = m.weeklyScores ? m.weeklyScores.get(w.weekNum) : null;
-        const played = (score !== null && score !== undefined);
-
-        if (played) {
-          const scoreTip = `Score: ${score} pts`;
-          if (cut < 0) {
-            weeklyCellsHtml += `<td class="text-center week-cut-col"><span class="cut-val" title="${scoreTip}">${cut.toFixed(1)}</span></td>`;
-          } else if (cut > 0) {
-            weeklyCellsHtml += `<td class="text-center week-cut-col"><span class="increase-val" title="${scoreTip}">+${cut.toFixed(1)}</span></td>`;
-          } else {
-            // Played without cut -> show 0
-            weeklyCellsHtml += `<td class="text-center week-cut-col"><span class="no-cut-played" title="${scoreTip}">0</span></td>`;
-          }
-        } else {
-          // Did not play -> show -
-          weeklyCellsHtml += `<td class="text-center week-cut-col" style="color: var(--text-light);">-</td>`;
-        }
-      });
-
-      const totalCutsHtml = m.cumulativeCuts < 0
-        ? `<span class="cut-val">${m.cumulativeCuts.toFixed(1)}</span>`
-        : (m.cumulativeCuts > 0
-            ? `<span class="increase-val">+${m.cumulativeCuts.toFixed(1)}</span>`
-            : `<span class="no-cut">0.0</span>`);
-
-      const playingStrokes = calculatePlayingHandicap(currentHCI, state.course);
-
-      tr.className = 'clickable-row';
-      tr.title = `Click to view handicap cut & adjustment log`;
-      tr.innerHTML = `
-        <td class="sticky-col-name player-name-cell">${escapeHtml(m.name)} <span class="player-hci">${formatPlayerHci(currentHCI, playingStrokes)}</span></td>
-        <td class="text-center hci-col">${m.origHCI.toFixed(1)}</td>
-        ${weeklyCellsHtml}
-        <td class="text-center current-hci-col"><strong style="font-variant-numeric: tabular-nums;">${currentHCI.toFixed(1)}</strong></td>
-        <td class="text-center total-cut-col">${totalCutsHtml}</td>
-      `;
-
-      tr.addEventListener('click', () => {
-        toggleHandicapAccordion(tr, m);
-      });
-
-      elements.handicapTbody.appendChild(tr);
-    });
-
-    // Keep active cuts rules inspector updated
-    renderCutsRulesInfo();
-  }
-
-  /**
-   * Render dynamic cuts rules and tier schedule from state.cutsConfig
-   */
-  function renderCutsRulesInfo() {
-    if (!elements.cutsRulesContent) return;
-    const cfg = state.cutsConfig;
-    if (!cfg) {
-      elements.cutsRulesContent.innerHTML = '<p class="text-muted">No cuts configuration loaded.</p>';
-      return;
-    }
-
-    const triggerPts = cfg.triggerPoints !== undefined ? cfg.triggerPoints : 36;
-    const capPts = cfg.bufferCapPoints !== undefined ? cfg.bufferCapPoints : 43;
-    const increasePts = cfg.increasePoints !== undefined ? cfg.increasePoints : 30;
-    const increaseAdj = cfg.increaseAdjustment !== undefined ? cfg.increaseAdjustment : 0.1;
-    const defaultCutPerPt = cfg.defaultCutPerPoint !== undefined ? Math.abs(cfg.defaultCutPerPoint) : 0.1;
-
-    let tierRowsHtml = '';
-    if (Array.isArray(cfg.tiers) && cfg.tiers.length > 0) {
-      cfg.tiers.forEach(t => {
-        const base = t.baseCut !== undefined ? Math.abs(t.baseCut) : (t.tier * 0.1);
-        const perPt = t.cutPerPoint !== undefined ? Math.abs(t.cutPerPoint) : defaultCutPerPt;
-        const cap = t.capCut !== undefined ? Math.abs(t.capCut) : '-';
-
-        const midHci = (t.minHci + Math.min(t.maxHci, 36.0)) / 2;
-        const cut36 = calculateCut(triggerPts, midHci, cfg);
-        const cut38 = calculateCut(triggerPts + 2, midHci, cfg);
-        const cut40 = calculateCut(triggerPts + 4, midHci, cfg);
-        const cutCap = calculateCut(capPts, midHci, cfg);
-
-        const rangeDisplay = t.maxHci >= 90 ? `≥ ${t.minHci.toFixed(1)}` : `${t.minHci.toFixed(1)} – ${t.maxHci.toFixed(1)}`;
-
-        tierRowsHtml += `
-          <tr>
-            <td style="font-weight: 700; text-align: left;">${escapeHtml(t.name || `Tier ${t.tier}`)}</td>
-            <td class="text-center">${rangeDisplay}</td>
-            <td class="text-center font-bold text-danger">-${base.toFixed(1)}</td>
-            <td class="text-center">-${perPt.toFixed(1)} / pt</td>
-            <td class="text-center font-bold text-danger">-${typeof cap === 'number' ? cap.toFixed(1) : cap}</td>
-            <td class="text-center"><span class="cut-val">${cut36.toFixed(1)}</span></td>
-            <td class="text-center"><span class="cut-val">${cut38.toFixed(1)}</span></td>
-            <td class="text-center"><span class="cut-val">${cut40.toFixed(1)}</span></td>
-            <td class="text-center"><span class="cut-val">${cutCap.toFixed(1)}</span></td>
-          </tr>
-        `;
-      });
-    }
-
-    elements.cutsRulesContent.innerHTML = `
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1rem;">
-        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 0.6rem 0.85rem;">
-          <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #1e40af;">Cut Trigger Score</div>
-          <div style="font-size: 1.15rem; font-weight: 800; color: #1d4ed8;">≥ ${triggerPts} pts</div>
-          <div style="font-size: 0.75rem; color: #64748b;">Tier base cut + per-point cut applied</div>
-        </div>
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.6rem 0.85rem;">
-          <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #475569;">Buffer Zone (No Adjustment)</div>
-          <div style="font-size: 1.15rem; font-weight: 800; color: #334155;">${increasePts} – ${triggerPts - 1} pts</div>
-          <div style="font-size: 0.75rem; color: #64748b;">Handicap index remains unchanged (0.0)</div>
-        </div>
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.6rem 0.85rem;">
-          <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #166534;">Handicap Increase</div>
-          <div style="font-size: 1.15rem; font-weight: 800; color: #15803d;">&lt; ${increasePts} pts (+${increaseAdj.toFixed(1)})</div>
-          <div style="font-size: 0.75rem; color: #64748b;">Handicap index increases by +${increaseAdj.toFixed(1)}</div>
-        </div>
-        <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 0.6rem 0.85rem;">
-          <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #991b1b;">Max Buffer Cap Score</div>
-          <div style="font-size: 1.15rem; font-weight: 800; color: #b91c1c;">≥ ${capPts} pts</div>
-          <div style="font-size: 0.75rem; color: #64748b;">Tier max cut (Cap) applies automatically</div>
-        </div>
-      </div>
-
-      <div class="table-responsive">
-        <table class="data-table" style="font-size: 0.85rem;">
-          <thead>
-            <tr>
-              <th style="text-align: left;">Tier</th>
-              <th class="text-center">Handicap Index</th>
-              <th class="text-center" title="Cut for reaching the trigger score (${triggerPts} pts)">Base Cut (${triggerPts} pts)</th>
-              <th class="text-center" title="Cut per additional point over trigger">Per Point Above ${triggerPts}</th>
-              <th class="text-center" title="Maximum allowed cut in this tier">Tier Cap Cut</th>
-              <th class="text-center" style="background: #f8fafc;">Sample @ ${triggerPts} pts</th>
-              <th class="text-center" style="background: #f8fafc;">Sample @ ${triggerPts + 2} pts</th>
-              <th class="text-center" style="background: #f8fafc;">Sample @ ${triggerPts + 4} pts</th>
-              <th class="text-center" style="background: #fef2f2;">Sample @ ${capPts}+ pts</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${tierRowsHtml}
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  /**
-   * View 4: Player Tracker Renderer
-   */
-  function renderPlayerTrackerView() {
-    if (!elements.playerSearchInput) return;
-
-    if (state.selectedPlayerId && state.processedMembers.has(state.selectedPlayerId)) {
-      displayPlayerRecords(state.selectedPlayerId);
-    } else {
-      renderPlayerQuickPicks();
-    }
-  }
-
-  function renderPlayerQuickPicks() {
-    if (!elements.playerQuickPicks) return;
-    elements.playerEmptyPrompt.style.display = 'block';
-    elements.playerDetailsCard.style.display = 'none';
-    elements.playerQuickPicks.innerHTML = '';
-
-    // Pick top 8 active players from the league
-    const leaderboard = getPreparedLeaderboard().filter(p => p.rounds > 0).slice(0, 8);
-    leaderboard.forEach(p => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'quick-pick-btn';
-      const playingStrokes = p.playingStrokes !== undefined ? p.playingStrokes : calculatePlayingHandicap(p.currentHCI, state.course);
-      btn.textContent = `${p.name} ${formatPlayerHci(p.currentHCI, playingStrokes)}`;
-      btn.addEventListener('click', () => {
-        selectPlayer(p.memberId);
-      });
-      elements.playerQuickPicks.appendChild(btn);
-    });
-  }
-
-  function renderPlayerSuggestions(query) {
-    if (!elements.playerSuggestions) return;
-    const q = (query || '').trim().toLowerCase();
-
-    if (!q) {
-      elements.playerSuggestions.style.display = 'none';
-      elements.playerSuggestions.innerHTML = '';
-      return;
-    }
-
-    const members = Array.from(state.processedMembers.values());
-    const matches = members.filter(m => {
-      const name = m.name.toLowerCase();
-      return name.includes(q);
-    });
-
-    // Sort exact / prefix matches first, then alphabetical
-    matches.sort((a, b) => {
-      const aStarts = a.name.toLowerCase().startsWith(q);
-      const bStarts = b.name.toLowerCase().startsWith(q);
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
-      return a.name.localeCompare(b.name);
-    });
-
-    const displayMatches = matches.slice(0, 10);
-
-    if (displayMatches.length === 0) {
-      elements.playerSuggestions.innerHTML = `
-        <div style="padding: 0.75rem 1rem; color: var(--text-muted); font-size: 0.85rem; text-align: center;">
-          No members matching "${escapeHtml(query)}"
-        </div>
-      `;
-      elements.playerSuggestions.style.display = 'block';
-      return;
-    }
-
-    elements.playerSuggestions.innerHTML = '';
-    displayMatches.forEach(m => {
-      const currentHCI = round1(m.origHCI + m.cumulativeCuts);
-      const roundsCount = m.weeklyRounds ? m.weeklyRounds.size : 0;
-      const item = document.createElement('div');
-      item.className = 'player-suggestion-item';
-      item.innerHTML = `
-        <div class="suggestion-name-block">
-          <strong>${escapeHtml(m.name)}</strong>
-          <span class="player-hci">${formatPlayerHci(currentHCI, calculatePlayingHandicap(currentHCI, state.course))}</span>
-        </div>
-        <div class="suggestion-badge-block">
-          ${m.inLeague ? '<span class="badge-league">League</span>' : '<span class="badge-open">Open</span>'}
-          <span class="suggestion-rounds">${roundsCount} rds</span>
-        </div>
-      `;
-      item.addEventListener('click', () => {
-        selectPlayer(m.memberId);
-      });
-      elements.playerSuggestions.appendChild(item);
-    });
-
-    elements.playerSuggestions.style.display = 'block';
-  }
-
-  /**
-   * Switch between Player Details and Handicap List subviews within the unified Player Profile tab
-   * @param {'profile' | 'roster'} mode 
-   */
-  function switchPlayersViewMode(mode) {
-    state.playersViewMode = mode;
-    const isProfile = mode === 'profile';
-
-    if (elements.btnPlayersModeProfile && elements.btnPlayersModeRoster) {
-      elements.btnPlayersModeProfile.classList.toggle('active', isProfile);
-      elements.btnPlayersModeRoster.classList.toggle('active', !isProfile);
-    }
-
-    if (elements.playersProfileView && elements.playersRosterView) {
-      elements.playersProfileView.style.display = isProfile ? 'block' : 'none';
-      elements.playersRosterView.style.display = !isProfile ? 'block' : 'none';
-    }
-
-    if (isProfile) {
-      renderPlayerTrackerView();
-    } else {
-      renderHandicapView();
-    }
-  }
-
-  function selectPlayer(memberId) {
-    state.selectedPlayerId = memberId;
-    const player = state.processedMembers.get(memberId);
-    if (!player) return;
-
-    if (elements.playerSearchInput) {
-      elements.playerSearchInput.value = player.name;
-    }
-    if (elements.playerSuggestions) {
-      elements.playerSuggestions.style.display = 'none';
-    }
-
-    switchPlayersViewMode('profile');
-    displayPlayerRecords(memberId);
-    activateTab('tab-player', true);
-  }
-
-  /**
-   * Display Player Profile & Season Breakdown
-   * 
-   * How Player Profile Analytics Work:
-   * 1. Profile Identity:
-   *    - Shows player name, membership status (League Member vs Open Participant), starting HCI,
-   *      current active HCI, and total season handicap adjustments.
-   * 2. Key Performance Indicators (KPIs):
-   *    - Rounds: Total number of rounds played across the 20-week season.
-   *    - Scoring Average: Mean Stableford points per played round (total points / rounds).
-   *    - Best Round: Peak single-round Stableford score registered this season.
-   *    - Best 10 Total: Top 10 counting scores sum (highlighted for Winter League members).
-   *    - Sweep Won: Total cumulative prize money earned from Weekend Stableford sweep pots.
-   * 3. Complete Season Log:
-   *    - Master list of all weeks (Week 1 through latest week).
-   *    - Played rounds show full 18-hole score chips and can be clicked to view interactive scorecards.
-   *    - Unplayed weeks are clearly styled in neutral gray with dash indicators.
-   * 
-   * @param {string} memberId - Unique player ID to display
-   * @returns {void}
-   */
-  function displayPlayerRecords(memberId) {
-    const player = state.processedMembers.get(memberId);
-    if (!player) return;
-
-    elements.playerEmptyPrompt.style.display = 'none';
-    elements.playerDetailsCard.style.display = 'block';
-
-    const currentHCI = round1(player.origHCI + player.cumulativeCuts);
-    elements.playerCardName.textContent = `${player.name} ${formatPlayerHci(currentHCI, calculatePlayingHandicap(currentHCI, state.course))}`;
-
-    if (player.inLeague) {
-      elements.playerCardBadge.className = 'badge-league';
-      elements.playerCardBadge.textContent = 'League Member';
-    } else {
-      elements.playerCardBadge.className = 'badge-open';
-      elements.playerCardBadge.textContent = 'Open Participant';
-    }
-
-    // Meta chips
-    const totalCutsHtml = player.cumulativeCuts < 0
-      ? `<span class="cut-val">${player.cumulativeCuts.toFixed(1)}</span>`
-      : (player.cumulativeCuts > 0
-          ? `<span class="increase-val">+${player.cumulativeCuts.toFixed(1)}</span>`
-          : `<span class="no-cut">0.0</span>`);
-
-    elements.playerCardMeta.innerHTML = `
-      <span>Start HCI: <strong>${player.origHCI.toFixed(1)}</strong></span>
-      <span>•</span>
-      <span>Active HCI: <strong style="color: var(--primary);">${currentHCI.toFixed(1)}</strong></span>
-      <span>•</span>
-      <span>Season ADJ: ${totalCutsHtml}</span>
-    `;
-
-    // Stats Pills
-    const roundsList = Array.from(player.weeklyRounds.values());
-    const roundsCount = roundsList.length;
-    let best10Sum = 0;
-    let countingWeeks = new Set();
-
-    if (player.inLeague && player.leagueScores.length > 0) {
-      const sorted = [...player.leagueScores].sort((a, b) => b.points - a.points || a.weekNum - b.weekNum);
-      const top10 = sorted.slice(0, 10);
-      best10Sum = top10.reduce((acc, s) => acc + s.points, 0);
-      top10.forEach(s => countingWeeks.add(s.weekNum));
-    }
-
-    const totalPtsSum = roundsList.reduce((acc, r) => acc + r.stablefordTotal, 0);
-    const avgPts = roundsCount > 0 ? (totalPtsSum / roundsCount).toFixed(1) : '0.0';
-    const bestSingle = roundsCount > 0 ? Math.max(...roundsList.map(r => r.stablefordTotal)) : 0;
-
-    let statsPillsHtml = `
-      <div class="player-stat-pill">
-        <span class="label">Rounds</span>
-        <span class="value">${roundsCount}</span>
-      </div>
-      <div class="player-stat-pill">
-        <span class="label">Average</span>
-        <span class="value">${avgPts}</span>
-      </div>
-      <div class="player-stat-pill">
-        <span class="label">Best Round</span>
-        <span class="value">${bestSingle > 0 ? `${bestSingle} pts` : '-'}</span>
-      </div>
-    `;
-
-    if (player.inLeague) {
-      statsPillsHtml += `
-        <div class="player-stat-pill" style="border-color: var(--primary-light); background: #ecfdf5;">
-          <span class="label" style="color: var(--primary);">Best 10 Total</span>
-          <span class="value" style="color: var(--primary);">${roundsCount > 0 ? `${best10Sum} pts` : '-'}</span>
-        </div>
-      `;
-    }
-
-    let totalWinnings = 0;
-    roundsList.forEach(r => {
-      if (r && r.prizeMoney) totalWinnings += r.prizeMoney;
-    });
-    if (totalWinnings > 0) {
-      statsPillsHtml += `
-        <div class="player-stat-pill" style="border-color: #86efac; background: #ecfdf5;">
-          <span class="label" style="color: #166534;">Sweep Won</span>
-          <span class="value" style="color: #166534;">£${totalWinnings.toFixed(2)}</span>
-        </div>
-      `;
-    }
-
-    elements.playerCardStats.innerHTML = statsPillsHtml;
-
-    // Render Rounds Table using shared buildPlayerRoundsTableCardHtml helper
-    if (elements.playerRoundsContainer) {
-      elements.playerRoundsContainer.innerHTML = buildPlayerRoundsTableCardHtml(player, 'player-rounds-table');
-      attachPlayerRoundsHandlers(elements.playerRoundsContainer, player);
-    }
-  }
-
-  /**
    * Generates the complete HTML for the Player Rounds Table (The Full Record)
-   * Shared between the Player Tracker tab and the Winter League accordion.
-   * Any change to headers, columns, badges, or row layout will automatically
-   * update both views.
+   * Rendered inside the Winter League accordion for any member.
    * 
    * @param {Object} player - Processed member object (from state.processedMembers)
    * @param {string} [tableId] - Optional DOM ID for the table
+   * @param {number|null} [maxWeek] - Optional week ceiling
    * @returns {string} Complete HTML string for the table-card component
    */
   function buildPlayerRoundsTableCardHtml(player, tableId = '', maxWeek = null) {
@@ -3518,23 +3097,6 @@
     detailTd.innerHTML = buildScorecardTableHtml(round, extra);
     detailTr.appendChild(detailTd);
     tr.after(detailTr);
-    attachScorecardAccordionHandlers(detailTd, round);
-  }
-
-  /**
-   * Attach Interactive Handlers for Scorecard Accordion (Profile link)
-   */
-  function attachScorecardAccordionHandlers(detailTd, round) {
-    if (!detailTd) return;
-
-    // View full profile button
-    const btnProfile = detailTd.querySelector('.btn-view-profile');
-    if (btnProfile && round && round.memberId) {
-      btnProfile.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectPlayer(round.memberId);
-      });
-    }
   }
 
   /**
@@ -3777,7 +3339,9 @@
     let handicapBadgesHtml = '';
     if (round && (round.enteringHCI !== undefined || round.currentHCI !== undefined)) {
       const currentHciVal = round.enteringHCI !== undefined ? round.enteringHCI : round.currentHCI;
-      const currentHciDisplay = (typeof currentHciVal === 'number' && !isNaN(currentHciVal)) ? currentHciVal.toFixed(1) : '-';
+      const currentHciDisplay = (typeof currentHciVal === 'number' && !isNaN(currentHciVal))
+        ? (typeof formatPlayerHci === 'function' ? formatPlayerHci(currentHciVal, round.playingHcap) : currentHciVal.toFixed(1))
+        : '-';
 
       const cutVal = (round.cut !== undefined && round.cut !== null) ? round.cut : 0;
       let cutDisplay = '0.0';
@@ -3793,7 +3357,18 @@
       }
 
       const newHciVal = (typeof currentHciVal === 'number' && !isNaN(currentHciVal)) ? round1(currentHciVal + cutVal) : null;
-      const newHciDisplay = newHciVal !== null ? newHciVal.toFixed(1) : '-';
+      let newHciDisplay = '-';
+      if (newHciVal !== null) {
+        const activeCourse = (typeof getCourseSetupForDate === 'function')
+          ? getCourseSetupForDate(round.date || round.playedDate || '')
+          : (state.courseSetup || null);
+        const newPlayingStrokes = (activeCourse && typeof calculatePlayingHandicap === 'function')
+          ? calculatePlayingHandicap(newHciVal, activeCourse)
+          : null;
+        newHciDisplay = typeof formatPlayerHci === 'function'
+          ? formatPlayerHci(newHciVal, newPlayingStrokes)
+          : newHciVal.toFixed(1);
+      }
 
       const playedDay = (round && (round.day || round.playedDay)) ? String(round.day || round.playedDay).trim() : '';
       let dayPillHtml = '';
@@ -3806,7 +3381,7 @@
 
       handicapBadgesHtml = `
         <div class="scorecard-accordion-header" style="margin-bottom: 0.65rem;">
-          <div class="sc-header-pills" style="display: flex; flex-wrap: nowrap; align-items: center; gap: 0.4rem 0.6rem; overflow-x: auto;">
+          <div class="sc-header-pills">
             <span class="sc-pill" style="white-space: nowrap;" title="Playing handicap index entering this round">Current HCI: <strong>${currentHciDisplay}</strong></span>
             <span class="sc-pill ${cutPillClass}" style="white-space: nowrap;" title="Handicap adjustment / cut earned from this round">Cut: <strong>${cutDisplay}</strong></span>
             <span class="sc-pill sc-pill-highlight" style="white-space: nowrap;" title="Updated handicap index for next week">New HCI: <strong>${newHciDisplay}</strong></span>
@@ -3890,7 +3465,6 @@
         </div>
 
         <div class="accordion-stats-bar" style="margin-top: 0.65rem;">
-          <button type="button" class="quick-pick-btn btn-view-profile" style="margin-left: auto;">👤 View Full Player Profile</button>
         </div>
       </div>
     `;
@@ -3924,14 +3498,6 @@
     const fullPlayer = state.processedMembers.get(player.memberId);
     if (fullPlayer) {
       attachPlayerRoundsHandlers(detailTd, fullPlayer);
-    }
-
-    const btnProfile = detailTd.querySelector('.btn-view-profile');
-    if (btnProfile) {
-      btnProfile.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectPlayer(player.memberId);
-      });
     }
   }
 
@@ -4035,9 +3601,6 @@
         <div class="accordion-sub-section" style="margin-top: 0.9rem;">
           <div class="accordion-sub-title text-center">Record to date:</div>
           ${fullRecordHtml}
-        </div>
-        <div class="accordion-stats-bar">
-          <button type="button" class="quick-pick-btn btn-view-profile" style="margin-left: auto;">👤 View Full Player Profile</button>
         </div>
       </div>
     `;
@@ -4256,7 +3819,6 @@
           <div class="stat-item"><span class="stat-label">Gross Points:</span> <strong>${p.total}</strong></div>
           <div class="stat-item"><span class="stat-label">Handicap Deduction:</span> <strong>-${p.playingStrokes}</strong></div>
           <div class="stat-item"><span class="stat-label">Nett Score:</span> <strong>${p.nett}</strong></div>
-          <button type="button" class="quick-pick-btn btn-view-profile" style="margin-left: auto;">👤 View Full Player Profile</button>
         </div>
       </div>
     `;
@@ -4280,18 +3842,10 @@
     const detailTr = document.createElement('tr');
     detailTr.className = 'accordion-detail-row';
     const detailTd = document.createElement('td');
-    detailTd.colSpan = tr.cells.length || 23;
+    detailTd.colSpan = tr.cells.length || 22;
     detailTd.innerHTML = buildBingoAccordionHtml(player, holes, isNetBirdie);
     detailTr.appendChild(detailTd);
     tr.after(detailTr);
-
-    const btnProfile = detailTd.querySelector('.btn-view-profile');
-    if (btnProfile) {
-      btnProfile.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectPlayer(player.memberId);
-      });
-    }
   }
 
   /**
@@ -4319,18 +3873,24 @@
       if (p.completedHoles.has(h)) {
         const entry = p.completedHoles.get(h);
         let chipClass = 'bingo-hit';
-        const displayVal = isNetBirdie ? entry.nett : entry.bestGross;
-        const scoreLabel = isNetBirdie ? `Nett ${entry.nett}` : `Gross ${entry.bestGross}`;
-        if (isNetBirdie) {
+        let cardHitClass = 'bingo-card-item bingo-card-hit';
+        const displayVal = 'X';
+        const grossDesc = entry.bestGross <= entry.par - 2
+          ? `Gross Eagle (${entry.bestGross})`
+          : (entry.bestGross === entry.par - 1 ? `Gross Birdie (${entry.bestGross})` : `Gross ${entry.bestGross}`);
+        const scoreLabel = isNetBirdie ? `Nett ${entry.nett} (${grossDesc})` : `Gross ${entry.bestGross}`;
+
+        if (entry.isGrossBirdie || entry.isGross2) {
+          chipClass += ' gross-birdie';
+          cardHitClass += ' bingo-card-birdie';
+        } else if (isNetBirdie) {
           if (entry.isEagleOrBetter) chipClass += ' under-par';
-          if (entry.isGross2) chipClass += ' gross-2';
         } else {
-          if (entry.isGross2) chipClass += ' gross-2';
-          else if (entry.isUnderPar) chipClass += ' under-par';
+          if (entry.isUnderPar) chipClass += ' under-par';
         }
 
         return `
-          <div class="bingo-card-item bingo-card-hit" title="Hole ${h + 1} (Par ${par}, SI ${si}): ${scoreLabel} in Week ${entry.firstWeek}">
+          <div class="${cardHitClass}" title="Hole ${h + 1} (Par ${par}, SI ${si}): ${scoreLabel} in Week ${entry.firstWeek}">
             <div class="bingo-card-hole">H${h + 1} <span class="bingo-card-sub">P${par}</span></div>
             <div class="${chipClass}">${displayVal}</div>
             <div class="bingo-card-meta">Wk ${entry.firstWeek}</div>
@@ -4341,7 +3901,7 @@
         return `
           <div class="bingo-card-item bingo-card-miss" title="Hole ${h + 1} (Par ${par}, SI ${si}): Needs ${targetDesc}">
             <div class="bingo-card-hole">H${h + 1} <span class="bingo-card-sub">P${par}</span></div>
-            <div class="bingo-miss">-</div>
+            <div class="bingo-miss">&nbsp;</div>
             <div class="bingo-card-meta">≤${targetDesc}</div>
           </div>
         `;
@@ -4390,7 +3950,6 @@
           <div class="stat-item"><span class="stat-label">Completed:</span> <strong style="color: #166534;">${completedCount}</strong></div>
           <div class="stat-item"><span class="stat-label">Remaining:</span> <strong style="color: ${remCount > 0 ? '#b91c1c' : '#166534'};">${remCount}</strong></div>
           <div class="stat-item"><span class="stat-label">Current HCI:</span> <strong>${p.currentHCI.toFixed(1)}</strong></div>
-          <button type="button" class="quick-pick-btn btn-view-profile" style="margin-left: auto;">👤 View Full Player Profile</button>
         </div>
       </div>
     `;
@@ -4418,14 +3977,6 @@
     detailTd.innerHTML = buildHandicapAccordionHtml(member);
     detailTr.appendChild(detailTd);
     tr.after(detailTr);
-
-    const btnProfile = detailTd.querySelector('.btn-view-profile');
-    if (btnProfile) {
-      btnProfile.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectPlayer(member.memberId);
-      });
-    }
   }
 
   /**
@@ -4491,7 +4042,6 @@
           <div class="stat-item"><span class="stat-label">Starting HCI:</span> <strong>${m.origHCI.toFixed(1)}</strong></div>
           <div class="stat-item"><span class="stat-label">Rounds:</span> <strong>${playedCount}</strong></div>
           <div class="stat-item"><span class="stat-label">Net Adjustment:</span> <strong>${m.cumulativeCuts.toFixed(1)}</strong></div>
-          <button type="button" class="quick-pick-btn btn-view-profile" style="margin-left: auto;">👤 View Full Player Profile</button>
         </div>
       </div>
     `;
@@ -4519,14 +4069,6 @@
     detailTd.innerHTML = buildLastManAccordionHtml(player, cfg, totalWeeks);
     detailTr.appendChild(detailTd);
     tr.after(detailTr);
-
-    const btnProfile = detailTd.querySelector('.btn-view-profile');
-    if (btnProfile) {
-      btnProfile.addEventListener('click', (e) => {
-        e.stopPropagation();
-        selectPlayer(player.memberId);
-      });
-    }
   }
 
   /**
@@ -4624,7 +4166,6 @@
         <div class="accordion-stats-bar" style="margin-top: 0.65rem;">
           <div class="stat-item"><span class="stat-label">HCI:</span> <strong>${player.currentHCI.toFixed(1)}</strong></div>
           <div class="stat-item"><span class="stat-label">Status:</span> <strong>${statusTitle}</strong></div>
-          <button type="button" class="quick-pick-btn btn-view-profile" style="margin-left: auto;">👤 View Full Player Profile</button>
         </div>
       </div>
     `;
@@ -4761,6 +4302,22 @@
         elements.btnBingoModeGross.classList.add('active');
         elements.btnBingoModeNett.classList.remove('active');
       }
+    }
+
+    // Eligibility configuration & visibility
+    const elMode = (cfg.eligibility === 'all' || cfg.eligibility === 'open') ? 'all' : 'league';
+    state.parbingoEligibility = elMode;
+    if (elements.parbingoFilterEligibility) {
+      elements.parbingoFilterEligibility.value = elMode;
+    }
+
+    const hideEligibility = (typeof cfg.hideEligibility === 'boolean')
+      ? cfg.hideEligibility
+      : (typeof cfg.showEligibility === 'boolean' ? !cfg.showEligibility : Boolean(cfg.hideEligibilityFilter || cfg.hideEligibilityDropdown));
+    const elGroup = elements.parbingoEligibilityGroup || (elements.parbingoFilterEligibility ? elements.parbingoFilterEligibility.closest('.filter-group') : null);
+    if (elGroup) {
+      elGroup.style.display = hideEligibility ? 'none' : 'inline-flex';
+      elGroup.classList.toggle('is-hidden', hideEligibility);
     }
   }
 
@@ -5428,6 +4985,7 @@
 
           if (isHit) {
             const isEagleOrBetter = isNetBirdie ? (nett <= par - 2) : (g <= par - 2);
+            const isGrossBirdie = (g > 0 && g <= par - 1);
             if (!p.completedHoles.has(h)) {
               p.completedHoles.set(h, {
                 firstWeek: w,
@@ -5437,20 +4995,32 @@
                 par: par,
                 points: pts,
                 isGross2: (g === 2),
+                isGrossBirdie: isGrossBirdie,
                 isUnderPar: isNetBirdie ? (nett < par) : (g < par),
                 isEagleOrBetter: isEagleOrBetter
               });
             } else {
               const existing = p.completedHoles.get(h);
-              const isBetter = isNetBirdie ? (nett < existing.nett) : (g < existing.bestGross);
+              const isBetter = isNetBirdie
+                ? (nett < existing.nett || (nett === existing.nett && g < existing.bestGross))
+                : (g < existing.bestGross);
               if (isBetter) {
                 existing.bestGross = g;
                 existing.nett = nett;
                 existing.strokes = strokes;
                 existing.points = pts;
                 existing.isGross2 = (g === 2);
+                existing.isGrossBirdie = isGrossBirdie;
                 existing.isUnderPar = isNetBirdie ? (nett < par) : (g < par);
                 existing.isEagleOrBetter = isEagleOrBetter;
+              } else if (isGrossBirdie && !existing.isGrossBirdie) {
+                existing.isGrossBirdie = true;
+                if (g < existing.bestGross) {
+                  existing.bestGross = g;
+                }
+                if (g === 2) {
+                  existing.isGross2 = true;
+                }
               }
             }
           }
@@ -5579,12 +5149,29 @@
     populateParBingoWeekSelector();
 
     const asOfWeek = state.parbingoWeek || state.latestWeek;
-    const eligibility = (elements.parbingoFilterEligibility ? elements.parbingoFilterEligibility.value : '') || state.parbingoEligibility || 'league';
+    const cfg = state.bingoConfig || DEFAULT_BINGO_CONFIG;
+
+    const hideEligibility = (typeof cfg.hideEligibility === 'boolean')
+      ? cfg.hideEligibility
+      : (typeof cfg.showEligibility === 'boolean' ? !cfg.showEligibility : Boolean(cfg.hideEligibilityFilter || cfg.hideEligibilityDropdown));
+    const elGroup = elements.parbingoEligibilityGroup || (elements.parbingoFilterEligibility ? elements.parbingoFilterEligibility.closest('.filter-group') : null);
+    if (elGroup) {
+      elGroup.style.display = hideEligibility ? 'none' : 'inline-flex';
+      elGroup.classList.toggle('is-hidden', hideEligibility);
+    }
+
+    const defaultEligibility = (cfg.eligibility === 'all' || cfg.eligibility === 'open') ? 'all' : 'league';
+    let eligibility = defaultEligibility;
+    if (!hideEligibility && elements.parbingoFilterEligibility) {
+      eligibility = elements.parbingoFilterEligibility.value || defaultEligibility;
+    } else if (elements.parbingoFilterEligibility) {
+      elements.parbingoFilterEligibility.value = defaultEligibility;
+    }
     state.parbingoEligibility = eligibility;
+
     const currentMode = state.bingoMode || 'nett';
     const isNetBirdie = currentMode === 'nett';
 
-    const cfg = state.bingoConfig || DEFAULT_BINGO_CONFIG;
     const hideMode = Boolean(cfg.hideModeOptions || cfg.hideModeToggle || cfg.hideWinnerOptions);
     if (elements.bingoModeToggleGroup) {
       elements.bingoModeToggleGroup.style.display = hideMode ? 'none' : 'inline-flex';
@@ -5682,23 +5269,19 @@
     if (elements.parbingoTheadTr) {
       let holeHeadersHtml = '';
       holes.forEach(h => {
-        const subLabel = isNetBirdie ? `SI${h.si}` : `P${h.par}`;
         holeHeadersHtml += `
           <th class="text-center hole-col" title="Hole ${h.hole} • Par ${h.par} • Stroke Index ${h.si}">
-            H${h.hole}<br><span style="font-size:0.7rem; font-weight:normal; opacity:0.85;">${subLabel}</span>
+            H${h.hole}
           </th>
         `;
       });
 
-      const hitTitle = isNetBirdie ? 'Holes with net birdie or better (nett <= par - 1)' : 'Holes with gross par or better';
       elements.parbingoTheadTr.innerHTML = `
         <th class="text-center pos-col" style="width: 50px;">Pos</th>
-        <th class="sticky-col-name player-name-col" style="width: 20%; min-width: 170px;"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
+        <th class="sticky-col-name player-name-col" style="width: 24%; min-width: 170px;"><span class="th-full">Player Name</span><span class="th-short">Player</span></th>
         <th class="text-center bingo-status-col" style="width: 110px;">Status</th>
         <th class="text-center rounds-col" style="width: 50px;" title="Rounds played up to Week ${asOfWeek}">Rds</th>
         ${holeHeadersHtml}
-        <th class="text-center bingo-hit-col" style="width: 50px;" title="${hitTitle}">Hit</th>
-        <th class="text-center bingo-rem-col" style="width: 50px;" title="Holes remaining to complete Bingo">Rem</th>
       `;
     }
 
@@ -5713,7 +5296,7 @@
     if (displayList.length === 0) {
       elements.parbingoTbody.innerHTML = `
         <tr>
-          <td colspan="23" class="empty-state">No matching players found.</td>
+          <td colspan="22" class="empty-state">No matching players found.</td>
         </tr>
       `;
       return;
@@ -5750,28 +5333,28 @@
         if (p.completedHoles.has(h)) {
           const entry = p.completedHoles.get(h);
           let chipClass = 'bingo-hit';
-          let displayVal = entry.bestGross;
 
           if (isNetBirdie) {
-            // Net Birdie display: show nett score with points and strokes in tooltip
-            displayVal = entry.nett;
-            if (entry.isEagleOrBetter) {
+            // Net Birdie display: show X, yellow if gross birdie
+            if (entry.isGrossBirdie || entry.isGross2) {
+              chipClass += ' gross-birdie';
+            } else if (entry.isEagleOrBetter) {
               chipClass += ' under-par';
             }
-            if (entry.isGross2) {
-              chipClass += ' gross-2';
-            }
-            const tip = `Hole ${h + 1} (Par ${entry.par}, SI ${holes[h] ? holes[h].si : '-'}): Nett ${entry.nett} (Gross ${entry.bestGross} - ${entry.strokes} stks = ${entry.points} pts) in Wk ${entry.firstWeek}`;
-            holeCellsHtml += `<td class="text-center hole-col" title="${escapeHtml(tip)}"><span class="${chipClass}">${displayVal}</span></td>`;
+            const grossDesc = entry.bestGross <= entry.par - 2
+              ? `Gross Eagle (${entry.bestGross})`
+              : (entry.bestGross === entry.par - 1 ? `Gross Birdie (${entry.bestGross})` : `Gross ${entry.bestGross}`);
+            const tip = `Hole ${h + 1} (Par ${entry.par}, SI ${holes[h] ? holes[h].si : '-'}): Nett ${entry.nett} (${grossDesc} - ${entry.strokes} stks = ${entry.points} pts) in Wk ${entry.firstWeek}`;
+            holeCellsHtml += `<td class="text-center hole-col" title="${escapeHtml(tip)}"><span class="${chipClass}">X</span></td>`;
           } else {
             // Gross Par display
-            if (entry.isGross2) {
-              chipClass += ' gross-2';
+            if (entry.isGrossBirdie || entry.isGross2) {
+              chipClass += ' gross-birdie';
             } else if (entry.isUnderPar) {
               chipClass += ' under-par';
             }
             const tip = `Hole ${h + 1} (Par ${entry.par}): Gross ${entry.bestGross} in Wk ${entry.firstWeek}`;
-            holeCellsHtml += `<td class="text-center hole-col" title="${escapeHtml(tip)}"><span class="${chipClass}">${displayVal}</span></td>`;
+            holeCellsHtml += `<td class="text-center hole-col" title="${escapeHtml(tip)}"><span class="${chipClass}">X</span></td>`;
           }
         } else {
           const par = holes[h] ? holes[h].par : 4;
@@ -5779,16 +5362,9 @@
           const tip = isNetBirdie
             ? `Hole ${h + 1} (Par ${par}, SI ${si}): Needs net birdie or better`
             : `Hole ${h + 1} (Par ${par}): Needs gross par (${par}) or better`;
-          holeCellsHtml += `<td class="text-center hole-col" title="${escapeHtml(tip)}"><span class="bingo-miss">-</span></td>`;
+          holeCellsHtml += `<td class="text-center hole-col" title="${escapeHtml(tip)}"></td>`;
         }
       }
-
-      const completedCount = p.completedHoles.size;
-      const remCount = 18 - completedCount;
-
-      const hitColor = completedCount === 18 ? '#166534' : 'var(--text-main)';
-      const remColor = remCount === 0 ? 'var(--text-light)' : (remCount <= 3 ? '#b91c1c' : 'var(--text-muted)');
-      const remWeight = remCount <= 3 && remCount > 0 ? '700' : 'normal';
 
       tr.innerHTML = `
         <td class="text-center pos-col"><span class="rank-badge ${rankClass}">${p.pos}</span></td>
@@ -5796,8 +5372,6 @@
         <td class="text-center bingo-status-col">${statusHtml}</td>
         <td class="text-center font-bold rounds-col" style="color: var(--text-muted);">${p.roundsPlayed}</td>
         ${holeCellsHtml}
-        <td class="text-center font-bold bingo-hit-col" style="color: ${hitColor};">${completedCount}</td>
-        <td class="text-center bingo-rem-col" style="color: ${remColor}; font-weight: ${remWeight};">${remCount}</td>
       `;
 
       if (p.roundsPlayed > 0 || hasRound) {
@@ -6805,6 +6379,7 @@
     if (elements.lastmanSearch) elements.lastmanSearch.value = '';
     if (elements.parbingoSearch) elements.parbingoSearch.value = '';
     if (elements.cupSearch) elements.cupSearch.value = '';
+    if (elements.fixturesSearch) elements.fixturesSearch.value = '';
 
     // Reset eclectic scoring mode to configured winner and clear sort
     syncEclecticSettingsControls();
@@ -6814,21 +6389,519 @@
     // Reset bingo settings & winner mode to config
     syncBingoSettingsControls();
 
-    if (!preservePlayer) {
-      state.selectedPlayerId = null;
-      state.playersViewMode = 'profile';
-      if (elements.playerSearchInput) elements.playerSearchInput.value = '';
-      if (elements.playerSuggestions) elements.playerSuggestions.style.display = 'none';
-      if (elements.btnPlayersModeProfile && elements.btnPlayersModeRoster) {
-        elements.btnPlayersModeProfile.classList.add('active');
-        elements.btnPlayersModeRoster.classList.remove('active');
-      }
-      if (elements.playersProfileView && elements.playersRosterView) {
-        elements.playersProfileView.style.display = 'block';
-        elements.playersRosterView.style.display = 'none';
-      }
-      renderPlayerQuickPicks();
+
+  }
+
+  /* ==========================================================================
+   * Course Hole Statistics Engine & View Renderer (Tab: Stats)
+   * ========================================================================== */
+
+  /**
+   * Computes hole-by-hole scoring statistics across all competition rounds
+   * 
+   * @param {string|number} [filterWeek='all'] - 'all' or specific week number
+   * @returns {Object|null} Aggregated hole statistics, metrics, and summary subtotals
+   */
+  function calculateCourseHoleStats(filterWeek = 'all') {
+    if (!state.course || !Array.isArray(state.course.holes)) return null;
+    const holes = state.course.holes;
+
+    const holeStats = holes.map((h, idx) => ({
+      hole: h.hole,
+      name: h.name || COURSE_HOLE_NAMES[idx] || `Hole ${h.hole}`,
+      par: h.par,
+      si: h.si,
+      totalGross: 0,
+      count: 0,
+      minGross: null,
+      maxGross: null,
+      eagles: 0,
+      birdies: 0,
+      pars: 0,
+      bogeys: 0,
+      doublesPlus: 0
+    }));
+
+    let totalRoundsAnalyzed = 0;
+    const targetWeekNum = (filterWeek !== 'all' && filterWeek !== undefined && filterWeek !== null)
+      ? parseInt(filterWeek, 10)
+      : null;
+
+    state.weeklyResults.forEach((roundList, w) => {
+      if (targetWeekNum !== null && w !== targetWeekNum) return;
+      if (!Array.isArray(roundList)) return;
+
+      roundList.forEach(r => {
+        if (!r || !Array.isArray(r.grossScores)) return;
+        totalRoundsAnalyzed++;
+        r.grossScores.forEach((g, idx) => {
+          if (idx >= 18 || !holeStats[idx]) return;
+          if (g !== null && g !== undefined && !isNaN(g) && g > 0) {
+            const s = holeStats[idx];
+            s.totalGross += g;
+            s.count++;
+            if (s.minGross === null || g < s.minGross) s.minGross = g;
+            if (s.maxGross === null || g > s.maxGross) s.maxGross = g;
+
+            const diff = g - s.par;
+            if (diff <= -2) s.eagles++;
+            else if (diff === -1) s.birdies++;
+            else if (diff === 0) s.pars++;
+            else if (diff === 1) s.bogeys++;
+            else s.doublesPlus++;
+          }
+        });
+      });
+    });
+
+    holeStats.forEach(s => {
+      s.avgGross = s.count > 0 ? (s.totalGross / s.count) : 0;
+      s.diffToPar = s.count > 0 ? (s.avgGross - s.par) : 0;
+    });
+
+    // Compute difficulty rankings (Rank 1 = hardest / highest diffToPar)
+    const sortedHoles = [...holeStats].sort((a, b) => b.diffToPar - a.diffToPar || b.avgGross - a.avgGross);
+    sortedHoles.forEach((item, idx) => {
+      item.difficultyRank = idx + 1;
+    });
+
+    // Subtotals: Front 9 (OUT), Back 9 (IN), Total
+    const front9 = holeStats.slice(0, 9);
+    const back9 = holeStats.slice(9, 18);
+
+    function summarizeSection(list) {
+      const par = list.reduce((sum, h) => sum + h.par, 0);
+      const totalGrossSum = list.reduce((sum, h) => sum + (h.count > 0 ? h.avgGross : h.par), 0);
+      const diffSum = totalGrossSum - par;
+      const totalScoresRecorded = list.reduce((sum, h) => sum + h.count, 0);
+      const eagles = list.reduce((sum, h) => sum + h.eagles, 0);
+      const birdies = list.reduce((sum, h) => sum + h.birdies, 0);
+      const pars = list.reduce((sum, h) => sum + h.pars, 0);
+      const bogeys = list.reduce((sum, h) => sum + h.bogeys, 0);
+      const doublesPlus = list.reduce((sum, h) => sum + h.doublesPlus, 0);
+      return {
+        par,
+        avgGross: totalGrossSum,
+        diffToPar: diffSum,
+        totalScoresRecorded,
+        eagles,
+        birdies,
+        pars,
+        bogeys,
+        doublesPlus
+      };
     }
+
+    const outSummary = summarizeSection(front9);
+    const inSummary = summarizeSection(back9);
+    const totalSummary = summarizeSection(holeStats);
+
+    const hardestHole = sortedHoles[0] || null;
+    const easiestHole = sortedHoles[sortedHoles.length - 1] || null;
+
+    return {
+      holes: holeStats,
+      outSummary,
+      inSummary,
+      totalSummary,
+      hardestHole,
+      easiestHole,
+      totalRoundsAnalyzed,
+      filterWeek
+    };
+  }
+
+  /**
+   * View: Course Statistics Renderer (Tab 9: Stats)
+   */
+  function renderStatsView() {
+    if (!elements.statsTbody) return;
+
+    // Subtitle indicator
+    if (elements.statsSubtitle) {
+      const resolved = getResolvedTabInfoText('tab-stats');
+      elements.statsSubtitle.innerHTML = formatInfoTextHtml(resolved);
+    }
+
+    // Populate round filter selector if weeks available
+    if (elements.statsRoundFilter) {
+      const currentSelected = elements.statsRoundFilter.value || 'all';
+      const expectedCount = 1 + (state.weeksData ? state.weeksData.length : 0);
+      if (elements.statsRoundFilter.options.length !== expectedCount) {
+        elements.statsRoundFilter.innerHTML = '<option value="all">All Rounds</option>';
+        if (state.weeksData) {
+          state.weeksData.forEach(w => {
+            const opt = document.createElement('option');
+            opt.value = String(w.weekNum);
+            opt.textContent = `Week ${w.weekNum}`;
+            elements.statsRoundFilter.appendChild(opt);
+          });
+        }
+        elements.statsRoundFilter.value = currentSelected;
+      }
+    }
+
+    const filterWeek = elements.statsRoundFilter ? elements.statsRoundFilter.value : 'all';
+    const data = calculateCourseHoleStats(filterWeek);
+    if (!data) return;
+
+    // Synchronize sort indicators on table headers
+    const sortThs = document.querySelectorAll('#stats-table th.sortable-th');
+    sortThs.forEach(th => {
+      const col = th.getAttribute('data-sort');
+      const icon = th.querySelector('.sort-icon');
+      if (state.statsSortCol === col) {
+        th.classList.add('sort-active');
+        if (icon) {
+          icon.textContent = state.statsSortDir === 'desc' ? ' ▼' : ' ▲';
+        }
+      } else {
+        th.classList.remove('sort-active');
+        if (icon) {
+          icon.textContent = '';
+        }
+      }
+    });
+
+    // 1. Render Top Summary Metric Cards
+    if (elements.statsMetricsGrid) {
+      const totalRounds = data.totalRoundsAnalyzed;
+      const avgScore = data.totalSummary.avgGross.toFixed(2);
+      const diffSign = data.totalSummary.diffToPar >= 0 ? '+' : '';
+      const diffVal = `${diffSign}${data.totalSummary.diffToPar.toFixed(2)}`;
+
+      const hardest = data.hardestHole;
+      const easiest = data.easiestHole;
+
+      const hardestDesc = hardest
+        ? `Hole ${hardest.hole} (${hardest.name})`
+        : '-';
+      const hardestVal = hardest
+        ? `${hardest.avgGross.toFixed(2)} (+${hardest.diffToPar.toFixed(2)})`
+        : '-';
+
+      const easiestDesc = easiest
+        ? `Hole ${easiest.hole} (${easiest.name})`
+        : '-';
+      const easiestVal = easiest
+        ? `${easiest.avgGross.toFixed(2)} (${easiest.diffToPar >= 0 ? '+' : ''}${easiest.diffToPar.toFixed(2)})`
+        : '-';
+
+      elements.statsMetricsGrid.innerHTML = `
+        <div class="stat-card">
+          <span class="stat-label">Course Scoring Average</span>
+          <span class="stat-val">${avgScore}</span>
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-top:0.2rem;">${diffVal} over Par ${data.totalSummary.par}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Hardest Hole (#1)</span>
+          <span class="stat-val" style="color:#b91c1c;">${escapeHtml(hardestDesc)}</span>
+          <span style="font-size:0.8rem; color:#b91c1c; font-weight:700; margin-top:0.2rem;">Avg: ${hardestVal}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Easiest Hole (#18)</span>
+          <span class="stat-val" style="color:#15803d;">${escapeHtml(easiestDesc)}</span>
+          <span style="font-size:0.8rem; color:#15803d; font-weight:700; margin-top:0.2rem;">Avg: ${easiestVal}</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Rounds Analyzed</span>
+          <span class="stat-val" style="color:var(--text-dark);">${totalRounds}</span>
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600; margin-top:0.2rem;">${filterWeek === 'all' ? 'All Rounds' : `Week ${filterWeek}`}</span>
+        </div>
+      `;
+    }
+
+    // Helper to format hole row HTML
+    function buildHoleRow(s) {
+      const avgDisplay = s.count > 0 ? s.avgGross.toFixed(2) : '-';
+      let diffBadge = '-';
+      if (s.count > 0) {
+        const sign = s.diffToPar > 0 ? '+' : '';
+        diffBadge = s.diffToPar === 0 ? 'E' : `${sign}${s.diffToPar.toFixed(2)}`;
+      }
+
+      let rankBadge = '-';
+      let rankTitle = '';
+      if (s.count > 0 && s.difficultyRank) {
+        const diff = s.si - s.difficultyRank;
+        const diffStr = diff > 0 ? `+${diff}` : (diff < 0 ? `${diff}` : '0');
+        const diffClass = diff > 0 ? 'stats-rank-diff-plus' : (diff < 0 ? 'stats-rank-diff-minus' : 'stats-rank-diff-zero');
+        rankBadge = `${s.difficultyRank} <span class="stats-rank-diff ${diffClass}">(${diffStr})</span>`;
+        const diffExplain = diff > 0
+          ? `${diff} position${diff === 1 ? '' : 's'} harder than Stroke Index ${s.si}`
+          : (diff < 0 ? `${Math.abs(diff)} position${Math.abs(diff) === 1 ? '' : 's'} easier than Stroke Index ${s.si}` : `matches Stroke Index ${s.si}`);
+        rankTitle = `Difficulty Rank ${s.difficultyRank} (${diffExplain})`;
+      }
+
+      // Individual heatmap color class for each rank 1 to 18 (1 = hardest -> 18 = easiest)
+      const hmClass = (s.count > 0 && s.difficultyRank >= 1 && s.difficultyRank <= 18)
+        ? `stats-hm-rank-${s.difficultyRank}`
+        : '';
+
+      const totalBirdies = s.eagles + s.birdies;
+      const birdiesDisplay = s.count > 0 ? totalBirdies : '-';
+      const parsDisplay = s.count > 0 ? s.pars : '-';
+      const bogeysDisplay = s.count > 0 ? s.bogeys : '-';
+      const doublesDisplay = s.count > 0 ? s.doublesPlus : '-';
+
+      return `
+        <tr>
+          <td class="text-center font-bold stats-hole-col">${s.hole}</td>
+          <td class="text-left stats-name-col col-desktop-only">${escapeHtml(s.name)}</td>
+          <td class="text-center stats-par-col col-desktop-only">${s.par}</td>
+          <td class="text-center stats-si-col">${s.si}</td>
+          <td class="text-center font-bold stats-rank-col ${hmClass}" title="${rankTitle}">${rankBadge}</td>
+          <td class="text-center font-bold stats-avg-col ${hmClass}">${avgDisplay}</td>
+          <td class="text-center font-bold stats-diff-col ${hmClass}">${diffBadge}</td>
+          <td class="text-center stats-scores-col col-desktop-only">${s.count}</td>
+          <td class="text-center stats-dist-col col-desktop-only">${birdiesDisplay}</td>
+          <td class="text-center stats-dist-col col-desktop-only">${parsDisplay}</td>
+          <td class="text-center stats-dist-col col-desktop-only">${bogeysDisplay}</td>
+          <td class="text-center stats-dist-col col-desktop-only">${doublesDisplay}</td>
+        </tr>
+      `;
+    }
+
+    function buildFooterRow(rowClass, label, sub, scoresText) {
+      const avgDisplay = sub.avgGross.toFixed(2);
+      const diffSign = sub.diffToPar >= 0 ? '+' : '';
+      const diffDisplay = `${diffSign}${sub.diffToPar.toFixed(2)}`;
+      const totalBirdies = sub.eagles + sub.birdies;
+      const countDisplay = scoresText !== undefined ? scoresText : sub.totalScoresRecorded;
+
+      return `
+        <tr class="${rowClass}">
+          <td class="text-center font-bold stats-hole-col" style="font-size:0.92rem;">${escapeHtml(label)}</td>
+          <td class="text-left stats-name-col col-desktop-only">-</td>
+          <td class="text-center font-bold stats-par-col col-desktop-only">${sub.par}</td>
+          <td class="text-center stats-si-col">-</td>
+          <td class="text-center stats-rank-col">-</td>
+          <td class="text-center font-bold stats-avg-col">${avgDisplay}</td>
+          <td class="text-center stats-diff-col">${diffDisplay}</td>
+          <td class="text-center font-bold stats-scores-col col-desktop-only">${countDisplay}</td>
+          <td class="text-center stats-dist-col col-desktop-only font-bold">${totalBirdies}</td>
+          <td class="text-center stats-dist-col col-desktop-only font-bold">${sub.pars}</td>
+          <td class="text-center stats-dist-col col-desktop-only font-bold">${sub.bogeys}</td>
+          <td class="text-center stats-dist-col col-desktop-only font-bold">${sub.doublesPlus}</td>
+        </tr>
+      `;
+    }
+
+    // 2. Sort 18 holes according to state.statsSortCol and state.statsSortDir
+    const holesToSort = [...data.holes];
+    const sortCol = state.statsSortCol || 'hole';
+    const sortDir = state.statsSortDir || 'asc';
+    const mult = sortDir === 'desc' ? -1 : 1;
+
+    holesToSort.sort((a, b) => {
+      let valA, valB;
+      switch (sortCol) {
+        case 'hole':
+          valA = a.hole;
+          valB = b.hole;
+          break;
+        case 'name':
+          return mult * a.name.localeCompare(b.name);
+        case 'par':
+          valA = a.par;
+          valB = b.par;
+          break;
+        case 'si':
+          valA = a.si;
+          valB = b.si;
+          break;
+        case 'avg':
+          valA = a.count > 0 ? a.avgGross : 999;
+          valB = b.count > 0 ? b.avgGross : 999;
+          break;
+        case 'diff':
+          valA = a.count > 0 ? a.diffToPar : 999;
+          valB = b.count > 0 ? b.diffToPar : 999;
+          break;
+        case 'rank':
+          valA = a.difficultyRank || 999;
+          valB = b.difficultyRank || 999;
+          break;
+        case 'scores':
+          valA = a.count;
+          valB = b.count;
+          break;
+        case 'birdies':
+          valA = a.eagles + a.birdies;
+          valB = b.eagles + b.birdies;
+          break;
+        case 'pars':
+          valA = a.pars;
+          valB = b.pars;
+          break;
+        case 'bogeys':
+          valA = a.bogeys;
+          valB = b.bogeys;
+          break;
+        case 'doubles':
+          valA = a.doublesPlus;
+          valB = b.doublesPlus;
+          break;
+        default:
+          valA = a.hole;
+          valB = b.hole;
+      }
+      if (valA < valB) return -1 * mult;
+      if (valA > valB) return 1 * mult;
+      return a.hole - b.hole;
+    });
+
+    let tbodyHtml = '';
+    holesToSort.forEach(h => {
+      tbodyHtml += buildHoleRow(h);
+    });
+    elements.statsTbody.innerHTML = tbodyHtml;
+
+    // 3. Build Table Foot with OUT, IN, and TOTAL anchored at the bottom
+    if (elements.statsTfoot) {
+      let tfootHtml = '';
+      tfootHtml += buildFooterRow('tfoot-out', 'OUT', data.outSummary);
+      tfootHtml += buildFooterRow('tfoot-in', 'IN', data.inSummary);
+      tfootHtml += buildFooterRow('tfoot-total', 'TOTAL', data.totalSummary, data.totalSummary.totalScoresRecorded);
+      elements.statsTfoot.innerHTML = tfootHtml;
+    }
+  }
+
+  /**
+   * Tab 9: Fixtures & Schedule View Renderer
+   * Renders the 20-week Winter Season schedule, showing week number, competition title,
+   * short year dates (e.g. 26, 27), Stableford format, and confirmed winners.
+   * Completed rows are clickable and jump directly to that week's Weekend Stableford sweep.
+   */
+  function renderFixturesView() {
+    if (!elements.fixturesTbody) return;
+
+    const cfg = state.fixturesConfig || DEFAULT_FIXTURES_CONFIG;
+    const fixturesList = (cfg && Array.isArray(cfg.fixtures)) ? cfg.fixtures : [];
+    const query = (elements.fixturesSearch && elements.fixturesSearch.value || '').trim().toLowerCase();
+    const filter = state.fixturesFilter || 'all';
+
+    let completedCount = 0;
+    let upcomingCount = 0;
+
+    // Evaluate statuses, short year dates, and winners for all 20 fixtures
+    const processedFixtures = fixturesList.map(fix => {
+      const wNum = fix.week;
+      const weekResults = state.weeklyResults.get(wNum) || [];
+      const hasScores = weekResults.length > 0;
+
+      // Status determination: explicit completed in config, or dynamically derived if scores are present
+      let status = fix.status || (hasScores ? 'completed' : 'upcoming');
+      if (status === 'completed' || hasScores) {
+        status = 'completed';
+        completedCount++;
+      } else {
+        upcomingCount++;
+      }
+
+      // Winner determination: explicit override in config, or dynamically 1st place in weekly results
+      let winnerName = fix.winner || '';
+      let winnerPts = null;
+      if (!winnerName && hasScores) {
+        const topPlayer = weekResults[0];
+        if (topPlayer) {
+          winnerName = topPlayer.name || '';
+          winnerPts = (typeof topPlayer.stablefordTotal === 'number')
+            ? topPlayer.stablefordTotal
+            : ((typeof topPlayer.points === 'number') ? topPlayer.points : null);
+        }
+      }
+
+      // Format date with short year (e.g. 2026 -> 26, 2027 -> 27)
+      const rawDate = fix.date || '';
+      const formattedDate = rawDate.replace(/\b20(\d{2})\b/g, '$1');
+
+      return {
+        ...fix,
+        date: formattedDate,
+        format: fix.format || 'Stableford',
+        status,
+        hasScores,
+        winnerName,
+        winnerPts
+      };
+    });
+
+    // Update quick filter pill counts
+    const countAllEl = document.getElementById('fixtures-count-all');
+    const countCompEl = document.getElementById('fixtures-count-completed');
+    const countUpEl = document.getElementById('fixtures-count-upcoming');
+    if (countAllEl) countAllEl.textContent = String(fixturesList.length);
+    if (countCompEl) countCompEl.textContent = String(completedCount);
+    if (countUpEl) countUpEl.textContent = String(upcomingCount);
+
+    // Apply header subtitle with dynamic count tokens
+    if (elements.fixturesSubtitle) {
+      elements.fixturesSubtitle.innerHTML = formatInfoTextHtml(getResolvedTabInfoText('tab-fixtures', {
+        completedCount,
+        upcomingCount,
+        totalWeeks: fixturesList.length
+      }));
+    }
+
+    // Filter by quick filter (all, completed, upcoming)
+    let displayList = processedFixtures;
+    if (filter === 'completed') {
+      displayList = displayList.filter(f => f.status === 'completed');
+    } else if (filter === 'upcoming') {
+      displayList = displayList.filter(f => f.status !== 'completed');
+    }
+
+    // Filter by search query
+    if (query) {
+      displayList = displayList.filter(f => {
+        const text = `${f.week} ${f.name} ${f.date} ${f.format || ''} ${f.winnerName || ''}`.toLowerCase();
+        return text.includes(query);
+      });
+    }
+
+    // Render table rows
+    if (displayList.length === 0) {
+      elements.fixturesTbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="empty-state">No fixtures found matching your criteria.</td>
+        </tr>
+      `;
+      return;
+    }
+
+    elements.fixturesTbody.innerHTML = displayList.map(f => {
+      const isCompleted = f.status === 'completed';
+
+      let winnerHtml = '<span class="text-muted">—</span>';
+      if (f.winnerName) {
+        const ptsBadge = f.winnerPts !== null ? `<span class="fixture-winner-pts">(${f.winnerPts} pts)</span>` : '';
+        const actionBtn = isCompleted
+          ? `<button type="button" class="fixture-action-btn col-desktop-only" data-week="${f.week}" title="Jump to Week ${f.week} Weekend Stableford leaderboard">View Sweep ➔</button>`
+          : '';
+        winnerHtml = `
+          <div class="fixture-winner-wrapper">
+            <span class="fixture-winner-text" title="1st Place Sweep Winner">🏆 <strong>${escapeHtml(f.winnerName)}</strong> ${ptsBadge}</span>
+            ${actionBtn}
+          </div>
+        `;
+      } else {
+        winnerHtml = '<div class="fixture-winner-wrapper"><span class="text-muted">—</span></div>';
+      }
+
+      const rowClass = isCompleted ? 'fixture-row fixture-completed-row clickable-row' : 'fixture-row';
+      const clickableAttr = isCompleted ? `data-clickable="true" data-week="${f.week}" title="Click to view Week ${f.week} Weekend Stableford"` : '';
+
+      return `
+        <tr class="${rowClass}" ${clickableAttr}>
+          <td class="text-center font-bold fixture-week-col">${f.week}</td>
+          <td class="font-bold fixture-name-col"><span class="fixture-name">${escapeHtml(f.name)}</span></td>
+          <td class="fixture-date-col text-muted"><span class="fixture-date">${escapeHtml(f.date)}</span></td>
+          <td class="col-desktop-only fixture-format-col">${escapeHtml(f.format)}</td>
+          <td class="fixture-winner-col">${winnerHtml}</td>
+        </tr>
+      `;
+    }).join('');
   }
 
   /**
@@ -6849,13 +6922,6 @@
       case 'tab-magic2s':
         renderMagic2sView();
         break;
-      case 'tab-player':
-        if (state.playersViewMode === 'roster') {
-          renderHandicapView();
-        } else {
-          renderPlayerTrackerView();
-        }
-        break;
       case 'tab-lastman':
         renderLastManView();
         break;
@@ -6864,6 +6930,12 @@
         break;
       case 'tab-cup':
         renderCupView();
+        break;
+      case 'tab-stats':
+        renderStatsView();
+        break;
+      case 'tab-fixtures':
+        renderFixturesView();
         break;
     }
   }
@@ -6921,6 +6993,9 @@
         elements.mobileTabSelect.value = targetTab;
       }
     }
+
+    // Auto-hide empty controls bar on mobile if none of its controls are visible
+    updateMobileControlsBarVisibility();
   }
 
   /**
@@ -6952,13 +7027,18 @@
     'parbingo': 'tab-parbingo',
     'tab-parbingo': 'tab-parbingo',
 
-    'player': 'tab-player',
-    'tab-player': 'tab-player',
-    'profile': 'tab-player',
 
     'cup': 'tab-cup',
     'tab-cup': 'tab-cup',
-    'wintercup': 'tab-cup'
+    'wintercup': 'tab-cup',
+
+    'stats': 'tab-stats',
+    'coursestats': 'tab-stats',
+    'tab-stats': 'tab-stats',
+
+    'fixtures': 'tab-fixtures',
+    'schedule': 'tab-fixtures',
+    'tab-fixtures': 'tab-fixtures'
   };
 
   /**
@@ -6987,14 +7067,15 @@
    * Navigation Tabs, Visibility & Dynamic Ordering Engine
    */
   const ALL_TABS = [
-    { id: 'tab-leaderboard', name: 'Winter League', icon: '🏆', defaultOrder: 1 },
-    { id: 'tab-weekly', name: 'Weekend Stableford', icon: '📅', defaultOrder: 2 },
-    { id: 'tab-eclectic', name: 'Eclectic', icon: '🎯', defaultOrder: 3 },
-    { id: 'tab-magic2s', name: 'Magic 2\'s', icon: '🪄', defaultOrder: 4 },
-    { id: 'tab-lastman', name: 'Last Man Standing', icon: '⚔️', defaultOrder: 5 },
-    { id: 'tab-parbingo', name: 'Bingo', icon: '🎱', defaultOrder: 6 },
-    { id: 'tab-player', name: 'Player Profile', icon: '👤', defaultOrder: 7 },
-    { id: 'tab-cup', name: 'Winter Cup', icon: '🏆', defaultOrder: 8 }
+    { id: 'tab-leaderboard', name: 'LEAGUE', icon: '🏆', defaultOrder: 1 },
+    { id: 'tab-weekly', name: 'STABLEFORD', icon: '📅', defaultOrder: 2 },
+    { id: 'tab-eclectic', name: 'ECLECTIC', icon: '🎯', defaultOrder: 3 },
+    { id: 'tab-magic2s', name: 'MAGIC 2\'S', icon: '🪄', defaultOrder: 4 },
+    { id: 'tab-lastman', name: 'LAST MAN STANDING', icon: '⚔️', defaultOrder: 5 },
+    { id: 'tab-parbingo', name: 'BINGO', icon: '🎱', defaultOrder: 6 },
+    { id: 'tab-cup', name: 'WINTER CUP', icon: '🏆', defaultOrder: 7 },
+    { id: 'tab-stats', name: 'STATS', icon: '📊', defaultOrder: 8 },
+    { id: 'tab-fixtures', name: 'FIXTURES', icon: '🗓️', defaultOrder: 9 }
   ];
 
   function getTabVisibilityConfig(tabId) {
@@ -7028,7 +7109,25 @@
     const rawMap = (state.tabsConfig && (state.tabsConfig.tabs || state.tabsConfig)) || {};
     const keysInConfig = Object.keys(rawMap);
 
-    const list = ALL_TABS.map(base => {
+    const knownIds = new Set(ALL_TABS.map(t => t.id));
+    const mergedTabs = [...ALL_TABS];
+
+    // Automatically discover and include all new tabs present in tabs.json
+    keysInConfig.forEach(key => {
+      if (!key.startsWith('tab-') || key === 'tab-player') return;
+      if (!knownIds.has(key)) {
+        const cfg = rawMap[key] || {};
+        mergedTabs.push({
+          id: key,
+          name: cfg.name || key.replace(/^tab-/, '').replace(/\b\w/g, c => c.toUpperCase()),
+          icon: (cfg.icon && cfg.icon !== '??' && cfg.icon !== '?') ? cfg.icon : '📌',
+          defaultOrder: typeof cfg.order === 'number' ? cfg.order : mergedTabs.length + 1
+        });
+        knownIds.add(key);
+      }
+    });
+
+    const list = mergedTabs.map(base => {
       const cfg = rawMap[base.id] || {};
       const name = cfg.name || base.name;
       const icon = (cfg.icon && cfg.icon !== '??' && cfg.icon !== '?') ? cfg.icon : base.icon;
@@ -7058,8 +7157,9 @@
     'tab-magic2s': 'magic2s-subtitle',
     'tab-lastman': 'lastman-subtitle',
     'tab-parbingo': 'parbingo-subtitle',
-    'tab-player': 'player-subtitle',
-    'tab-cup': 'cup-subtitle'
+    'tab-cup': 'cup-subtitle',
+    'tab-stats': 'stats-subtitle',
+    'tab-fixtures': 'fixtures-subtitle'
   };
 
   /**
@@ -7071,16 +7171,33 @@
    * @param {string} text - Raw evaluated text
    * @returns {string} Responsive HTML string
    */
+  /**
+   * Formats an evaluated info text string into responsive HTML.
+   * - In desktop view, shows all info on a single line.
+   * - Where a {/} is used, interprets this as a line break in mobile view, hiding the {/} in both views.
+   * - In mobile view, does not show • if it comes at the start of a line.
+   */
   function formatInfoTextHtml(text) {
     if (!text) return '';
-    const rawLines = String(text).split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-    if (rawLines.length === 0) return '';
-    if (rawLines.length === 1) {
-      return `<span class="info-line">${escapeHtml(rawLines[0])}</span>`;
-    }
-    return rawLines
-      .map(line => `<span class="info-line">${escapeHtml(line)}</span>`)
-      .join('<span class="info-line-sep"> • </span>');
+    const rawText = String(text);
+    const rawSegments = rawText.split(/\{\/\}|\r?\n/).map(s => s.trim()).filter(Boolean);
+    if (rawSegments.length === 0) return '';
+
+    let html = '';
+    rawSegments.forEach((seg, idx) => {
+      // In the segment, strip any leading bullet • and whitespace for mobile line start
+      const cleanSeg = seg.replace(/^[•\s\u2022\u25cf\-]+/, '').trim();
+      if (!cleanSeg) return;
+
+      if (idx > 0) {
+        // Desktop separator: show the bullet dot between segments on the single line
+        // Mobile line break: break to new line without the bullet
+        html += '<span class="info-sep-desktop"> • </span><span class="info-br-mobile"><br></span>';
+      }
+      html += `<span class="info-line">${escapeHtml(cleanSeg)}</span>`;
+    });
+
+    return html;
   }
 
   /**
@@ -7201,6 +7318,21 @@
       template = template.replace(/\{£x\}/gi, `£${potAmount.toFixed(2)}`);
       template = template.replace(/\{x\}/gi, `£${potAmount.toFixed(2)}`);
 
+    } else if (tabId === 'tab-fixtures') {
+      const cfg = state.fixturesConfig || DEFAULT_FIXTURES_CONFIG;
+      const list = (cfg && Array.isArray(cfg.fixtures)) ? cfg.fixtures : [];
+      let completedCount = 0;
+      list.forEach(f => {
+        const hasScores = (state.weeklyResults.get(f.week) || []).length > 0;
+        if (f.status === 'completed' || hasScores) completedCount++;
+      });
+      const totalWeeks = context.totalWeeks !== undefined ? context.totalWeeks : (cfg.totalWeeks || list.length || 20);
+      const completed = context.completedCount !== undefined ? context.completedCount : completedCount;
+      const remaining = Math.max(0, totalWeeks - completed);
+
+      template = template.replace(/\{completed count\}/gi, String(completed));
+      template = template.replace(/\{remaining count\}/gi, String(remaining));
+      template = template.replace(/\{total weeks\}/gi, String(totalWeeks));
     } else if (tabId === 'tab-lastman') {
       const asOfWeek = context.weekNum !== undefined ? context.weekNum : (state.lastmanWeek || state.latestWeek || 1);
       const data = context.data || (typeof calculateLastManStanding === 'function' ? calculateLastManStanding(asOfWeek) : null);
@@ -7213,21 +7345,85 @@
       const aliveCount = (data && typeof data.aliveCount === 'number') ? data.aliveCount : 0;
       const totalCount = (data && typeof data.totalCount === 'number') ? data.totalCount : (data && data.players ? data.players.length : 0);
 
+      const nextWeekNum = totalWeeks + 1;
+      const nextHoleObj = getTargetHoleForWeek(nextWeekNum, cfg.holeOrder);
+      const nextHoleNum = nextHoleObj ? nextHoleObj.hole : activeHoleNum + 1;
+
       template = template.replace(/\{weeks active hole\}/gi, `${activeHoleNum}`);
       template = template.replace(/\{active hole\}/gi, `${activeHoleNum}`);
       template = template.replace(/\{active week\}/gi, `${totalWeeks}`);
-      template = template.replace(/\{\d+\s+of\s+\d+(\s+players\s+still\s+standing)?\}/gi, (m) => {
+
+      // Number of players tokens: {X of 50}, {16 of 49}, {number of players}, {players still standing}, etc.
+      template = template.replace(/\{(?:x|\d+)\s+of\s+(?:\d+|total|50)(?:\s+players\s+still\s+standing)?\}/gi, (m) => {
         return m.toLowerCase().includes('players')
           ? `${aliveCount} of ${totalCount} Players Still Standing`
           : `${aliveCount} of ${totalCount}`;
       });
+      template = template.replace(/\{number of players(?:\s+still\s+standing)?\}/gi, (m) => {
+        return m.toLowerCase().includes('standing')
+          ? `${aliveCount} of ${totalCount} Players Still Standing`
+          : `${aliveCount} of ${totalCount}`;
+      });
+      template = template.replace(/\{players still standing\}/gi, `${aliveCount} of ${totalCount} Players Still Standing`);
       template = template.replace(/\{alive of total\}/gi, `${aliveCount} of ${totalCount}`);
+      template = template.replace(/\{alive count\}/gi, `${aliveCount}`);
+      template = template.replace(/\{total count\}/gi, `${totalCount}`);
+
+      // Next hole tokens: {next hole is}, {next hole}, {next week}, {next week's hole}
+      template = template.replace(/\{next hole is\}/gi, `Next hole is Hole ${nextHoleNum}`);
+      template = template.replace(/((?:next\s+)?hole(?:\s+is)?\s*)?\{next hole\}/gi, (m, prefix) => {
+        if (!prefix) return `Hole ${nextHoleNum}`;
+        const pLower = prefix.toLowerCase();
+        if (pLower.includes('hole is') || pLower.includes('hole:')) return `${prefix}Hole ${nextHoleNum}`;
+        if (pLower.endsWith('hole ')) return `${prefix}${nextHoleNum}`;
+        return `${prefix}Hole ${nextHoleNum}`;
+      });
+      template = template.replace(/((?:next\s+)?hole(?:\s+is)?\s*)?\{next week\}/gi, (m, prefix) => {
+        if (!prefix) return `Hole ${nextHoleNum}`;
+        const pLower = prefix.toLowerCase();
+        if (pLower.includes('hole is') || pLower.includes('hole:')) return `${prefix}Hole ${nextHoleNum}`;
+        if (pLower.endsWith('hole ')) return `${prefix}${nextHoleNum}`;
+        return `${prefix}Hole ${nextHoleNum}`;
+      });
     }
 
     return template;
   }
 
+    /**
+   * Dynamically applies font size, colour, and font family configuration options
+   * for information sections across desktop and mobile viewports.
+   */
+  function applyInfoStyles() {
+    const rawMap = state.tabsConfig && (state.tabsConfig.tabs || state.tabsConfig);
+    const styles = (state.tabsConfig && state.tabsConfig.infoStyles) || (rawMap && rawMap.infoStyles) || {};
+    const desktop = styles.desktop || {};
+    const mobile = styles.mobile || {};
+
+    const root = document.documentElement;
+    if (desktop.fontSize || desktop.size) {
+      root.style.setProperty('--info-desktop-size', desktop.fontSize || desktop.size);
+    }
+    if (desktop.color || desktop.colour) {
+      root.style.setProperty('--info-desktop-color', desktop.color || desktop.colour);
+    }
+    if (desktop.fontFamily || desktop.font) {
+      root.style.setProperty('--info-desktop-font', desktop.fontFamily || desktop.font);
+    }
+
+    if (mobile.fontSize || mobile.size) {
+      root.style.setProperty('--info-mobile-size', mobile.fontSize || mobile.size);
+    }
+    if (mobile.color || mobile.colour) {
+      root.style.setProperty('--info-mobile-color', mobile.color || mobile.colour);
+    }
+    if (mobile.fontFamily || mobile.font) {
+      root.style.setProperty('--info-mobile-font', mobile.fontFamily || mobile.font);
+    }
+  }
+
   function applyTabSubtitles() {
+    const isMobile = window.innerWidth <= 1024;
     Object.keys(SUBTITLE_ID_MAP).forEach(tabId => {
       const elId = SUBTITLE_ID_MAP[tabId];
       const el = document.getElementById(elId);
@@ -7235,6 +7431,13 @@
       const text = getResolvedTabInfoText(tabId);
       if (text) {
         el.innerHTML = formatInfoTextHtml(text);
+      }
+      const tCfg = getTabVisibilityConfig(tabId);
+      if (tCfg && tCfg.infoStyles) {
+        const s = isMobile ? (tCfg.infoStyles.mobile || {}) : (tCfg.infoStyles.desktop || {});
+        if (s.fontSize || s.size) el.style.fontSize = s.fontSize || s.size;
+        if (s.color || s.colour) el.style.color = s.color || s.colour;
+        if (s.fontFamily || s.font) el.style.fontFamily = s.fontFamily || s.font;
       }
     });
   }
@@ -7249,6 +7452,36 @@
     document.body.classList.toggle('mobile-hide-weekly-nonleague', Boolean(mOpts.hideNonLeagueToggle));
     document.body.classList.toggle('mobile-hide-lastman-info', Boolean(mOpts.hideLastManInfo));
     document.body.classList.toggle('mobile-hide-lastman-status', Boolean(mOpts.hideLastManStatusDropdown));
+
+    updateMobileControlsBarVisibility();
+  }
+
+  /**
+   * Auto-hide any .panel-controls-bar container on mobile if none of its controls are visible
+   */
+  function updateMobileControlsBarVisibility() {
+    const isMobile = window.innerWidth <= 768;
+    document.querySelectorAll('.panel-controls-bar').forEach(bar => {
+      if (!isMobile) {
+        bar.classList.remove('is-empty-bar');
+        return;
+      }
+      const children = Array.from(bar.children);
+      const hasVisibleChild = children.some(child => {
+        const cs = window.getComputedStyle(child);
+        if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+        // Check if all actionable child controls are hidden
+        const controls = child.querySelectorAll('input:not([type="hidden"]), select, button, label, .filter-group, .cup-mode-btn');
+        if (controls.length > 0) {
+          return Array.from(controls).some(c => {
+            const sc = window.getComputedStyle(c);
+            return sc.display !== 'none' && sc.visibility !== 'hidden';
+          });
+        }
+        return true;
+      });
+      bar.classList.toggle('is-empty-bar', !hasVisibleChild);
+    });
   }
 
   /**
@@ -7260,8 +7493,12 @@
     const orderedTabs = getOrderedTabs();
 
     // Apply mobile display options and custom info bar texts
+    applyInfoStyles();
     applyMobileUiOptions();
     applyTabSubtitles();
+    if (state.activeTab === 'tab-eclectic') {
+      renderEclecticView();
+    }
 
     // 1. Desktop Tab Buttons in .tab-nav (re-ordered dynamically in DOM)
     const tabNav = elements.tabNav || document.querySelector('.tab-nav');
@@ -7563,95 +7800,6 @@
     }
 
 
-    // Unified Player Profile mode toggle & navigation buttons
-    if (elements.btnPlayersModeProfile) {
-      elements.btnPlayersModeProfile.addEventListener('click', () => {
-        switchPlayersViewMode('profile');
-      });
-    }
-    if (elements.btnPlayersModeRoster) {
-      elements.btnPlayersModeRoster.addEventListener('click', () => {
-        switchPlayersViewMode('roster');
-      });
-    }
-    if (elements.btnGotoRoster) {
-      elements.btnGotoRoster.addEventListener('click', () => {
-        switchPlayersViewMode('roster');
-      });
-    }
-    if (elements.btnBackToProfile) {
-      elements.btnBackToProfile.addEventListener('click', () => {
-        switchPlayersViewMode('profile');
-      });
-    }
-
-    // Handicap filters & cuts rules inspector
-    if (elements.handicapFilterLeague) {
-      elements.handicapFilterLeague.addEventListener('change', () => {
-        renderHandicapView();
-      });
-    }
-    if (elements.handicapSearch) {
-      elements.handicapSearch.addEventListener('input', () => {
-        renderHandicapView();
-      });
-    }
-    if (elements.btnToggleCutsRules && elements.cutsRulesCard) {
-      elements.btnToggleCutsRules.addEventListener('click', () => {
-        const isShown = elements.cutsRulesCard.style.display !== 'none';
-        elements.cutsRulesCard.style.display = isShown ? 'none' : 'block';
-        if (!isShown) {
-          renderCutsRulesInfo();
-        }
-      });
-    }
-    if (elements.btnCloseCutsRules && elements.cutsRulesCard) {
-      elements.btnCloseCutsRules.addEventListener('click', () => {
-        elements.cutsRulesCard.style.display = 'none';
-      });
-    }
-
-    // Player Tracker search and suggestions
-    if (elements.playerSearchInput) {
-      elements.playerSearchInput.addEventListener('input', (e) => {
-        renderPlayerSuggestions(e.target.value);
-      });
-
-      elements.playerSearchInput.addEventListener('focus', (e) => {
-        if (e.target.value.trim().length > 0) {
-          renderPlayerSuggestions(e.target.value);
-        }
-      });
-
-      elements.playerSearchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          if (elements.playerSuggestions) {
-            const firstItem = elements.playerSuggestions.querySelector('.player-suggestion-item');
-            if (firstItem) {
-              firstItem.click();
-            }
-          }
-        } else if (e.key === 'Escape') {
-          if (elements.playerSuggestions) {
-            elements.playerSuggestions.style.display = 'none';
-          }
-        }
-      });
-
-      // Dismiss suggestions when clicking outside
-      document.addEventListener('click', (e) => {
-        if (
-          elements.playerSearchInput &&
-          elements.playerSuggestions &&
-          !elements.playerSearchInput.contains(e.target) &&
-          !elements.playerSuggestions.contains(e.target)
-        ) {
-          elements.playerSuggestions.style.display = 'none';
-        }
-      });
-    }
-
     // Last Man Standing filters and settings
     if (elements.lastmanFilterStatus) {
       elements.lastmanFilterStatus.addEventListener('change', () => {
@@ -7908,7 +8056,71 @@
       });
     }
 
-    // Universal hash change routing (e.g. #cup, #eclectic, #bingo, #magic2s, #lastman, #player, #league, #weekly)
+    // Course Statistics round filter
+    if (elements.statsRoundFilter) {
+      elements.statsRoundFilter.addEventListener('change', () => {
+        renderStatsView();
+      });
+    }
+
+    // Course Statistics table header sorting
+    const statsTable = document.getElementById('stats-table');
+    if (statsTable) {
+      const statsThead = statsTable.querySelector('thead');
+      if (statsThead) {
+        statsThead.addEventListener('click', (e) => {
+          const th = e.target.closest('th.sortable-th');
+          if (!th) return;
+          const col = th.getAttribute('data-sort');
+          if (!col) return;
+          if (state.statsSortCol === col) {
+            state.statsSortDir = state.statsSortDir === 'asc' ? 'desc' : 'asc';
+          } else {
+            state.statsSortCol = col;
+            // Naturally ascending for hole, name, par, si, diff, rank; descending for avg, scores, birdies, pars, bogeys, doubles
+            if (['hole', 'name', 'par', 'si', 'rank'].includes(col)) {
+              state.statsSortDir = 'asc';
+            } else {
+              state.statsSortDir = 'desc';
+            }
+          }
+          renderStatsView();
+        });
+      }
+    }
+
+    // Fixtures filter buttons
+    document.querySelectorAll('.fixtures-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.fixtures-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.fixturesFilter = btn.dataset.filter || 'all';
+        renderFixturesView();
+      });
+    });
+
+    // Fixtures search input
+    if (elements.fixturesSearch) {
+      elements.fixturesSearch.addEventListener('input', () => {
+        renderFixturesView();
+      });
+    }
+
+    // Fixtures table row / button clicks (delegated)
+    if (elements.fixturesTbody) {
+      elements.fixturesTbody.addEventListener('click', (e) => {
+        const row = e.target.closest('tr[data-clickable="true"]');
+        if (!row) return;
+        const week = parseInt(row.getAttribute('data-week'), 10);
+        if (week && !isNaN(week)) {
+          state.selectedWeek = week;
+          if (elements.weeklyWeekSelect) elements.weeklyWeekSelect.value = week;
+          activateTab('tab-weekly');
+        }
+      });
+    }
+
+    // Universal hash change routing (e.g. #cup, #eclectic, #bingo, #magic2s, #lastman, #player, #league, #weekly, #stats, #fixtures)
     window.addEventListener('hashchange', () => {
       const target = resolveRequestedTabFromUrl();
       if (target) {

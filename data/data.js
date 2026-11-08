@@ -9,91 +9,109 @@ var GOLF_DATA = {
         "holes": [
             {
                 "hole": 1,
+                "name": "Devol",
                 "par": 3,
                 "si": 16
             },
             {
                 "hole": 2,
+                "name": "Stey Brae",
                 "par": 4,
                 "si": 1
             },
             {
                 "hole": 3,
+                "name": "Valley",
                 "par": 4,
                 "si": 14
             },
             {
                 "hole": 4,
+                "name": "Fore",
                 "par": 4,
                 "si": 7
             },
             {
                 "hole": 5,
+                "name": "No Pylon",
                 "par": 4,
                 "si": 10
             },
             {
                 "hole": 6,
+                "name": "Green Road",
                 "par": 4,
                 "si": 2
             },
             {
                 "hole": 7,
+                "name": "Twa Burns",
                 "par": 4,
                 "si": 8
             },
             {
                 "hole": 8,
+                "name": "Auchentiber",
                 "par": 4,
                 "si": 5
             },
             {
                 "hole": 9,
+                "name": "Heathery Knowle",
                 "par": 3,
                 "si": 11
             },
             {
                 "hole": 10,
+                "name": "Plateau",
                 "par": 4,
                 "si": 3
             },
             {
                 "hole": 11,
+                "name": "Dykeside",
                 "par": 5,
                 "si": 17
             },
             {
                 "hole": 12,
+                "name": "Auchenleck",
                 "par": 3,
                 "si": 12
             },
             {
                 "hole": 13,
+                "name": "Ardmore",
                 "par": 3,
                 "si": 9
             },
             {
                 "hole": 14,
+                "name": "Harelaw",
                 "par": 4,
                 "si": 18
             },
             {
                 "hole": 15,
+                "name": "Dougalls Walk",
                 "par": 4,
                 "si": 15
             },
             {
                 "hole": 16,
+                "name": "Benview",
                 "par": 4,
                 "si": 4
             },
             {
                 "hole": 17,
+                "name": "Springwell",
                 "par": 3,
                 "si": 6
             },
             {
                 "hole": 18,
+                "name": "Clydeview",
                 "par": 3,
                 "si": 13
             }
@@ -2354,6 +2372,1068 @@ var GOLF_DATA = {
                     "day": "Sunday"
                 }
             ]
+        },
+        {
+            "weekNum": 2,
+            "weekStr": "02",
+            "rounds": [
+                {
+                    "memberId": "4001584273",
+                    "gross": [
+                        4,
+                        5,
+                        4,
+                        3,
+                        3,
+                        3,
+                        5,
+                        4,
+                        3,
+                        6,
+                        5,
+                        3,
+                        3,
+                        4,
+                        4,
+                        5,
+                        3,
+                        3
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001584336",
+                    "gross": [
+                        3,
+                        4,
+                        5,
+                        5,
+                        4,
+                        5,
+                        3,
+                        4,
+                        3,
+                        4,
+                        4,
+                        4,
+                        3,
+                        5,
+                        5,
+                        4,
+                        3,
+                        3
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002948272",
+                    "gross": [
+                        3,
+                        4,
+                        4,
+                        4,
+                        4,
+                        4,
+                        5,
+                        4,
+                        2,
+                        5,
+                        4,
+                        4,
+                        3,
+                        5,
+                        3,
+                        5,
+                        4,
+                        4
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002717288",
+                    "gross": [
+                        3,
+                        4,
+                        5,
+                        4,
+                        3,
+                        4,
+                        5,
+                        4,
+                        4,
+                        5,
+                        5,
+                        4,
+                        3,
+                        5,
+                        4,
+                        5,
+                        4,
+                        3
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001584679",
+                    "gross": [
+                        4,
+                        4,
+                        4,
+                        5,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        5,
+                        3,
+                        3,
+                        4,
+                        4,
+                        5,
+                        3,
+                        5
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001586109",
+                    "gross": [
+                        3,
+                        3,
+                        8,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        4,
+                        5,
+                        5,
+                        3,
+                        4,
+                        6,
+                        4,
+                        4,
+                        3,
+                        4
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001584667",
+                    "gross": [
+                        4,
+                        5,
+                        4,
+                        7,
+                        3,
+                        4,
+                        4,
+                        4,
+                        3,
+                        5,
+                        7,
+                        3,
+                        4,
+                        3,
+                        3,
+                        6,
+                        4,
+                        4
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001585699",
+                    "gross": [
+                        4,
+                        5,
+                        4,
+                        4,
+                        6,
+                        4,
+                        5,
+                        5,
+                        4,
+                        5,
+                        5,
+                        4,
+                        4,
+                        3,
+                        5,
+                        5,
+                        3,
+                        3
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001585337",
+                    "gross": [
+                        4,
+                        4,
+                        4,
+                        6,
+                        5,
+                        4,
+                        4,
+                        6,
+                        4,
+                        5,
+                        5,
+                        4,
+                        4,
+                        5,
+                        3,
+                        4,
+                        3,
+                        4
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002593181",
+                    "gross": [
+                        3,
+                        5,
+                        4,
+                        4,
+                        3,
+                        6,
+                        4,
+                        5,
+                        5,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        5,
+                        4,
+                        4
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002530826",
+                    "gross": [
+                        3,
+                        4,
+                        4,
+                        4,
+                        4,
+                        6,
+                        5,
+                        5,
+                        3,
+                        6,
+                        6,
+                        3,
+                        4,
+                        5,
+                        4,
+                        6,
+                        3,
+                        3
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002379211",
+                    "gross": [
+                        4,
+                        6,
+                        4,
+                        4,
+                        5,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        5,
+                        4,
+                        4,
+                        6,
+                        4,
+                        5,
+                        4,
+                        3
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002742659",
+                    "gross": [
+                        4,
+                        5,
+                        5,
+                        5,
+                        4,
+                        5,
+                        5,
+                        4,
+                        3,
+                        4,
+                        5,
+                        3,
+                        4,
+                        4,
+                        4,
+                        6,
+                        3,
+                        6
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001585274",
+                    "gross": [
+                        4,
+                        5,
+                        4,
+                        5,
+                        4,
+                        3,
+                        5,
+                        4,
+                        5,
+                        6,
+                        5,
+                        4,
+                        5,
+                        4,
+                        4,
+                        4,
+                        5,
+                        3
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002532093",
+                    "gross": [
+                        3,
+                        4,
+                        4,
+                        4,
+                        5,
+                        7,
+                        6,
+                        5,
+                        4,
+                        4,
+                        4,
+                        5,
+                        3,
+                        6,
+                        3,
+                        6,
+                        3,
+                        4
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002545733",
+                    "gross": [
+                        4,
+                        5,
+                        7,
+                        6,
+                        4,
+                        4,
+                        5,
+                        5,
+                        4,
+                        6,
+                        7,
+                        3,
+                        4,
+                        3,
+                        4,
+                        5,
+                        3,
+                        5
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002397357",
+                    "gross": [
+                        4,
+                        5,
+                        5,
+                        4,
+                        4,
+                        6,
+                        4,
+                        6,
+                        4,
+                        8,
+                        6,
+                        3,
+                        4,
+                        3,
+                        7,
+                        5,
+                        3,
+                        4
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001585647",
+                    "gross": [
+                        4,
+                        7,
+                        4,
+                        4,
+                        4,
+                        5,
+                        6,
+                        5,
+                        7,
+                        5,
+                        5,
+                        4,
+                        6,
+                        4,
+                        4,
+                        6,
+                        5,
+                        4
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001584294",
+                    "gross": [
+                        4,
+                        6,
+                        6,
+                        4,
+                        4,
+                        6,
+                        5,
+                        7,
+                        4,
+                        6,
+                        8,
+                        5,
+                        5,
+                        4,
+                        4,
+                        5,
+                        4,
+                        6
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001585316",
+                    "gross": [
+                        4,
+                        6,
+                        5,
+                        5,
+                        6,
+                        6,
+                        5,
+                        6,
+                        5,
+                        6,
+                        8,
+                        3,
+                        4,
+                        5,
+                        5,
+                        6,
+                        4,
+                        5
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002943487",
+                    "gross": [
+                        5,
+                        7,
+                        4,
+                        5,
+                        4,
+                        5,
+                        6,
+                        5,
+                        3,
+                        5,
+                        6,
+                        5,
+                        5,
+                        5,
+                        6,
+                        8,
+                        5,
+                        5
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001585509",
+                    "gross": [
+                        3,
+                        7,
+                        6,
+                        7,
+                        4,
+                        6,
+                        0,
+                        0,
+                        3,
+                        0,
+                        0,
+                        0,
+                        5,
+                        5,
+                        4,
+                        5,
+                        4,
+                        0
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001892422",
+                    "gross": [
+                        3,
+                        4,
+                        4,
+                        4,
+                        4,
+                        5,
+                        4,
+                        5,
+                        3,
+                        6,
+                        5,
+                        4,
+                        3,
+                        3,
+                        4,
+                        5,
+                        4,
+                        0
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002849283",
+                    "gross": [
+                        3,
+                        5,
+                        5,
+                        5,
+                        5,
+                        5,
+                        4,
+                        4,
+                        3,
+                        0,
+                        0,
+                        5,
+                        4,
+                        5,
+                        5,
+                        5,
+                        4,
+                        4
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002882042",
+                    "gross": [
+                        4,
+                        6,
+                        4,
+                        4,
+                        4,
+                        0,
+                        5,
+                        4,
+                        5,
+                        4,
+                        6,
+                        6,
+                        3,
+                        5,
+                        4,
+                        4,
+                        6,
+                        5
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001587060",
+                    "gross": [
+                        3,
+                        3,
+                        4,
+                        4,
+                        5,
+                        4,
+                        5,
+                        4,
+                        0,
+                        6,
+                        6,
+                        3,
+                        4,
+                        4,
+                        5,
+                        5,
+                        4,
+                        3
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4003083512",
+                    "gross": [
+                        4,
+                        6,
+                        6,
+                        5,
+                        0,
+                        4,
+                        7,
+                        5,
+                        4,
+                        4,
+                        6,
+                        3,
+                        3,
+                        4,
+                        5,
+                        6,
+                        4,
+                        4
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4002924730",
+                    "gross": [
+                        7,
+                        0,
+                        6,
+                        5,
+                        4,
+                        7,
+                        6,
+                        5,
+                        5,
+                        6,
+                        0,
+                        7,
+                        4,
+                        5,
+                        6,
+                        6,
+                        4,
+                        0
+                    ],
+                    "day": "Saturday"
+                },
+                {
+                    "memberId": "4001584481",
+                    "gross": [
+                        3,
+                        4,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        5,
+                        5,
+                        4,
+                        4,
+                        3,
+                        4,
+                        4,
+                        3,
+                        2
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4002194741",
+                    "gross": [
+                        3,
+                        5,
+                        5,
+                        5,
+                        4,
+                        5,
+                        4,
+                        4,
+                        3,
+                        5,
+                        4,
+                        4,
+                        3,
+                        4,
+                        4,
+                        4,
+                        3,
+                        4
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4001585652",
+                    "gross": [
+                        3,
+                        6,
+                        4,
+                        3,
+                        3,
+                        5,
+                        5,
+                        5,
+                        3,
+                        4,
+                        5,
+                        4,
+                        4,
+                        4,
+                        4,
+                        5,
+                        4,
+                        3
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4002702317",
+                    "gross": [
+                        4,
+                        4,
+                        4,
+                        4,
+                        3,
+                        5,
+                        4,
+                        6,
+                        3,
+                        5,
+                        5,
+                        3,
+                        5,
+                        5,
+                        4,
+                        5,
+                        4,
+                        4
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4002821785",
+                    "gross": [
+                        4,
+                        5,
+                        5,
+                        5,
+                        4,
+                        5,
+                        5,
+                        5,
+                        3,
+                        6,
+                        6,
+                        4,
+                        4,
+                        4,
+                        5,
+                        6,
+                        3,
+                        5
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4002414378",
+                    "gross": [
+                        3,
+                        5,
+                        6,
+                        3,
+                        4,
+                        5,
+                        8,
+                        6,
+                        4,
+                        7,
+                        7,
+                        3,
+                        4,
+                        5,
+                        4,
+                        5,
+                        3,
+                        3
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4001586956",
+                    "gross": [
+                        4,
+                        5,
+                        5,
+                        5,
+                        6,
+                        5,
+                        5,
+                        5,
+                        4,
+                        5,
+                        6,
+                        5,
+                        3,
+                        3,
+                        5,
+                        6,
+                        4,
+                        5
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4001586052",
+                    "gross": [
+                        4,
+                        6,
+                        5,
+                        5,
+                        3,
+                        6,
+                        5,
+                        5,
+                        3,
+                        7,
+                        8,
+                        4,
+                        3,
+                        4,
+                        5,
+                        5,
+                        3,
+                        5
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4001585196",
+                    "gross": [
+                        4,
+                        5,
+                        5,
+                        6,
+                        5,
+                        10,
+                        5,
+                        4,
+                        3,
+                        6,
+                        7,
+                        3,
+                        4,
+                        4,
+                        5,
+                        6,
+                        4,
+                        4
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4003106963",
+                    "gross": [
+                        5,
+                        5,
+                        7,
+                        4,
+                        4,
+                        5,
+                        5,
+                        7,
+                        4,
+                        7,
+                        6,
+                        6,
+                        3,
+                        3,
+                        4,
+                        6,
+                        5,
+                        6
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4104112513",
+                    "gross": [
+                        5,
+                        6,
+                        5,
+                        4,
+                        4,
+                        6,
+                        6,
+                        7,
+                        5,
+                        5,
+                        6,
+                        5,
+                        4,
+                        4,
+                        5,
+                        6,
+                        4,
+                        7
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4104087426",
+                    "gross": [
+                        3,
+                        6,
+                        8,
+                        4,
+                        4,
+                        6,
+                        6,
+                        5,
+                        4,
+                        7,
+                        6,
+                        5,
+                        3,
+                        6,
+                        4,
+                        5,
+                        5,
+                        7
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4104089523",
+                    "gross": [
+                        5,
+                        6,
+                        5,
+                        4,
+                        3,
+                        7,
+                        6,
+                        6,
+                        4,
+                        6,
+                        5,
+                        4,
+                        6,
+                        7,
+                        5,
+                        5,
+                        4,
+                        6
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4104068401",
+                    "gross": [
+                        4,
+                        7,
+                        7,
+                        5,
+                        4,
+                        7,
+                        6,
+                        8,
+                        5,
+                        5,
+                        5,
+                        4,
+                        4,
+                        5,
+                        6,
+                        8,
+                        7,
+                        8
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4001585610",
+                    "gross": [
+                        4,
+                        6,
+                        4,
+                        4,
+                        6,
+                        6,
+                        5,
+                        0,
+                        4,
+                        5,
+                        6,
+                        3,
+                        4,
+                        4,
+                        4,
+                        5,
+                        5,
+                        5
+                    ],
+                    "day": "Sunday"
+                },
+                {
+                    "memberId": "4002928283",
+                    "gross": [
+                        4,
+                        4,
+                        0,
+                        4,
+                        3,
+                        5,
+                        4,
+                        5,
+                        3,
+                        4,
+                        6,
+                        3,
+                        3,
+                        3,
+                        3,
+                        5,
+                        4,
+                        3
+                    ],
+                    "day": "Sunday"
+                }
+            ]
         }
     ],
     "lastmanConfig": {
@@ -2384,99 +3464,99 @@ var GOLF_DATA = {
                 17
             ],
             "2": [
-                1,
                 9,
-                13
+                17,
+                18
             ],
             "3": [
-                1,
-                9,
-                17
+                0,
+                0,
+                0
             ],
             "4": [
-                1,
-                9,
-                18
+                0,
+                0,
+                0
             ],
             "5": [
-                1,
-                12,
-                13
+                0,
+                0,
+                0
             ],
             "6": [
-                1,
-                12,
-                17
+                0,
+                0,
+                0
             ],
             "7": [
-                1,
-                12,
-                18
+                0,
+                0,
+                0
             ],
             "8": [
-                1,
-                13,
-                17
+                0,
+                0,
+                0
             ],
             "9": [
-                1,
-                13,
-                18
+                0,
+                0,
+                0
             ],
             "10": [
-                1,
-                17,
-                18
+                0,
+                0,
+                0
             ],
             "11": [
-                9,
-                12,
-                13
+                0,
+                0,
+                0
             ],
             "12": [
-                1,
-                9,
-                12
+                0,
+                0,
+                0
             ],
             "13": [
-                9,
-                12,
-                18
+                0,
+                0,
+                0
             ],
             "14": [
-                9,
-                13,
-                17
+                0,
+                0,
+                0
             ],
             "15": [
-                9,
-                13,
-                18
+                0,
+                0,
+                0
             ],
             "16": [
-                9,
-                17,
-                18
+                0,
+                0,
+                0
             ],
             "17": [
-                12,
-                13,
-                17
+                0,
+                0,
+                0
             ],
             "18": [
-                12,
-                13,
-                18
+                0,
+                0,
+                0
             ],
             "19": [
-                12,
-                17,
-                18
+                0,
+                0,
+                0
             ],
             "20": [
-                13,
-                17,
-                18
+                0,
+                0,
+                0
             ]
         }
     },
@@ -2520,68 +3600,88 @@ var GOLF_DATA = {
             "hideLastManStatusDropdown": true
         },
         "tab-weekly": {
-            "name": "Weekend Stableford",
+            "name": "STABLEFORD",
             "icon": "📅",
             "order": 1,
             "hideDesktop": false,
             "hideMobile": false,
-            "infoText": "Weekly Sweep • Individual Stableford Format\n{Number of Entrants} • Sweep Pot: {£x} • 1st: {1st Prize} • 2nd: {2nd Prize} • 3rd: {3rd Prize}"
+            "infoText": "Individual Stableford • countback for ties{/} • {Number of Entrants} this week • Sweep Pot: {£x}{/} • 1st: {1st Prize} • 2nd: {2nd Prize} • 3rd: {3rd Prize}"
         },
         "tab-leaderboard": {
-            "name": "Winter League",
+            "name": "LEAGUE",
             "icon": "🏆",
             "order": 2,
             "hideDesktop": false,
             "hideMobile": false,
-            "infoText": "Season Long League • Best 10 Stableford Scores Count • {Number of players in the active week} played this week\nHandicaps shown are new handicaps for next week."
+            "infoText": "Best 10 Stableford Scores Count{/} • New Handicaps Show"
         },
         "tab-magic2s": {
-            "name": "Magic 2's",
+            "name": "MAGIC 2'S",
             "icon": "🪄",
             "order": 3,
             "hideDesktop": false,
             "hideMobile": false,
-            "infoText": "Score a gross 2 on qualifying par 3s (or any par 4 / 5) • Prize roll over • Open to league members only • {Prize Pot}"
+            "infoText": "Score a gross 2 on randomly selected par 3s{/} • A 2 on any par 4/5 also qualifies{/} • Open to league members only{/} • Weekly Prize Pot: {Prize Pot}"
         },
         "tab-lastman": {
-            "name": "Last Man Standing",
+            "name": "LAST MAN STANDING",
             "icon": "⚔️",
             "order": 4,
             "hideDesktop": false,
             "hideMobile": false,
-            "infoText": "Score 1 point on hole {weeks active hole} to proceed to next week • {16 of 49} Players Still Standing after week {active week}"
+            "infoText": "Score 1 point on hole {weeks active hole} to proceed{/} • {X of 50} Players Still Standing after week {active week}{/} • Next hole is {next week}"
         },
         "tab-eclectic": {
-            "name": "Eclectic",
+            "name": "ECLECTIC",
             "icon": "🎯",
             "order": 5,
             "hideDesktop": false,
-            "hideMobile": true,
+            "hideMobile": false,
             "infoText": "Best Stableford score on each hole accumulated across all rounds"
         },
         "tab-parbingo": {
-            "name": "Bingo",
+            "name": "BINGO",
             "icon": "🎱",
             "order": 6,
             "hideDesktop": false,
-            "hideMobile": true,
-            "infoText": "First player to record a qualifying score on every hole wins"
+            "hideMobile": false,
+            "infoText": "First player to record a net birdie on every hole wins"
         },
         "tab-cup": {
-            "name": "Winter Cup",
+            "name": "WINTER CUP",
             "icon": "🏆",
             "order": 7,
             "hideDesktop": true,
             "hideMobile": true,
-            "infoText": "Weekly Matchplay • 5 Handicap Pots • 10 Rounds • Top 16 Advance to Knockout"
+            "infoText": "Matchplay • 5 Handicap Pots • 9 Rounds{/} • Top 16 Advance to Knockout{/} • 3pt for win • 1pt for a draw • 0 for a loss{/} • 0 points if player doesn't play"
         },
-        "tab-player": {
-            "name": "Player Profile",
-            "icon": "👤",
+        "tab-stats": {
+            "name": "STATS",
+            "icon": "📊",
             "order": 8,
             "hideDesktop": false,
-            "hideMobile": true,
-            "infoText": "Inspect complete scoring history, individual scorecards, scoring averages, and tournament winnings for any member"
+            "hideMobile": false,
+            "infoText": "Course hole statistics and scoring averages across all competition round"
+        },
+        "tab-fixtures": {
+            "name": "FIXTURES",
+            "icon": "🗓️",
+            "order": 9,
+            "hideDesktop": false,
+            "hideMobile": false,
+            "infoText": "Winter Season Schedule{/} • 20 Weekly Winter Sweeps{/} • Showing fixtures, competition dates, and confirmed winners"
+        },
+        "infoStyles": {
+            "desktop": {
+                "fontSize": "1.2rem",
+                "color": "#000000",
+                "fontFamily": "inherit"
+            },
+            "mobile": {
+                "fontSize": "0.rem",
+                "color": "#000000",
+                "fontFamily": "inherit"
+            }
         }
     }
 };
