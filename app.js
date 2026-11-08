@@ -70,7 +70,7 @@
     bingoMode: 'nett',            // Bingo game mode: 'nett' (Net Birdies) or 'gross' (Gross Pars)
     bingoConfig: null,            // Bingo competition configuration (config/bingo.json)
     cupSubView: 'table',          // Cup subview mode: 'table' | 'fixtures' | 'pots' | 'bracket'
-    cupWeek: 1,                   // Active week for cup fixtures inspection (1 to 11)
+    cupWeek: 3,                   // Active week for cup fixtures inspection (defaults to cup startWeek)
     cupPotFilter: 'all',          // Fixture pot filter: 'all' | 1 | 2 | 3 | 4
     cupConfig: null,              // Cup configuration rules (config/cup.json)
     cupData: null,                // Precalculated cup data (pots, fixtures, unified standings, bracket)
@@ -590,20 +590,21 @@
     "tab-lastman": { "name": "LAST MAN STANDING", "icon": "⚔️", "order": 4, "hideDesktop": false, "hideMobile": false, "infoText": "Score 1 point on hole {weeks active hole} to proceed{/} • {X of 50} Players Still Standing after week {active week}{/} • Next hole is {next week}" },
     "tab-eclectic": { "name": "ECLECTIC", "icon": "🎯", "order": 5, "hideDesktop": false, "hideMobile": true, "infoText": "Best Stableford score on each hole accumulated across all rounds" },
     "tab-parbingo": { "name": "BINGO", "icon": "🎱", "order": 6, "hideDesktop": false, "hideMobile": true, "infoText": "First player to record a net birdie score on every hole wins" },
-    "tab-cup": { "name": "WINTER CUP", "icon": "🏆", "order": 7, "hideDesktop": true, "hideMobile": true, "infoText": "Matchplay • 5 Handicap Pots • 9 Rounds{/} • Top 16 Advance to Knockout{/} • 3pt for win • 1pt for a draw • 0 for a loss{/} • 0 points if player doesn't play" },
+    "tab-cup": { "name": "CUP", "icon": "🏆", "order": 7, "hideDesktop": true, "hideMobile": true, "infoText": "Matchplay • 5 Handicap Pots • 9 Rounds{/} • Top 16 Advance to Knockout{/} • 3pt for win • 1pt for a draw • 0 for a loss{/} • 0 points if player doesn't play" },
     "tab-stats": { "name": "STATS", "icon": "📊", "order": 8, "hideDesktop": false, "hideMobile": true, "infoText": "Course hole statistics and scoring averages across all competition round" },
     "tab-fixtures": { "name": "FIXTURES", "icon": "🗓️", "order": 9, "hideDesktop": false, "hideMobile": false, "infoText": "Winter Season Schedule • 20 Weekly Winter Sweeps\nShowing fixtures, competition dates, and confirmed winners" }
   };
 
   // Default Cup Configuration
   const DEFAULT_CUP_CONFIG = {
-    competitionName: "Winter Cup",
+    competitionName: "Cup",
+    startWeek: 3,
     potsCount: 5,
     potSize: 10,
     totalPlayers: 50,
-    groupWeeks: 10,
+    groupWeeks: 9,
     scoring: { winPoints: 3, drawPoints: 1, lossPoints: 0 },
-    knockout: { qualifiers: 16, roundOf16Week: 11, quarterFinalsWeek: 12, semiFinalsWeek: 13, finalWeek: 14 }
+    knockout: { qualifiers: 16, roundOf16Week: 12, quarterFinalsWeek: 13, semiFinalsWeek: 14, finalWeek: 15 }
   };
 
   // Default Eclectic Configuration
@@ -972,6 +973,15 @@
     state.magic2sWeek = state.latestWeek;
     state.lastmanWeek = state.latestWeek;
     state.parbingoWeek = state.latestWeek;
+
+    const cupStartWeek = (state.cupConfig && typeof state.cupConfig.startWeek === 'number') ? state.cupConfig.startWeek : 1;
+    const cupGroupWeeks = (state.cupConfig && typeof state.cupConfig.groupWeeks === 'number') ? state.cupConfig.groupWeeks : 9;
+    const cupEndWeek = cupStartWeek + cupGroupWeeks - 1;
+    if (state.latestWeek >= cupStartWeek && state.latestWeek <= cupEndWeek) {
+      state.cupWeek = state.latestWeek;
+    } else {
+      state.cupWeek = cupStartWeek;
+    }
 
     processCompetitionEngine();
     updateHeaderMetadata();
@@ -5466,6 +5476,7 @@
     if (!state.members || state.members.length === 0) return;
 
     const cfg = state.cupConfig || DEFAULT_CUP_CONFIG;
+    const startWeek = (typeof cfg.startWeek === 'number' && cfg.startWeek >= 1) ? cfg.startWeek : 1;
     const potsCount = cfg.potsCount || 5;
     const groupWeeks = cfg.groupWeeks || 10;
 
@@ -5554,22 +5565,23 @@
       });
     }
 
-    // 5. Evaluate matches for weeks 1 to groupWeeks
+    // 5. Evaluate matches for rounds 1 to groupWeeks (mapped to season weeks startWeek to startWeek + groupWeeks - 1)
     const weeksFixtures = [];
 
-    for (let w = 1; w <= groupWeeks; w++) {
+    for (let r = 1; r <= groupWeeks; r++) {
+      const seasonWeek = startWeek + (r - 1);
       const weekMatches = [];
-      const hasScoresThisWeek = w <= availableWeeks;
+      const hasScoresThisWeek = seasonWeek <= availableWeeks;
 
       for (let p = 0; p < potsCount; p++) {
-        const roundMatches = potFixtures[p][w - 1] || [];
+        const roundMatches = potFixtures[p][r - 1] || [];
         roundMatches.forEach(rm => {
           const p1 = playerStatsMap.get(String(rm.home.memberId));
           const p2 = playerStatsMap.get(String(rm.away.memberId));
 
-          const key1 = `${w}_${p1.memberId}`;
+          const key1 = `${seasonWeek}_${p1.memberId}`;
           const isCourseMatch = p2.isGhost;
-          const key2 = isCourseMatch ? null : `${w}_${p2.memberId}`;
+          const key2 = isCourseMatch ? null : `${seasonWeek}_${p2.memberId}`;
 
           const p1Played = weeklyPointsMap.has(key1);
           const p2Played = isCourseMatch ? false : weeklyPointsMap.has(key2);
@@ -5626,7 +5638,8 @@
               p1.cupPoints += p1CupPts;
 
               p1.matchHistory.push({
-                week: w,
+                round: r,
+                week: seasonWeek,
                 opponent: p2,
                 ownPts: p1Pts,
                 oppPts: 36,
@@ -5708,7 +5721,8 @@
               p2.cupPoints += p2CupPts;
 
               p1.matchHistory.push({
-                week: w,
+                round: r,
+                week: seasonWeek,
                 opponent: p2,
                 ownPts: p1Pts,
                 oppPts: p2Pts,
@@ -5719,7 +5733,8 @@
               });
 
               p2.matchHistory.push({
-                week: w,
+                round: r,
+                week: seasonWeek,
                 opponent: p1,
                 ownPts: p2Pts,
                 oppPts: p1Pts,
@@ -5734,7 +5749,8 @@
           weekMatches.push({
             pot: p + 1,
             potName: POT_NAMES[p],
-            week: w,
+            round: r,
+            week: seasonWeek,
             player1: p1,
             score1: p1Pts,
             player2: p2,
@@ -5798,13 +5814,21 @@
   }
 
   /**
-   * Populates the week selector for Cup fixtures (Weeks 1 to groupWeeks)
+   * Populates the week selector for Cup fixtures (Weeks startWeek to startWeek + groupWeeks - 1)
    */
   function populateCupWeekSelector() {
     if (!elements.cupWeekSelect) return;
     elements.cupWeekSelect.innerHTML = '';
-    const maxWeeks = (state.cupConfig && state.cupConfig.groupWeeks) || 10;
-    for (let w = 1; w <= maxWeeks; w++) {
+    const cfg = state.cupConfig || DEFAULT_CUP_CONFIG;
+    const startWeek = (typeof cfg.startWeek === 'number' && cfg.startWeek >= 1) ? cfg.startWeek : 1;
+    const groupWeeks = cfg.groupWeeks || 10;
+    const endWeek = startWeek + groupWeeks - 1;
+
+    if (!state.cupWeek || state.cupWeek < startWeek || state.cupWeek > endWeek) {
+      state.cupWeek = startWeek;
+    }
+
+    for (let w = startWeek; w <= endWeek; w++) {
       const opt = document.createElement('option');
       opt.value = w;
       opt.textContent = `Week ${w}`;
@@ -5921,7 +5945,8 @@
 
       // Add visual demarcation line right after 16th position when not searching
       if (p.pos === 16 && !query) {
-        const r16Week = (state.cupConfig && state.cupConfig.knockoutWeeks && state.cupConfig.knockoutWeeks.r16Week) || 11;
+        const ko = (state.cupConfig && state.cupConfig.knockout) || {};
+        const r16Week = ko.roundOf16Week || ko.r16Week || (state.cupConfig && state.cupConfig.knockoutWeeks && state.cupConfig.knockoutWeeks.r16Week) || 12;
         const cutlineTr = document.createElement('tr');
         cutlineTr.className = 'cup-cutline-row';
         cutlineTr.innerHTML = `
@@ -5950,7 +5975,9 @@
     const matches = player.matchHistory || [];
 
     if (matches.length === 0) {
-      historyRowsHtml = `<tr><td colspan="6" class="text-center" style="padding:0.75rem; color:var(--text-muted);">No completed matches yet. Scheduled matches begin in Week 1.</td></tr>`;
+      const cfg = state.cupConfig || DEFAULT_CUP_CONFIG;
+      const startWeek = (typeof cfg.startWeek === 'number' && cfg.startWeek >= 1) ? cfg.startWeek : 1;
+      historyRowsHtml = `<tr><td colspan="6" class="text-center" style="padding:0.75rem; color:var(--text-muted);">No completed matches yet. Scheduled matches begin in Week ${startWeek}.</td></tr>`;
     } else {
       matches.forEach(m => {
         const resColor = m.outcome === 'Win' ? '#15803d' : (m.outcome === 'Draw' ? '#b45309' : '#b91c1c');
@@ -6019,8 +6046,24 @@
     if (!elements.cupFixturesContainer || !state.cupData) return;
     elements.cupFixturesContainer.innerHTML = '';
 
-    const weekNum = state.cupWeek || 1;
-    const weekMatches = (state.cupData.weeksFixtures && state.cupData.weeksFixtures[weekNum - 1]) || [];
+    const cfg = state.cupConfig || DEFAULT_CUP_CONFIG;
+    const startWeek = (typeof cfg.startWeek === 'number' && cfg.startWeek >= 1) ? cfg.startWeek : 1;
+    const groupWeeks = cfg.groupWeeks || 10;
+    const endWeek = startWeek + groupWeeks - 1;
+
+    let weekNum = state.cupWeek;
+    if (!weekNum || weekNum < startWeek || weekNum > endWeek) {
+      weekNum = startWeek;
+      state.cupWeek = weekNum;
+    }
+
+    if (elements.btnCupPrev) elements.btnCupPrev.disabled = state.cupWeek <= startWeek;
+    if (elements.btnCupNext) elements.btnCupNext.disabled = state.cupWeek >= endWeek;
+    if (elements.cupWeekSelect && elements.cupWeekSelect.value !== String(state.cupWeek)) {
+      elements.cupWeekSelect.value = state.cupWeek;
+    }
+
+    const weekMatches = (state.cupData.weeksFixtures && state.cupData.weeksFixtures.find(wf => wf.length > 0 && wf[0].week === weekNum)) || [];
     const potFilter = state.cupPotFilter || 'all';
     const query = (elements.cupSearch && elements.cupSearch.value.trim().toLowerCase()) || '';
 
@@ -6167,9 +6210,9 @@
 
         itemsHtml += `
           <li class="cup-pot-item">
-            <div>
+            <div class="cup-pot-player" title="${escapeHtml(p.name)}">
               <span class="cup-seed-badge">S${p.seed}</span>
-              <span style="font-weight:600;">${escapeHtml(p.name)}</span>
+              <span class="player-name">${escapeHtml(p.name)}</span>
             </div>
             ${hciHtml}
           </li>
@@ -6271,11 +6314,12 @@
       `;
     });
 
-    const koWeeks = (state.cupConfig && state.cupConfig.knockoutWeeks) || {
-      r16Week: 11,
-      qfWeek: 12,
-      sfWeek: 13,
-      finalWeek: 14
+    const ko = (state.cupConfig && state.cupConfig.knockout) || {};
+    const koWeeks = {
+      r16Week: ko.roundOf16Week || ko.r16Week || (state.cupConfig && state.cupConfig.knockoutWeeks && state.cupConfig.knockoutWeeks.r16Week) || 12,
+      qfWeek: ko.quarterFinalsWeek || ko.qfWeek || (state.cupConfig && state.cupConfig.knockoutWeeks && state.cupConfig.knockoutWeeks.qfWeek) || 13,
+      sfWeek: ko.semiFinalsWeek || ko.sfWeek || (state.cupConfig && state.cupConfig.knockoutWeeks && state.cupConfig.knockoutWeeks.sfWeek) || 14,
+      finalWeek: ko.finalWeek || (state.cupConfig && state.cupConfig.knockoutWeeks && state.cupConfig.knockoutWeeks.finalWeek) || 15
     };
 
     const board = document.createElement('div');
@@ -7073,7 +7117,7 @@
     { id: 'tab-magic2s', name: 'MAGIC 2\'S', icon: '🪄', defaultOrder: 4 },
     { id: 'tab-lastman', name: 'LAST MAN STANDING', icon: '⚔️', defaultOrder: 5 },
     { id: 'tab-parbingo', name: 'BINGO', icon: '🎱', defaultOrder: 6 },
-    { id: 'tab-cup', name: 'WINTER CUP', icon: '🏆', defaultOrder: 7 },
+    { id: 'tab-cup', name: 'CUP', icon: '🏆', defaultOrder: 7 },
     { id: 'tab-stats', name: 'STATS', icon: '📊', defaultOrder: 8 },
     { id: 'tab-fixtures', name: 'FIXTURES', icon: '🗓️', defaultOrder: 9 }
   ];
@@ -7991,7 +8035,9 @@
 
     if (elements.btnCupPrev) {
       elements.btnCupPrev.addEventListener('click', () => {
-        if (state.cupWeek > 1) {
+        const cfg = state.cupConfig || DEFAULT_CUP_CONFIG;
+        const startWeek = (typeof cfg.startWeek === 'number' && cfg.startWeek >= 1) ? cfg.startWeek : 1;
+        if (state.cupWeek > startWeek) {
           state.cupWeek -= 1;
           if (elements.cupWeekSelect) elements.cupWeekSelect.value = state.cupWeek;
           renderCupFixtures();
@@ -8001,8 +8047,11 @@
 
     if (elements.btnCupNext) {
       elements.btnCupNext.addEventListener('click', () => {
-        const maxWeeks = (state.cupConfig && state.cupConfig.groupWeeks) || 10;
-        if (state.cupWeek < maxWeeks) {
+        const cfg = state.cupConfig || DEFAULT_CUP_CONFIG;
+        const startWeek = (typeof cfg.startWeek === 'number' && cfg.startWeek >= 1) ? cfg.startWeek : 1;
+        const groupWeeks = cfg.groupWeeks || 10;
+        const endWeek = startWeek + groupWeeks - 1;
+        if (state.cupWeek < endWeek) {
           state.cupWeek += 1;
           if (elements.cupWeekSelect) elements.cupWeekSelect.value = state.cupWeek;
           renderCupFixtures();
@@ -8012,9 +8061,12 @@
 
     if (elements.cupWeekSelect) {
       elements.cupWeekSelect.addEventListener('change', (e) => {
-        const maxWeeks = (state.cupConfig && state.cupConfig.groupWeeks) || 10;
+        const cfg = state.cupConfig || DEFAULT_CUP_CONFIG;
+        const startWeek = (typeof cfg.startWeek === 'number' && cfg.startWeek >= 1) ? cfg.startWeek : 1;
+        const groupWeeks = cfg.groupWeeks || 10;
+        const endWeek = startWeek + groupWeeks - 1;
         const selected = parseInt(e.target.value, 10);
-        if (selected >= 1 && selected <= maxWeeks) {
+        if (selected >= startWeek && selected <= endWeek) {
           state.cupWeek = selected;
           renderCupFixtures();
         }

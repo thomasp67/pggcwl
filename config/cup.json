@@ -1,21 +1,21 @@
 {
-  "competitionName": "Winter Cup",
-  "description": "Round-robin matchplay group stage across 5 handicap pots, followed by Top 16 knockout tree",
-  "startWeek": 1,
-  "potsCount": 5,
-  "potSize": 10,
-  "totalPlayers": 50,
-  "groupWeeks": 9,
-  "scoring": {
-    "winPoints": 3,
-    "drawPoints": 1,
-    "lossPoints": 0
-  },
-  "knockout": {
-    "qualifiers": 16,
-    "roundOf16Week": 10,
-    "quarterFinalsWeek": 11,
-    "semiFinalsWeek": 12,
-    "finalWeek": 13
-  }
+    "competitionName": "Cup",
+    "description": "Round-robin matchplay group stage across 5 handicap pots, followed by Top 16 knockout tree",
+    "startWeek": 3,
+    "potsCount": 5,
+    "potSize": 10,
+    "totalPlayers": 51,
+    "groupWeeks": 9,
+    "scoring": {
+        "winPoints": 3,
+        "drawPoints": 1,
+        "lossPoints": 0
+    },
+    "knockout": {
+        "qualifiers": 16,
+        "roundOf16Week": 12,
+        "quarterFinalsWeek": 13,
+        "semiFinalsWeek": 14,
+        "finalWeek": 15
+    }
 }

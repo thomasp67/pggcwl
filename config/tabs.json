@@ -56,11 +56,11 @@
         "infoText": "First player to record a net birdie on every hole wins"
     },
     "tab-cup": {
-        "name": "WINTER CUP",
+        "name": "CUP",
         "icon": "🏆",
         "order": 7,
-        "hideDesktop": true,
-        "hideMobile": true,
+        "hideDesktop": false,
+        "hideMobile": false,
         "infoText": "Matchplay • 5 Handicap Pots • 9 Rounds{/} • Top 16 Advance to Knockout{/} • 3pt for win • 1pt for a draw • 0 for a loss{/} • 0 points if player doesn't play"
     },
     "tab-stats": {

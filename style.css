@@ -4446,14 +4446,26 @@ td.hilo-col {
 }
 
 .cup-seed-badge {
-  display: inline-block;
-  font-size: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
   font-weight: 800;
+  min-width: 26px;
   padding: 1px 4px;
   border-radius: 3px;
   background: #e2e8f0;
   color: #334155;
   margin-right: 4px;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.cup-pot-col,
+th.cup-pot-col,
+td.cup-pot-col {
+  white-space: nowrap;
+  min-width: 95px;
 }
 
 .cup-pot-tag {
@@ -4481,8 +4493,9 @@ td.hilo-col {
 /* Pots & Seedings Grid */
 .cup-pots-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.85rem;
+  width: 100%;
   margin-top: 0.5rem;
 }
 
@@ -4492,6 +4505,9 @@ td.hilo-col {
   border-radius: var(--radius-sm);
   padding: 0.85rem;
   box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .cup-pot-header {
@@ -4501,35 +4517,65 @@ td.hilo-col {
 }
 
 .cup-pot-title {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 800;
   color: var(--text-main);
   margin: 0 0 0.2rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cup-pot-subtitle {
   font-size: 0.74rem;
   color: var(--text-muted);
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cup-pot-list {
   list-style: none;
   padding: 0;
   margin: 0;
+  flex: 1;
 }
 
 .cup-pot-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.3rem 0;
+  gap: 0.35rem;
+  padding: 0.35rem 0.2rem;
   font-size: 0.82rem;
   border-bottom: 1px solid rgba(0,0,0,0.04);
 }
 
 .cup-pot-item:last-child {
   border-bottom: none;
+}
+
+.cup-pot-player {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.cup-pot-player .player-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.cup-pot-item .player-hci {
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-size: 0.76rem;
 }
 
 .cup-reserve-box {
