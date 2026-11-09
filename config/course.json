@@ -1,27 +1,117 @@
 {
-  "par": 67,
-  "courseRating": 67.0,
-  "slopeRating": 113,
-  "allowance": 1.0,
-  "strokeLimit": 36,
-  "holes": [
-    { "hole": 1, "name": "Devol", "par": 3, "si": 16 },
-    { "hole": 2, "name": "Stey Brae", "par": 4, "si": 1 },
-    { "hole": 3, "name": "Valley", "par": 4, "si": 14 },
-    { "hole": 4, "name": "Fore", "par": 4, "si": 7 },
-    { "hole": 5, "name": "No Pylon", "par": 4, "si": 10 },
-    { "hole": 6, "name": "Green Road", "par": 4, "si": 2 },
-    { "hole": 7, "name": "Twa Burns", "par": 4, "si": 8 },
-    { "hole": 8, "name": "Auchentiber", "par": 4, "si": 5 },
-    { "hole": 9, "name": "Heathery Knowle", "par": 3, "si": 11 },
-    { "hole": 10, "name": "Plateau", "par": 4, "si": 3 },
-    { "hole": 11, "name": "Dykeside", "par": 5, "si": 17 },
-    { "hole": 12, "name": "Auchenleck", "par": 3, "si": 12 },
-    { "hole": 13, "name": "Ardmore", "par": 3, "si": 9 },
-    { "hole": 14, "name": "Harelaw", "par": 4, "si": 18 },
-    { "hole": 15, "name": "Dougalls Walk", "par": 4, "si": 15 },
-    { "hole": 16, "name": "Benview", "par": 4, "si": 4 },
-    { "hole": 17, "name": "Springwell", "par": 3, "si": 6 },
-    { "hole": 18, "name": "Clydeview", "par": 3, "si": 13 }
-  ]
+    "par": 67,
+    "courseRating": 67,
+    "slopeRating": 113,
+    "allowance": 1,
+    "strokeLimit": 36,
+    "holes": [
+        {
+            "hole": 1,
+            "name": "Devol",
+            "par": 3,
+            "si": 16
+        },
+        {
+            "hole": 2,
+            "name": "Stey Brae",
+            "par": 4,
+            "si": 1
+        },
+        {
+            "hole": 3,
+            "name": "Valley",
+            "par": 4,
+            "si": 14
+        },
+        {
+            "hole": 4,
+            "name": "Fore",
+            "par": 4,
+            "si": 7
+        },
+        {
+            "hole": 5,
+            "name": "No Pylon",
+            "par": 4,
+            "si": 10
+        },
+        {
+            "hole": 6,
+            "name": "Green Road",
+            "par": 4,
+            "si": 2
+        },
+        {
+            "hole": 7,
+            "name": "Twa Burns",
+            "par": 4,
+            "si": 8
+        },
+        {
+            "hole": 8,
+            "name": "Auchentiber",
+            "par": 4,
+            "si": 5
+        },
+        {
+            "hole": 9,
+            "name": "Heathery Knowle",
+            "par": 3,
+            "si": 11
+        },
+        {
+            "hole": 10,
+            "name": "Plateau",
+            "par": 4,
+            "si": 3
+        },
+        {
+            "hole": 11,
+            "name": "Dykeside",
+            "par": 5,
+            "si": 17
+        },
+        {
+            "hole": 12,
+            "name": "Auchenleck",
+            "par": 3,
+            "si": 12
+        },
+        {
+            "hole": 13,
+            "name": "Ardmore",
+            "par": 3,
+            "si": 9
+        },
+        {
+            "hole": 14,
+            "name": "Harelaw",
+            "par": 4,
+            "si": 18
+        },
+        {
+            "hole": 15,
+            "name": "Dougalls Walk",
+            "par": 4,
+            "si": 15
+        },
+        {
+            "hole": 16,
+            "name": "Benview",
+            "par": 4,
+            "si": 4
+        },
+        {
+            "hole": 17,
+            "name": "Springwell",
+            "par": 3,
+            "si": 6
+        },
+        {
+            "hole": 18,
+            "name": "Clydeview",
+            "par": 3,
+            "si": 13
+        }
+    ]
 }

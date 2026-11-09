@@ -1,5 +1,5 @@
 {
-  "winner": "total",
-  "hideWinnerDropdown": true,
-  "hideNonMembers": true
+    "winner": "total",
+    "hideWinnerDropdown": true,
+    "hideNonMembers": false
 }

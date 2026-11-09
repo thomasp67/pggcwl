@@ -23,7 +23,8 @@
       "week": 3,
       "name": "Winter Sweep #3",
       "date": "14 Nov 26 - 15 Nov 26",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Round 1 (Group Stage)",
       "status": "upcoming",
       "winner": ""
     },
@@ -31,7 +32,8 @@
       "week": 4,
       "name": "Winter Sweep #4",
       "date": "21 Nov 26 - 22 Nov 26",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Round 2 (Group Stage)",
       "status": "upcoming",
       "winner": ""
     },
@@ -39,7 +41,8 @@
       "week": 5,
       "name": "Winter Sweep #5",
       "date": "28 Nov 26 - 29 Nov 26",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Round 3 (Group Stage)",
       "status": "upcoming",
       "winner": ""
     },
@@ -47,7 +50,8 @@
       "week": 6,
       "name": "Winter Sweep #6",
       "date": "05 Dec 26 - 06 Dec 26",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Round 4 (Group Stage)",
       "status": "upcoming",
       "winner": ""
     },
@@ -55,7 +59,8 @@
       "week": 7,
       "name": "Winter Sweep #7",
       "date": "12 Dec 26 - 13 Dec 26",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Round 5 (Group Stage)",
       "status": "upcoming",
       "winner": ""
     },
@@ -63,7 +68,8 @@
       "week": 8,
       "name": "Winter Sweep #8",
       "date": "19 Dec 26 - 20 Dec 26",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Round 6 (Group Stage)",
       "status": "upcoming",
       "winner": ""
     },
@@ -71,7 +77,8 @@
       "week": 9,
       "name": "Winter Sweep #9",
       "date": "26 Dec 26 - 27 Dec 26",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Round 7 (Group Stage)",
       "status": "upcoming",
       "winner": ""
     },
@@ -79,7 +86,8 @@
       "week": 10,
       "name": "Winter Sweep #10",
       "date": "02 Jan 27 - 03 Jan 27",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Round 8 (Group Stage)",
       "status": "upcoming",
       "winner": ""
     },
@@ -87,7 +95,8 @@
       "week": 11,
       "name": "Winter Sweep #11",
       "date": "09 Jan 27 - 10 Jan 27",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Round 9 (Group Stage)",
       "status": "upcoming",
       "winner": ""
     },
@@ -95,7 +104,8 @@
       "week": 12,
       "name": "Winter Sweep #12",
       "date": "16 Jan 27 - 17 Jan 27",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Round of 16",
       "status": "upcoming",
       "winner": ""
     },
@@ -103,7 +113,8 @@
       "week": 13,
       "name": "Winter Sweep #13",
       "date": "23 Jan 27 - 24 Jan 27",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Quarter-Finals",
       "status": "upcoming",
       "winner": ""
     },
@@ -111,7 +122,8 @@
       "week": 14,
       "name": "Winter Sweep #14",
       "date": "30 Jan 27 - 31 Jan 27",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Semi-Finals",
       "status": "upcoming",
       "winner": ""
     },
@@ -119,7 +131,8 @@
       "week": 15,
       "name": "Winter Sweep #15",
       "date": "06 Feb 27 - 07 Feb 27",
-      "format": "Stableford",
+      "format": "Stableford • Matchplay",
+      "cupStage": "Cup: Final",
       "status": "upcoming",
       "winner": ""
     },

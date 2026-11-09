@@ -59,5 +59,17 @@
             "cutPerPoint": 0.1,
             "capCut": 2
         }
+    ],
+    "adHocCuts": [
+        {
+            "id": "adhoc_4001585699_1",
+            "memberId": "4001585699",
+            "name": "Ernie Hopkins",
+            "cut": -1,
+            "startWeek": 3,
+            "durationWeeks": 18,
+            "endWeek": 20,
+            "reason": "Exceptional score adjustment"
+        }
     ]
 }

@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <title>Port Glasgow Golf Club - Winter Season Results</title>
-  <link rel="stylesheet" href="style.css?v=202611081757">
+  <link rel="stylesheet" href="style.css?v=202611090313">
   <link rel="icon" type="image/png" href="image/pggc_logo.png">
 </head>
 <body>
@@ -210,6 +210,7 @@
                 <th class="text-center rounds-col sortable-th" data-sort="round" style="width: 6%;" title="Click to sort by Rounds Played"><span class="th-full">Rounds</span><span class="th-short">Rounds</span><span class="sort-icon"></span></th>
                 <th class="text-center avg-col col-desktop-only sortable-th" data-sort="avg" style="width: 6%;" title="Click to sort by Average points (Sum of all rounds played / Rounds played)"><span class="th-full">Average</span><span class="th-short">Avg</span><span class="sort-icon"></span></th>
                 <th class="text-center money-col col-desktop-only sortable-th" data-sort="money" style="width: 8%;" title="Click to sort by Prize Money Won"><span class="th-full">Money Won</span><span class="th-short">Won</span><span class="sort-icon"></span></th>
+                <th class="text-center total-score-col sortable-th" data-sort="total" style="width: 7%;" title="Click to sort by Total Score"><span class="th-full">Total</span><span class="th-short">Total</span><span class="sort-icon"></span></th>
                 <th class="text-center score-col" style="width: 4.4%;" title="1st best score">1</th>
                 <th class="text-center score-col" style="width: 4.4%;" title="2nd best score">2</th>
                 <th class="text-center score-col" style="width: 4.4%;" title="3rd best score">3</th>
@@ -220,7 +221,6 @@
                 <th class="text-center score-col" style="width: 4.4%;" title="8th best score">8</th>
                 <th class="text-center score-col" style="width: 4.4%;" title="9th best score">9</th>
                 <th class="text-center score-col" style="width: 4.4%;" title="10th best score">10</th>
-                <th class="text-center total-score-col sortable-th" data-sort="total" style="width: 7%;" title="Click to sort by Total Score"><span class="th-full">Total</span><span class="th-short">Total</span><span class="sort-icon"></span></th>
                 <th class="text-center hilo-col col-mobile-only" title="Best score / 10th best score (Drop score)">Hi/Lo</th>
               </tr>
             </thead>
@@ -314,7 +314,17 @@
         <p id="magic2s-subtitle" class="panel-info-text">Score a gross 2 on randomly selected par 3s • a 2 on any par 4/5 also qualifies Prize roll over • Open to league members only • Weekly Prize Pot: {Prize Pot}</p>
       </div>
 
-      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <!-- Drawn Holes & Prize Pot Callout Banner -->
+      <div id="magic2s-draw-card" class="magic2s-banner">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Magic 2's Financial & Entrant Breakdown Metric Cards -->
+      <div id="magic2s-metrics-card" class="magic2s-stats-grid">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options directly above table) -->
       <div class="panel-controls-bar">
         <div class="panel-nav-group">
           <div class="week-nav-group">
@@ -328,16 +338,6 @@
         <div class="panel-search-group">
           <input type="text" id="magic2s-search" class="search-input" placeholder="Search player name...">
         </div>
-      </div>
-
-      <!-- Drawn Holes & Prize Pot Callout Banner -->
-      <div id="magic2s-draw-card" class="magic2s-banner">
-        <!-- Rendered dynamically -->
-      </div>
-
-      <!-- Magic 2's Financial & Entrant Breakdown Metric Cards -->
-      <div id="magic2s-metrics-card" class="magic2s-stats-grid">
-        <!-- Rendered dynamically -->
       </div>
 
       <!-- Weekly Magic 2's Table -->
@@ -366,22 +366,6 @@
       <!-- Info Bar (Spans full page width) -->
       <div class="panel-info-bar">
         <p id="lastman-subtitle" class="panel-info-text">Score 1 point on hole {weeks active hole} to proceed • {X of 50} Players Still Standing after week {active week} • Next hole is {next week}</p>
-      </div>
-
-      <!-- Controls Bar (Week nav, search, options on separate line below) -->
-      <div class="panel-controls-bar">
-        <div class="panel-nav-group">
-          <div class="week-nav-group">
-            <button type="button" id="btn-lastman-prev" class="week-nav-btn" title="View previous week">◀ Prev</button>
-            <select id="lastman-week-select" class="select-control week-nav-select" title="Jump to specific week">
-              <!-- Dynamically populated -->
-            </select>
-            <button type="button" id="btn-lastman-next" class="week-nav-btn" title="View next week">Next ▶</button>
-          </div>
-        </div>
-        <div class="panel-search-group">
-          <input type="text" id="lastman-search" class="search-input" placeholder="Search player name...">
-        </div>
       </div>
 
       <!-- Last Man Settings Bar -->
@@ -442,6 +426,22 @@
         <!-- Rendered dynamically -->
       </div>
 
+      <!-- Controls Bar (Week nav, search, options directly above table) -->
+      <div class="panel-controls-bar">
+        <div class="panel-nav-group">
+          <div class="week-nav-group">
+            <button type="button" id="btn-lastman-prev" class="week-nav-btn" title="View previous week">◀ Prev</button>
+            <select id="lastman-week-select" class="select-control week-nav-select" title="Jump to specific week">
+              <!-- Dynamically populated -->
+            </select>
+            <button type="button" id="btn-lastman-next" class="week-nav-btn" title="View next week">Next ▶</button>
+          </div>
+        </div>
+        <div class="panel-search-group">
+          <input type="text" id="lastman-search" class="search-input" placeholder="Search player name...">
+        </div>
+      </div>
+
       <!-- Last Man Table -->
       <div class="table-card">
         <div class="table-responsive">
@@ -466,7 +466,12 @@
         <p id="parbingo-subtitle" class="panel-info-text">First player to record a net birdie score on every hole wins</p>
       </div>
 
-      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <!-- Winner / Progress Callout Banner -->
+      <div id="parbingo-banner" class="parbingo-banner-card" style="display: none;">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options directly above table) -->
       <div class="panel-controls-bar">
         <div class="panel-options-group">
           <div class="bingo-mode-toggle is-hidden" id="bingo-mode-toggle-group" style="display: none;" role="group" aria-label="Bingo Mode Selection">
@@ -493,11 +498,6 @@
         <div class="panel-search-group">
           <input type="text" id="parbingo-search" class="search-input" placeholder="Search player name...">
         </div>
-      </div>
-
-      <!-- Winner / Progress Callout Banner -->
-      <div id="parbingo-banner" class="parbingo-banner-card" style="display: none;">
-        <!-- Rendered dynamically -->
       </div>
 
       <!-- Par Bingo Table -->
@@ -627,7 +627,12 @@
         <p id="stats-subtitle" class="panel-info-text">Course hole statistics and scoring averages across all competition round</p>
       </div>
 
-      <!-- Controls Bar (Week nav, search, options on separate line below) -->
+      <!-- Top Summary Metric Cards -->
+      <div class="stats-grid" id="stats-metrics-grid">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Controls Bar (Week nav, search, options directly above table) -->
       <div class="panel-controls-bar">
         <div class="panel-options-group">
           <div class="filter-group">
@@ -637,11 +642,6 @@
             </select>
           </div>
         </div>
-      </div>
-
-      <!-- Top Summary Metric Cards -->
-      <div class="stats-grid" id="stats-metrics-grid">
-        <!-- Rendered dynamically -->
       </div>
 
       <!-- Hole Statistics Data Table -->
@@ -719,7 +719,7 @@
 
   </main>
 
-  <script src="data/data.js?v=202611081757"></script>
-  <script src="app.js?v=202611081757"></script>
+  <script src="data/data.js?v=202611090313"></script>
+  <script src="app.js?v=202611090313"></script>
 </body>
 </html>

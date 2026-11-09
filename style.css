@@ -1208,6 +1208,16 @@ tbody tr:hover .sticky-col-name {
   text-align: center;
 }
 
+/* Last Man Standing Desktop Column Balancing */
+#lastman-table .sticky-col-name,
+#lastman-table th.player-name-col,
+#lastman-table td.player-name-cell {
+  width: 260px !important;
+  min-width: 240px !important;
+  max-width: none !important;
+  white-space: nowrap;
+}
+
 /* Standardized Table Column Utilities - Maximized Real Estate */
 .data-table th.hole-col,
 .data-table td.hole-col {
@@ -2807,11 +2817,23 @@ td.hilo-col {
   border: 1.5px solid #22c55e;
 }
 
-.bingo-hit.gross-2 {
-  background: #fef08a;
-  color: #854d0e;
-  border: 1.5px solid #facc15;
-  box-shadow: 0 0 4px rgba(250, 204, 21, 0.45);
+.bingo-hit.gross-2,
+.bingo-hit.gross-birdie {
+  background: #fef08a !important;
+  color: #854d0e !important;
+  border: 1.5px solid #eab308 !important;
+  box-shadow: 0 0 4px rgba(234, 179, 8, 0.45) !important;
+}
+
+.bingo-card-item.bingo-card-birdie {
+  border-color: #facc15 !important;
+  background: #fefce8 !important;
+}
+
+.bingo-card-item.bingo-card-birdie .bingo-hit {
+  background: #fef08a !important;
+  color: #854d0e !important;
+  border-color: #eab308 !important;
 }
 
 .bingo-miss {
@@ -3648,8 +3670,12 @@ td.hilo-col {
   }
 
   /* 5. Last Man: Name (62%), Status (38%) — Pos column removed */
-  #lastman-table th:nth-child(1), #lastman-table td:nth-child(1) { width: 62% !important; }
-  #lastman-table th.lastman-status-col, #lastman-table td.lastman-status-col { width: 38% !important; }
+  #lastman-table th:nth-child(1), #lastman-table td:nth-child(1) { width: 62% !important; min-width: 0 !important; }
+  #lastman-table th.lastman-status-col, #lastman-table td.lastman-status-col {
+    width: 38% !important;
+    text-align: right !important;
+    padding-right: 0.75rem !important;
+  }
 
   /* 6. Bingo: Pos (14%), Name (54%), Status (32%) */
   #parbingo-table th:nth-child(1), #parbingo-table td:nth-child(1) { width: 14% !important; }
@@ -5238,9 +5264,52 @@ td.cup-pot-col {
   background-color: #f0fdf4 !important;
 }
 
+.fixture-name-wrapper {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
 .fixture-name {
   font-weight: 600;
   color: var(--text-primary);
+}
+
+.fixture-cup-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #854d0e;
+  background: #fef9c3;
+  border: 1px solid #fde047;
+  padding: 0.12rem 0.5rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.fixture-cup-tag:hover {
+  background: #fef08a;
+  border-color: #eab308;
+  box-shadow: 0 1px 3px rgba(234, 179, 8, 0.25);
+  transform: translateY(-1px);
+}
+
+.fixture-cup-tag.cup-knockout {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.fixture-cup-tag.cup-knockout:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.2);
 }
 
 .fixture-date {
@@ -5392,7 +5461,14 @@ td.cup-pot-col {
     color: var(--text-color, #0f172a) !important;
     display: inline-flex !important;
     align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 0.35rem !important;
     line-height: 1.25 !important;
+  }
+
+  #fixtures-table .fixture-cup-tag {
+    font-size: 0.68rem !important;
+    padding: 0.08rem 0.35rem !important;
   }
 
   /* Hidden on Mobile */

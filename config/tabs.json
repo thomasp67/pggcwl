@@ -1,7 +1,7 @@
 {
     "mobileOptions": {
-        "hideWeekNavButtons": true,
-        "hideWeekNavEntirely": true,
+        "hideWeekNavButtons": false,
+        "hideWeekNavEntirely": false,
         "hidePlayerSearch": true,
         "hideNonLeagueToggle": true,
         "hideLastManInfo": true,
@@ -9,59 +9,59 @@
     },
     "tab-weekly": {
         "name": "STABLEFORD",
-        "icon": "📅",
+        "icon": "⛳",
         "order": 1,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "Individual Stableford • countback for ties{/} • {Number of Entrants} this week • Sweep Pot: {£x}{/} • 1st: {1st Prize} • 2nd: {2nd Prize} • 3rd: {3rd Prize}"
+        "infoText": "INDIVIDUAL STABLEFORD • COUNTBACK FOR TIES{/} • {sweep_entrants} ENTRANTS THIS WEEK • SWEEP POT: {sweep_pot}{/} • 1ST: {sweep_1st_pize} • 2ND: {sweep_2nd_pize} • 3RD: {sweep_3rd_pize}"
     },
     "tab-leaderboard": {
         "name": "LEAGUE",
-        "icon": "🏆",
+        "icon": "🥇",
         "order": 2,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "Best 10 Stableford Scores Count{/} • New Handicaps Show"
+        "infoText": "BEST 10 STABLEFORD SCORES COUNT{/} • HIGHEST SCORE TIE-BREAKS{/} • {league_players_active_week} PLAYED THIS WEEK • NEW HANDICAPS SHOW"
     },
     "tab-magic2s": {
         "name": "MAGIC 2'S",
-        "icon": "🪄",
+        "icon": "✨",
         "order": 3,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "Score a gross 2 on randomly selected par 3s{/} • A 2 on any par 4/5 also qualifies{/} • Open to league members only{/} • Weekly Prize Pot: {Prize Pot}"
+        "infoText": "GROSS 2'S ON RANDOM PAR 3'S QUALIFY{/} • 2'S ON PAR 4/5 QUALIFY{/} • OPEN TO LEAGUE MEMBERS{/} • WEEKLY 2'S POT: {twos_pot}"
     },
-    "tab-lastman": {
-        "name": "LAST MAN STANDING",
-        "icon": "⚔️",
+    "tab-cup": {
+        "name": "CUP",
+        "icon": "🏆",
         "order": 4,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "Score 1 point on hole {weeks active hole} to proceed{/} • {X of 50} Players Still Standing after week {active week}{/} • Next hole is {next week}"
+        "infoText": "5 HANDICAP POTS • 9 ROUNDS{/} • TOP 16 ADVANCE TO KNOCKOUT{/} • 3PT FOR WIN • 1PT FOR DRAW • 0 FOR LOSS{/} • 0 POINTS IF PLAYER DOESN'T PLAY"
     },
-    "tab-eclectic": {
-        "name": "ECLECTIC",
-        "icon": "🎯",
+    "tab-lastman": {
+        "name": "LAST MAN",
+        "icon": "💀",
         "order": 5,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "Best Stableford score on each hole accumulated across all rounds"
+        "infoText": "SCORE 1 POINT ON HOLE {active_hole} TO PROCEED{/} • {alive_count} OF {total_count} PLAYERS STILL STANDING{/} • NEXT WEEK IS HOLE {next_hole}"
+    },
+    "tab-eclectic": {
+        "name": "ECLECTIC",
+        "icon": "⬆️",
+        "order": 6,
+        "hideDesktop": false,
+        "hideMobile": false,
+        "infoText": "BEST STABLEFORD SCORE ON EACH HOLE ACCUMULATED ACROSS ALL ROUNDS"
     },
     "tab-parbingo": {
         "name": "BINGO",
         "icon": "🎱",
-        "order": 6,
-        "hideDesktop": false,
-        "hideMobile": false,
-        "infoText": "First player to record a net birdie on every hole wins"
-    },
-    "tab-cup": {
-        "name": "WINTER CUP",
-        "icon": "🏆",
         "order": 7,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "5 Handicap Pots • 9 Rounds{/} • Top 16 Advance to Knockout{/} • 3pt for win • 1pt for a draw • 0 for a loss{/} • 0 points if player doesn't play"
+        "infoText": "FIRST PLAYER TO RECORD A NET BIRDIE ON EVERY HOLE WINS • GROSS BIRDIES SHOWN IN GOLD"
     },
     "tab-stats": {
         "name": "STATS",
@@ -69,7 +69,7 @@
         "order": 8,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "Course hole statistics and scoring averages across all competition round"
+        "infoText": "COURSE HOLE STATISTICS AND SCORING AVERAGES ACROSS ALL COMPETITION ROUND"
     },
     "tab-fixtures": {
         "name": "FIXTURES",
@@ -77,17 +77,17 @@
         "order": 9,
         "hideDesktop": false,
         "hideMobile": false,
-        "infoText": "Winter Season Schedule{/} • 20 Weekly Winter Sweeps{/} • Showing fixtures, competition dates, and confirmed winners"
+        "infoText": "WINTER SEASON SCHEDULE{/} • 20 WEEKLY SWEEPS{/} • SHOWING FIXTURES, COMPETITION DATES, AND CONFIRMED WINNERS"
     },
     "infoStyles": {
         "desktop": {
             "fontSize": "1.2rem",
-            "color": "#000000",
+            "color": "#636363",
             "fontFamily": "inherit"
         },
         "mobile": {
-            "fontSize": "0.rem",
-            "color": "#000000",
+            "fontSize": "0.8rem",
+            "color": "#636363",
             "fontFamily": "inherit"
         }
     }
